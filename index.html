@@ -12,8 +12,36 @@
 </head>
 <body>
 
+  <!-- ===== EN-TÊTE / MENU ===== -->
+  <header class="site-header" id="site-header">
+    <div class="container site-header__inner">
+      <a href="index.html" class="brand" aria-label="Coeur de Meute — accueil">
+        <span>Coeur</span><span class="logo__de">de</span><span>Meute</span>
+      </a>
+
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
+        <span class="nav-toggle__bar"></span>
+        <span class="nav-toggle__bar"></span>
+        <span class="nav-toggle__bar"></span>
+        <span class="sr-only">Ouvrir le menu</span>
+      </button>
+
+      <nav class="site-nav" id="site-nav" aria-label="Menu principal">
+        <ul>
+          <li><a href="index.html" aria-current="page">Accueil</a></li>
+          <li><a href="qui-sommes-nous.html">Qui sommes-nous</a></li>
+          <li><a href="services.html">Nos services</a></li>
+          <li><a href="pension.html">La pension</a></li>
+          <li><a href="galerie.html">Galerie</a></li>
+          <li><a href="a-propos.html">À propos</a></li>
+        </ul>
+        <a href="tel:+32455109797" class="btn btn--small site-nav__cta">0455 / 10.97.97</a>
+      </nav>
+    </div>
+  </header>
+
   <!-- ===== HERO ===== -->
-  <header class="hero">
+  <section class="hero">
     <span class="blob blob--rust hero__blob-1" aria-hidden="true"></span>
     <span class="blob blob--sand hero__blob-2" aria-hidden="true"></span>
     <span class="blob blob--blue hero__blob-3" aria-hidden="true"></span>
@@ -38,7 +66,7 @@
 
       <a href="#contact" class="btn">Réserver un séjour</a>
     </div>
-  </header>
+  </section>
 
   <main>
 
@@ -82,6 +110,7 @@
             <li>Auxiliaire de santé vétérinaire</li>
             <li>Vétérinaire référent : Dr Julien Joiret</li>
           </ul>
+          <a href="qui-sommes-nous.html" class="link-arrow">Découvrir l'équipe</a>
         </div>
       </div>
     </section>
@@ -127,6 +156,10 @@
             <p>Votre animal reste tranquillement chez lui, dans ses habitudes : c'est nous qui passons pour les repas, les câlins, les promenades et les soins.</p>
           </article>
         </div>
+
+        <div class="center more">
+          <a href="services.html" class="btn btn--outline-dark">Voir tous nos services</a>
+        </div>
       </div>
     </section>
 
@@ -155,6 +188,10 @@
             <p>Pendant son séjour, nous prenons soin de lui comme du nôtre et vous donnons de ses nouvelles.</p>
           </li>
         </ol>
+
+        <div class="center more">
+          <a href="pension.html" class="btn btn--light">Découvrir la pension</a>
+        </div>
       </div>
     </section>
 
@@ -222,13 +259,20 @@
         <h4>Horaires</h4>
         <p>Tous les jours<br>de 8h30 à 18h, sauf exceptions</p>
         <p>Heure d'accueil convenue au préalable.<br>Rencontres sur rendez-vous.</p>
+        <h4>Vétérinaire référent</h4>
+        <p>Dr Julien Joiret</p>
       </div>
 
       <div class="footer__col">
-        <h4>Vétérinaire référent</h4>
-        <p>Dr Julien Joiret</p>
-        <h4>Responsable</h4>
-        <p>Elodie Vanrapenbush<br>Éducatrice canine</p>
+        <h4>Navigation</h4>
+        <ul class="footer__links">
+          <li><a href="index.html">Accueil</a></li>
+          <li><a href="qui-sommes-nous.html">Qui sommes-nous</a></li>
+          <li><a href="services.html">Nos services</a></li>
+          <li><a href="pension.html">La pension</a></li>
+          <li><a href="galerie.html">Galerie</a></li>
+          <li><a href="a-propos.html">À propos</a></li>
+        </ul>
       </div>
     </div>
 
@@ -239,6 +283,6 @@
     </div>
   </footer>
 
-  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <script src="js/main.js"></script>
 </body>
 </html>
