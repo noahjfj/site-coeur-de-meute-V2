@@ -33,3 +33,21 @@ if (lightbox) {
   lightbox.addEventListener('click', (e) => { if (e.target !== img) close(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
 }
+
+// Sous-menu « Nos services »
+document.querySelectorAll('.sub-toggle').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const item = btn.closest('.has-sub');
+    const open = item.classList.toggle('is-open');
+    btn.setAttribute('aria-expanded', String(open));
+  });
+});
+
+document.addEventListener('click', (e) => {
+  document.querySelectorAll('.has-sub.is-open').forEach((item) => {
+    if (!item.contains(e.target) && window.matchMedia('(min-width: 1081px)').matches) {
+      item.classList.remove('is-open');
+      item.querySelector('.sub-toggle').setAttribute('aria-expanded', 'false');
+    }
+  });
+});

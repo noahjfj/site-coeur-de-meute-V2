@@ -8,8 +8,14 @@ Site statique : ouvrir `index.html` dans un navigateur.
 
 - `index.html` — Accueil
 - `qui-sommes-nous.html` — Qui sommes-nous
-- `services.html` — Nos services
-- `pension.html` — La pension
+- `services.html` — Nos services (vue d'ensemble)
+  - `education.html` — Éducation canine
+  - `pension.html` — Pension chiens & chats
+  - `prevention-morsure.html` — Prévention morsure
+  - `comportement-felin.html` — Comportement félin
+  - `osteopathie.html` — Ostéopathie
+  - `kinesiologie.html` — Kinésiologie
+  - `garde-a-domicile.html` — Garde à domicile
 - `galerie.html` — Galerie
 - `a-propos.html` — À propos (contact, plan, FAQ)
 
