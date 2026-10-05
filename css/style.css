@@ -164,14 +164,35 @@ p { margin: 0 0 1em; }
   max-width: 760px;
 }
 
-.leaf {
-  width: 34px;
-  height: 52px;
-  margin: 0 auto 18px;
-  fill: none;
-  stroke: var(--ink);
-  stroke-width: 1.4;
-  stroke-linecap: round;
+.hero__emblem {
+  position: relative;
+  width: clamp(190px, 26vw, 300px);
+  margin: 0 auto 26px;
+}
+
+/* halo doux derrière le logo, dans l'esprit des taches de l'enseigne */
+.hero__emblem::before {
+  content: "";
+  position: absolute;
+  inset: 4% -10% -6% -10%;
+  z-index: -1;
+  background: radial-gradient(closest-side, rgba(201, 169, 138, .28), rgba(201, 169, 138, 0));
+  border-radius: 50%;
+}
+
+.hero__emblem img {
+  width: 100%;
+  height: auto;
+  animation: emblem-in .9s ease-out both;
+}
+
+@keyframes emblem-in {
+  from { opacity: 0; transform: translateY(10px) scale(.97); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__emblem img { animation: none; }
 }
 
 .hero__kicker {
