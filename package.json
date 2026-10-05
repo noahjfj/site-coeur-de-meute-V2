@@ -1,0 +1,8 @@
+{
+  "name": "site-coeur-de-meute",
+  "private": true,
+  "description": "Site de Coeur de Meute — fonctions Netlify pour l'administration des tarifs",
+  "dependencies": {
+    "@netlify/blobs": "^11.1.3"
+  }
+}

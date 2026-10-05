@@ -1,9 +1,10 @@
 /*
- * Tarifs de la pension canine — Coeur de Meute
+ * Tarifs PAR DÉFAUT de la pension canine — Coeur de Meute
  *
- * Ce fichier est modifié automatiquement par la page admin.html.
- * Vous pouvez aussi le modifier à la main : changez uniquement les nombres
- * et les textes entre guillemets.
+ * Les prix se modifient depuis la page admin.html (connexion par identifiant
+ * et mot de passe). Une fois des prix enregistrés dans l'administration, ce sont
+ * eux qui s'affichent sur le site ; ce fichier ne sert plus que de valeurs de
+ * secours (avant le premier enregistrement, ou hors Netlify).
  *
  *  - seuilJours     : au-delà de ce nombre de jours, le tarif long séjour s'applique
  *  - prix           : prix par jour pour un séjour court

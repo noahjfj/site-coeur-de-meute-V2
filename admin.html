@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <title>Administration des tarifs — Coeur de Meute</title>
+  <title>Administration — Coeur de Meute</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
@@ -17,17 +17,43 @@
       <a href="index.html" class="brand" aria-label="Retour au site">
         <span>Coeur</span><span class="logo__de">de</span><span>Meute</span>
       </a>
-      <a href="pension.html#simulateur" class="btn btn--small">Voir le simulateur</a>
+      <div class="admin__header-actions">
+        <a href="pension.html#simulateur" class="btn btn--small btn--outline-dark">Voir le simulateur</a>
+        <button type="button" class="btn btn--small" id="logout" hidden>Se déconnecter</button>
+      </div>
     </div>
   </header>
 
   <main class="section">
-    <div class="container admin__wrap">
 
+    <!-- ===== CONNEXION ===== -->
+    <section class="container admin__login" id="login-view">
+      <form class="admin__card" id="login-form">
+        <div class="center">
+          <span class="admin__lock" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11 V8 a4 4 0 0 1 8 0 V11" /></svg>
+          </span>
+          <p class="eyebrow">Espace administrateur</p>
+          <h1 class="title">Connexion</h1>
+        </div>
+
+        <label class="admin__label" for="user">Identifiant</label>
+        <input type="text" id="user" autocomplete="username" required>
+
+        <label class="admin__label" for="password">Mot de passe</label>
+        <input type="password" id="password" autocomplete="current-password" required>
+
+        <button type="submit" class="btn admin__submit" id="login-btn">Se connecter</button>
+        <p class="admin__status" id="login-status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <!-- ===== TARIFS ===== -->
+    <section class="container admin__wrap" id="admin-view" hidden>
       <div class="center">
         <p class="eyebrow">Espace administrateur</p>
         <h1 class="page-hero__title">Tarifs de la pension canine</h1>
-        <p class="lead narrow-text">Modifiez les prix ci-dessous puis cliquez sur « Enregistrer ». Le simulateur du site est mis à jour automatiquement en une à deux minutes.</p>
+        <p class="lead narrow-text">Modifiez les prix puis cliquez sur « Enregistrer ». Les nouveaux prix apparaissent immédiatement dans le simulateur du site.</p>
       </div>
 
       <form class="admin__card" id="tarifs-form" novalidate>
@@ -54,83 +80,91 @@
         </div>
 
         <p class="admin__preview" id="preview"></p>
-      </form>
-
-      <section class="admin__card">
-        <h2 class="title title--sm">Enregistrer sur le site</h2>
-
-        <details class="admin__help" id="token-help">
-          <summary>Première utilisation : connecter votre compte GitHub (à faire une seule fois)</summary>
-          <ol>
-            <li>Connectez-vous sur <strong>github.com</strong>, puis ouvrez
-              <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">cette page de création de clé</a>.</li>
-            <li>Nom de la clé&nbsp;: « Tarifs Coeur de Meute ». Expiration&nbsp;: choisissez une longue durée (par exemple 1 an).</li>
-            <li>« Repository access »&nbsp;: choisissez <strong>Only select repositories</strong> puis le dépôt <strong>site-coeur-de-meute-V2</strong>.</li>
-            <li>« Permissions » → « Repository permissions » → <strong>Contents</strong>&nbsp;: <strong>Read and write</strong>.</li>
-            <li>Cliquez sur « Generate token », copiez la clé (elle commence par <code>github_pat_</code>) et collez-la ci-dessous.</li>
-          </ol>
-          <p class="muted">La clé reste uniquement dans votre navigateur. Elle permet seulement de modifier ce site.</p>
-        </details>
-
-        <label class="admin__label" for="token">Clé GitHub</label>
-        <div class="admin__token">
-          <input type="password" id="token" placeholder="github_pat_…" autocomplete="off" spellcheck="false">
-          <label class="admin__remember"><input type="checkbox" id="remember" checked> Se souvenir de la clé sur cet appareil</label>
-        </div>
 
         <div class="admin__actions">
-          <button type="button" class="btn" id="save">Enregistrer les nouveaux prix</button>
+          <button type="submit" class="btn" id="save">Enregistrer les nouveaux prix</button>
           <button type="button" class="btn btn--outline-dark" id="reset">Annuler les modifications</button>
         </div>
         <p class="admin__status" id="status" role="status" aria-live="polite"></p>
+        <p class="muted" id="last-update"></p>
+      </form>
+    </section>
 
-        <details class="admin__help">
-          <summary>Pas de clé&nbsp;? Méthode manuelle</summary>
-          <ol>
-            <li>Cliquez sur « Copier le fichier des tarifs ».</li>
-            <li>Ouvrez <a id="edit-link" href="#" target="_blank" rel="noopener">le fichier des tarifs sur GitHub</a>.</li>
-            <li>Effacez tout son contenu, collez le nouveau, puis cliquez sur « Commit changes ».</li>
-          </ol>
-          <button type="button" class="btn btn--small btn--outline-dark" id="copy">Copier le fichier des tarifs</button>
-        </details>
-      </section>
-
-    </div>
   </main>
 
   <script src="js/tarifs.js"></script>
   <script>
   (function () {
-    // Emplacement du fichier des tarifs sur GitHub
-    const GITHUB = {
-      owner: 'noahjfj',
-      repo: 'site-coeur-de-meute-V2',
-      branch: 'claude/coeur-de-meute-website-qw6a8e',
-      path: 'js/tarifs.js',
-    };
-    const STORAGE_KEY = 'cdm-admin-token';
+    const SESSION_KEY = 'cdm-admin-session';
+    const $ = (id) => document.getElementById(id);
+    const rows = $('rows');
+    const seuil = $('seuil');
+    let saved = JSON.parse(JSON.stringify(window.TARIFS_PENSION));
 
-    const original = JSON.parse(JSON.stringify(window.TARIFS_PENSION));
-    const rows = document.getElementById('rows');
-    const seuil = document.getElementById('seuil');
-    const status = document.getElementById('status');
-    const tokenInput = document.getElementById('token');
-    const remember = document.getElementById('remember');
-
-    document.getElementById('edit-link').href =
-      `https://github.com/${GITHUB.owner}/${GITHUB.repo}/edit/${GITHUB.branch}/${GITHUB.path}`;
-
-    try { tokenInput.value = localStorage.getItem(STORAGE_KEY) || ''; } catch (e) { /* stockage indisponible */ }
-    if (!tokenInput.value) document.getElementById('token-help').open = true;
-
+    const getToken = () => { try { return sessionStorage.getItem(SESSION_KEY); } catch (e) { return null; } };
+    const setToken = (t) => { try { t ? sessionStorage.setItem(SESSION_KEY, t) : sessionStorage.removeItem(SESSION_KEY); } catch (e) { /* stockage indisponible */ } };
     const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 
+    function setStatus(el, msg, type) {
+      el.textContent = msg;
+      el.className = 'admin__status' + (type ? ' is-' + type : '');
+    }
+
+    async function api(path, options = {}) {
+      if (!location.protocol.startsWith('http')) throw new Error('offline');
+      const res = await fetch(path, { cache: 'no-store', ...options });
+      const isJson = (res.headers.get('content-type') || '').includes('application/json');
+      // Hors Netlify (aperçu, GitHub Pages), l'API n'existe pas
+      if (!isJson) throw new Error('offline');
+      return { res, data: await res.json() };
+    }
+
+    const OFFLINE_MSG = "L'administration fonctionne uniquement sur le site en ligne hébergé chez Netlify.";
+
+    // ---------- Connexion ----------
+    function showAdmin(show) {
+      $('login-view').hidden = show;
+      $('admin-view').hidden = !show;
+      $('logout').hidden = !show;
+    }
+
+    $('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const status = $('login-status');
+      const btn = $('login-btn');
+      btn.disabled = true;
+      setStatus(status, 'Connexion…');
+      try {
+        const { res, data } = await api('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user: $('user').value.trim(), password: $('password').value }),
+        });
+        if (!res.ok) throw new Error(data.error || 'Connexion impossible.');
+        setToken(data.token);
+        $('password').value = '';
+        setStatus(status, '');
+        await openAdmin();
+      } catch (err) {
+        setStatus(status, err.message === 'offline' ? OFFLINE_MSG : (err.message || 'Connexion impossible. Vérifiez votre connexion internet.'), 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    $('logout').addEventListener('click', () => {
+      setToken(null);
+      showAdmin(false);
+      setStatus($('status'), '');
+    });
+
+    // ---------- Formulaire des tarifs ----------
     function fill(data) {
       seuil.value = data.seuilJours;
       rows.innerHTML = data.gabarits.map((g, i) => `
         <tr data-id="${esc(g.id)}">
-          <td><input type="text" data-field="nom" value="${esc(g.nom)}" aria-label="Nom du gabarit ${i + 1}" required></td>
-          <td><input type="text" data-field="description" value="${esc(g.description)}" aria-label="Description du gabarit ${i + 1}"></td>
+          <td><input type="text" data-field="nom" maxlength="40" value="${esc(g.nom)}" aria-label="Nom du gabarit ${i + 1}" required></td>
+          <td><input type="text" data-field="description" maxlength="60" value="${esc(g.description)}" aria-label="Description du gabarit ${i + 1}"></td>
           <td><span class="admin__money"><input type="number" data-field="prix" min="0" step="0.5" value="${g.prix}" aria-label="Prix par jour, ${esc(g.nom)}" required> €</span></td>
           <td><span class="admin__money"><input type="number" data-field="prixLongSejour" min="0" step="0.5" value="${g.prixLongSejour}" aria-label="Prix long séjour par jour, ${esc(g.nom)}" required> €</span></td>
         </tr>`).join('');
@@ -148,7 +182,7 @@
     }
 
     function validate(d) {
-      if (!Number.isInteger(d.seuilJours) || d.seuilJours < 1) return 'Le nombre de jours doit être un nombre entier supérieur à 0.';
+      if (!Number.isInteger(d.seuilJours) || d.seuilJours < 1 || d.seuilJours > 60) return 'Le nombre de jours doit être un nombre entier entre 1 et 60.';
       for (const g of d.gabarits) {
         if (!g.nom) return 'Chaque gabarit doit avoir un nom.';
         if (!(g.prix > 0) || !(g.prixLongSejour > 0)) return `Les prix de « ${g.nom} » doivent être supérieurs à 0.`;
@@ -159,7 +193,7 @@
     function preview() {
       const d = read();
       const err = validate(d);
-      const el = document.getElementById('preview');
+      const el = $('preview');
       if (err) { el.textContent = err; el.classList.add('is-error'); return; }
       el.classList.remove('is-error');
       const g = d.gabarits[0];
@@ -167,105 +201,60 @@
       el.textContent = `Exemple : ${g.nom.toLowerCase()}, 3 jours = ${3 * (3 > d.seuilJours ? g.prixLongSejour : g.prix)} € · ${n} jours = ${n * g.prixLongSejour} €.`;
     }
 
-    function fileContent(d) {
-      const lines = d.gabarits.map((g) =>
-        `    { "id": ${JSON.stringify(g.id)}, "nom": ${JSON.stringify(g.nom)}, "description": ${JSON.stringify(g.description)}, "prix": ${g.prix}, "prixLongSejour": ${g.prixLongSejour} }`);
-      return `/*
- * Tarifs de la pension canine — Coeur de Meute
- *
- * Ce fichier est modifié automatiquement par la page admin.html.
- * Vous pouvez aussi le modifier à la main : changez uniquement les nombres
- * et les textes entre guillemets.
- *
- *  - seuilJours     : au-delà de ce nombre de jours, le tarif long séjour s'applique
- *  - prix           : prix par jour pour un séjour court
- *  - prixLongSejour : prix par jour quand le séjour dépasse « seuilJours »
- */
-window.TARIFS_PENSION = {
-  "seuilJours": ${d.seuilJours},
-  "gabarits": [
-${lines.join(',\n')}
-  ]
-};
-`;
+    function showLastUpdate(iso) {
+      $('last-update').textContent = iso
+        ? `Dernière modification : ${new Date(iso).toLocaleString('fr-BE', { dateStyle: 'long', timeStyle: 'short' })}`
+        : 'Prix par défaut (aucune modification enregistrée pour le moment).';
     }
 
-    const toBase64 = (str) => {
-      const bytes = new TextEncoder().encode(str);
-      let bin = '';
-      bytes.forEach((b) => { bin += String.fromCharCode(b); });
-      return btoa(bin);
-    };
-
-    function setStatus(msg, type) {
-      status.textContent = msg;
-      status.className = 'admin__status' + (type ? ' is-' + type : '');
+    async function openAdmin() {
+      showAdmin(true);
+      try {
+        const { data } = await api('/api/tarifs');
+        if (data.tarifs) saved = data.tarifs;
+        showLastUpdate(data.tarifs && data.tarifs.misAJour);
+      } catch (e) { /* on garde les tarifs par défaut */ }
+      fill(saved);
     }
 
-    async function save() {
+    $('tarifs-form').addEventListener('input', preview);
+    $('reset').addEventListener('click', () => { fill(saved); setStatus($('status'), ''); });
+
+    $('tarifs-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const status = $('status');
       const d = read();
       const err = validate(d);
-      if (err) return setStatus(err, 'error');
+      if (err) return setStatus(status, err, 'error');
 
-      const token = tokenInput.value.trim();
-      if (!token) return setStatus('Collez d\'abord votre clé GitHub (voir « Première utilisation »).', 'error');
-
-      try {
-        if (remember.checked) localStorage.setItem(STORAGE_KEY, token);
-        else localStorage.removeItem(STORAGE_KEY);
-      } catch (e) { /* stockage indisponible */ }
-
-      const api = `https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}`;
-      const headers = { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' };
-      const btn = document.getElementById('save');
+      const btn = $('save');
       btn.disabled = true;
-      setStatus('Enregistrement en cours…');
-
+      setStatus(status, 'Enregistrement…');
       try {
-        const current = await fetch(`${api}?ref=${encodeURIComponent(GITHUB.branch)}`, { headers, cache: 'no-store' });
-        if (current.status === 401) throw new Error('La clé GitHub est invalide ou a expiré.');
-        if (current.status === 403 || current.status === 404) throw new Error('La clé n\'a pas accès au dépôt. Vérifiez la permission « Contents : Read and write ».');
-        if (!current.ok) throw new Error(`GitHub a répondu ${current.status}.`);
-        const { sha } = await current.json();
-
-        const res = await fetch(api, {
+        const { res, data } = await api('/api/tarifs', {
           method: 'PUT',
-          headers: { ...headers, 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: 'Mise à jour des tarifs de la pension',
-            content: toBase64(fileContent(d)),
-            sha,
-            branch: GITHUB.branch,
-          }),
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
+          body: JSON.stringify(d),
         });
-        if (res.status === 403 || res.status === 404) throw new Error('La clé n\'a pas le droit de modifier le site. Vérifiez la permission « Contents : Read and write ».');
-        if (!res.ok) throw new Error(`GitHub a répondu ${res.status}.`);
-
-        Object.assign(original, JSON.parse(JSON.stringify(d)));
-        setStatus('✓ Prix enregistrés ! Le site sera à jour d\'ici une à deux minutes (actualisez la page du simulateur).', 'success');
-      } catch (e) {
-        setStatus(e.message || 'Une erreur est survenue. Vérifiez votre connexion internet.', 'error');
+        if (res.status === 401) {
+          setToken(null);
+          showAdmin(false);
+          setStatus($('login-status'), 'Votre session a expiré, reconnectez-vous.', 'error');
+          return;
+        }
+        if (!res.ok) throw new Error(data.error || 'Enregistrement impossible.');
+        saved = data.tarifs;
+        showLastUpdate(new Date().toISOString());
+        setStatus(status, '✓ Prix enregistrés ! Ils sont déjà visibles sur le site.', 'success');
+      } catch (err2) {
+        setStatus(status, err2.message === 'offline' ? OFFLINE_MSG : (err2.message || 'Une erreur est survenue. Vérifiez votre connexion internet.'), 'error');
       } finally {
         btn.disabled = false;
       }
-    }
-
-    document.getElementById('tarifs-form').addEventListener('input', preview);
-    document.getElementById('save').addEventListener('click', save);
-    document.getElementById('reset').addEventListener('click', () => { fill(original); setStatus(''); });
-    document.getElementById('copy').addEventListener('click', async () => {
-      const d = read();
-      const err = validate(d);
-      if (err) return setStatus(err, 'error');
-      try {
-        await navigator.clipboard.writeText(fileContent(d));
-        setStatus('Fichier copié. Collez-le dans l\'éditeur GitHub puis cliquez sur « Commit changes ».', 'success');
-      } catch (e) {
-        setStatus('La copie automatique a échoué. Utilisez la méthode avec la clé GitHub.', 'error');
-      }
     });
 
-    fill(original);
+    // Session déjà ouverte dans cet onglet
+    if (getToken()) openAdmin();
   })();
   </script>
 </body>

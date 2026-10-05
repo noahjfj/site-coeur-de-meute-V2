@@ -42,6 +42,8 @@ body {
 
 img { max-width: 100%; display: block; }
 
+[hidden] { display: none !important; }
+
 a { color: inherit; }
 
 h1, h2, h3 {
@@ -1652,28 +1654,36 @@ p { margin: 0 0 1em; }
 
 .admin__preview.is-error { background: #fbe9e4; color: var(--rust-dark); }
 
-.admin__help {
-  margin-bottom: 22px;
-  padding: 16px 20px;
-  border-radius: 12px;
-  background: var(--cream);
+.admin__label { display: block; margin: 18px 0 8px; font-weight: 600; }
+
+.admin__login { max-width: 460px; }
+.admin__login .title { margin-bottom: 10px; }
+
+.admin__lock {
+  display: inline-grid;
+  place-items: center;
+  width: 64px;
+  height: 56px;
+  margin-bottom: 14px;
+  background: var(--rust);
+  color: var(--white);
+  border-radius: 62% 38% 55% 45% / 48% 60% 40% 52%;
 }
 
-.admin__help summary { cursor: pointer; font-weight: 600; }
-.admin__help ol { margin: 14px 0 10px; padding-left: 20px; color: var(--ink-soft); }
-.admin__help li { margin-bottom: 6px; }
-.admin__help a { color: var(--rust); }
-
-.admin__label { display: block; margin-bottom: 8px; font-weight: 600; }
-
-.admin__remember {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 10px;
-  font-size: .9rem;
-  color: var(--ink-soft);
+.admin__lock svg {
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
 }
+
+.admin__submit { width: 100%; margin-top: 26px; border: 0; cursor: pointer; }
+
+.admin__header-actions { display: flex; gap: 10px; }
+.admin__header-actions .btn { border: 0; cursor: pointer; }
+.admin__header-actions .btn--outline-dark { border: 2px solid var(--ink); padding: 8px 18px; }
 
 .admin__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
 
@@ -1766,6 +1776,7 @@ p { margin: 0 0 1em; }
   .pillars { grid-template-columns: 1fr; }
   .sim__form, .sim__result { padding: 34px 26px; }
   .admin__card { padding: 28px 22px; }
+  .admin__header-actions .btn--outline-dark { display: none; }
   .service-detail { gap: 40px; }
   .service-aside { position: static; }
   .pillar { padding: 38px 30px; }

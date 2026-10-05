@@ -21,8 +21,22 @@ Site statique : ouvrir `index.html` dans un navigateur.
 
 L'en-tête (menu) et le pied de page sont identiques sur toutes les pages : une modification doit être reportée dans chaque fichier.
 
-## Tarifs de la pension
+## Tarifs de la pension (administration)
 
-Les prix du simulateur sont dans `js/tarifs.js`. Ils se modifient depuis la page `admin.html` (non liée dans le menu), qui enregistre directement le fichier sur GitHub grâce à une clé personnelle, ou à la main dans ce fichier.
+Le site est prévu pour être hébergé sur **Netlify** (voir `netlify.toml`).
 
-⚠️ La page admin enregistre ses modifications directement sur GitHub : faire un `git pull` avant de modifier le site en local.
+- `admin.html` (non liée dans le menu) : connexion par identifiant / mot de passe, puis modification des prix.
+- `netlify/functions/login.mjs` → `POST /api/login` : vérifie les identifiants, renvoie une session de 12 h.
+- `netlify/functions/tarifs.mjs` → `GET /api/tarifs` (public) et `PUT /api/tarifs` (connecté) : les prix sont stockés dans Netlify Blobs.
+- `js/tarifs.js` : prix **par défaut**, utilisés avant le premier enregistrement ou hors Netlify (GitHub Pages, aperçu local).
+
+### Configuration sur Netlify
+
+Dans *Site configuration → Environment variables*, créer :
+
+| Variable | Valeur |
+| --- | --- |
+| `ADMIN_USER` | l'identifiant de connexion |
+| `ADMIN_PASSWORD` | le mot de passe (long et difficile à deviner) |
+
+Puis redéployer le site (*Deploys → Trigger deploy*).
