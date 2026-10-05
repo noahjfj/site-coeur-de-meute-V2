@@ -21,22 +21,25 @@ Site statique : ouvrir `index.html` dans un navigateur.
 
 L'en-tête (menu) et le pied de page sont identiques sur toutes les pages : une modification doit être reportée dans chaque fichier.
 
-## Tarifs de la pension (administration)
+## Tarifs de la pension et espace administrateur
 
-Le site est prévu pour être hébergé sur **Netlify** (voir `netlify.toml`).
+Le site fonctionne chez **n'importe quel hébergeur web avec PHP** (OVH, Hostinger, one.com, Infomaniak, etc.).
+Pour l'installer ou le déménager : copier **tout le dossier** sur l'hébergement (par FTP ou le gestionnaire de fichiers de l'hébergeur).
 
-- `admin.html` (non liée dans le menu) : connexion par identifiant / mot de passe, puis modification des prix.
-- `netlify/functions/login.mjs` → `POST /api/login` : vérifie les identifiants, renvoie une session de 12 h.
-- `netlify/functions/tarifs.mjs` → `GET /api/tarifs` (public) et `PUT /api/tarifs` (connecté) : les prix sont stockés dans Netlify Blobs.
-- `js/tarifs.js` : prix **par défaut**, utilisés avant le premier enregistrement ou hors Netlify (GitHub Pages, aperçu local).
+- `data/tarifs.json` : les prix affichés par le simulateur.
+- `admin/` : espace administrateur (`https://votre-site/admin/`) pour modifier les prix.
+- `js/tarifs.js` : prix de secours, utilisés seulement si `data/tarifs.json` ne peut pas être lu.
 
-### Configuration sur Netlify
+### Première connexion
 
-Dans *Site configuration → Environment variables*, créer :
+Ouvrir `https://votre-site/admin/` : la page propose de **créer l'identifiant et le mot de passe**.
+Ils sont enregistrés, chiffrés, dans `admin/acces.php` (fichier créé sur le serveur, illisible depuis le web).
 
-| Variable | Valeur |
-| --- | --- |
-| `ADMIN_USER` | l'identifiant de connexion |
-| `ADMIN_PASSWORD` | le mot de passe (long et difficile à deviner) |
+**Mot de passe oublié :** supprimer `admin/acces.php` sur l'hébergement, puis retourner sur `/admin/` pour recréer un accès.
 
-Puis redéployer le site (*Deploys → Trigger deploy*).
+### Mettre à jour ou déménager le site
+
+- Les dossiers `data/` et `admin/` doivent être modifiables par le serveur (c'est le cas par défaut chez la plupart des hébergeurs).
+- Lors de l'envoi d'une nouvelle version du site, **ne pas écraser** `data/tarifs.json` (vos prix) ni `admin/acces.php` (votre accès) :
+  récupérez-les d'abord depuis l'hébergement, ou n'envoyez pas ces deux fichiers.
+- Sans PHP (GitHub Pages, Netlify…), le site et le simulateur fonctionnent, mais pas l'espace administrateur.

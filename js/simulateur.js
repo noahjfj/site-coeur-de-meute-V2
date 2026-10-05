@@ -1,5 +1,5 @@
 // Simulateur de prix de la pension canine
-// Prix : ceux enregistrés depuis admin.html (API Netlify), sinon valeurs par défaut de js/tarifs.js
+// Prix : data/tarifs.json (modifié depuis l'espace admin/), sinon valeurs de secours de js/tarifs.js
 (function () {
   const sims = document.querySelectorAll('[data-simulator]');
   if (!window.TARIFS_PENSION) return;
@@ -91,16 +91,16 @@
   });
   renderMinPrice();
 
-  // Tarifs à jour depuis l'administration (uniquement quand le site est hébergé sur Netlify)
+  // Tarifs enregistrés depuis l'espace administrateur
   if (location.protocol.startsWith('http')) {
-    fetch('/api/tarifs', { cache: 'no-store' })
+    fetch('data/tarifs.json', { cache: 'no-store' })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
-        if (!data || !data.tarifs || !Array.isArray(data.tarifs.gabarits) || !data.tarifs.gabarits.length) return;
-        tarifs = data.tarifs;
+        if (!data || !Array.isArray(data.gabarits) || !data.gabarits.length) return;
+        tarifs = data;
         sims.forEach(renderSim);
         renderMinPrice();
       })
-      .catch(() => { /* hors Netlify : on garde les tarifs par défaut */ });
+      .catch(() => { /* fichier illisible : on garde les tarifs de secours */ });
   }
 })();

@@ -1,14 +1,10 @@
 /*
- * Tarifs PAR DÉFAUT de la pension canine — Coeur de Meute
+ * Tarifs de SECOURS de la pension canine — Coeur de Meute
  *
- * Les prix se modifient depuis la page admin.html (connexion par identifiant
- * et mot de passe). Une fois des prix enregistrés dans l'administration, ce sont
- * eux qui s'affichent sur le site ; ce fichier ne sert plus que de valeurs de
- * secours (avant le premier enregistrement, ou hors Netlify).
- *
- *  - seuilJours     : au-delà de ce nombre de jours, le tarif long séjour s'applique
- *  - prix           : prix par jour pour un séjour court
- *  - prixLongSejour : prix par jour quand le séjour dépasse « seuilJours »
+ * Les vrais prix sont dans data/tarifs.json et se modifient depuis l'espace
+ * administrateur (dossier admin/). Ce fichier ne sert que si data/tarifs.json
+ * ne peut pas être lu (par exemple en ouvrant le site directement depuis
+ * l'ordinateur, sans serveur).
  */
 window.TARIFS_PENSION = {
   "seuilJours": 5,

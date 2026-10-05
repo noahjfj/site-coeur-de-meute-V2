@@ -1605,7 +1605,8 @@ p { margin: 0 0 1em; }
   box-shadow: var(--shadow);
 }
 
-.admin__card .title--sm:first-child { margin-top: 0; }
+.admin__card .title--sm:first-child,
+.admin__card > input[type="hidden"] + .title--sm { margin-top: 0; }
 
 .admin input[type="text"],
 .admin input[type="number"],
@@ -1681,7 +1682,17 @@ p { margin: 0 0 1em; }
 
 .admin__submit { width: 100%; margin-top: 26px; border: 0; cursor: pointer; }
 
-.admin__header-actions { display: flex; gap: 10px; }
+.admin__header-actions { display: flex; gap: 10px; align-items: center; }
+.admin__header-actions form { margin: 0; }
+
+.admin__password summary {
+  cursor: pointer;
+  font-family: var(--serif);
+  font-size: 1.15rem;
+}
+
+.admin__password[open] summary { margin-bottom: 6px; }
+.admin__password input { max-width: 420px; }
 .admin__header-actions .btn { border: 0; cursor: pointer; }
 .admin__header-actions .btn--outline-dark { border: 2px solid var(--ink); padding: 8px 18px; }
 

@@ -1,2 +1,2 @@
-node_modules/
-.netlify/
+# Accès administrateur créé sur le serveur (ne pas versionner)
+admin/acces.php
