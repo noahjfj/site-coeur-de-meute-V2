@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Coeur de Meute — Pension &amp; Éducation canine</title>
+  <meta name="description" content="Coeur de Meute, centre d'éducation canine et pension canine &amp; féline au centre de Wanze. Sérénité, Sécurité, Santé.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ===== EN-TÊTE / MENU ===== -->
+  <header class="site-header" id="site-header">
+    <div class="container site-header__inner">
+      <a href="index.html" class="brand" aria-label="Coeur de Meute — accueil">
+        <span>Coeur</span><span class="logo__de">de</span><span>Meute</span>
+      </a>
+
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
+        <span class="nav-toggle__bar"></span>
+        <span class="nav-toggle__bar"></span>
+        <span class="nav-toggle__bar"></span>
+        <span class="sr-only">Ouvrir le menu</span>
+      </button>
+
+      <nav class="site-nav" id="site-nav" aria-label="Menu principal">
+        <ul>
+          <li><a href="index.html" aria-current="page">Accueil</a></li>
+          <li><a href="qui-sommes-nous.html">Qui sommes-nous</a></li>
+          <li class="has-sub">
+            <a href="services.html">Nos services</a>
+            <button class="sub-toggle" type="button" aria-expanded="false" aria-label="Afficher la liste des services">
+              <svg viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1.5 L6 6.5 L11 1.5" /></svg>
+            </button>
+            <ul class="sub-menu">
+              <li><a href="education.html">Éducation canine</a></li>
+              <li><a href="pension.html">Pension chiens & chats</a></li>
+              <li><a href="prevention-morsure.html">Prévention morsure</a></li>
+              <li><a href="comportement-felin.html">Comportement félin</a></li>
+              <li><a href="osteopathie.html">Ostéopathie</a></li>
+              <li><a href="kinesiologie.html">Kinésiologie</a></li>
+              <li><a href="garde-a-domicile.html">Garde à domicile</a></li>
+            </ul>
+          </li>
+          <li><a href="galerie.html">Galerie</a></li>
+          <li><a href="a-propos.html">À propos</a></li>
+        </ul>
+        <a href="tel:+32455109797" class="btn btn--small site-nav__cta">0455 / 10.97.97</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <span class="blob blob--rust hero__blob-1" aria-hidden="true"></span>
+    <span class="blob blob--sand hero__blob-2" aria-hidden="true"></span>
+    <span class="blob blob--blue hero__blob-3" aria-hidden="true"></span>
+    <span class="blob blob--brown hero__blob-4" aria-hidden="true"></span>
+
+    <div class="hero__inner">
+      <svg class="leaf" viewBox="0 0 40 60" aria-hidden="true">
+        <path d="M20 58 C20 40 20 20 20 4" />
+        <path d="M20 46 C10 40 6 30 8 18 C16 24 20 34 20 46 Z" />
+        <path d="M20 46 C30 40 34 30 32 18 C24 24 20 34 20 46 Z" />
+      </svg>
+
+      <p class="hero__kicker">Pension &amp; Éducation canine</p>
+
+      <h1 class="logo">
+        <span>Coeur</span>
+        <span class="logo__de">de</span>
+        <span>Meute</span>
+      </h1>
+
+      <p class="tagline">Sérénité<span>·</span>Sécurité<span>·</span>Santé</p>
+
+      <a href="#contact" class="btn">Réserver un séjour</a>
+    </div>
+  </section>
+
+  <main>
+
+    <!-- ===== INTRO ===== -->
+    <section class="intro section">
+      <div class="container narrow center">
+        <p class="welcome">Bienvenue</p>
+        <h2 class="title">Un second foyer pour votre compagnon</h2>
+        <p class="lead">
+          Située en plein <strong>centre de Wanze</strong>, <strong>Coeur de Meute</strong> est un centre
+          pluridisciplinaire pour chiens et chats. Au coeur de notre métier&nbsp;: <strong>l'éducation canine</strong>
+          et <strong>la pension</strong>, complétées par la prévention morsure, le comportement félin, l'ostéopathie,
+          la kinésiologie et la garde à domicile. Votre compagnon est accueilli comme un membre de la famille,
+          avec bienveillance, patience et professionnalisme.
+        </p>
+        <span class="divider" aria-hidden="true"></span>
+      </div>
+    </section>
+
+    <!-- ===== À PROPOS ===== -->
+    <section class="about section section--tinted">
+      <div class="container about__grid">
+        <figure class="about__media">
+          <span class="blob blob--rust about__blob" aria-hidden="true"></span>
+          <img src="assets/img/devanture.jpg" alt="L'équipe de Coeur de Meute souriante devant la devanture de la pension">
+        </figure>
+
+        <div class="about__text">
+          <p class="eyebrow">Qui sommes-nous ?</p>
+          <h2 class="title">Une équipe passionnée, au coeur de la meute</h2>
+          <p>
+            Fondée par <strong>Elodie Vanrapenbush</strong>, éducatrice canine et auxiliaire de santé vétérinaire,
+            Coeur de Meute est née d'une conviction simple : un animal bien entouré est un animal épanoui.
+          </p>
+          <p>
+            Entourée d'une équipe attentionnée, Elodie met ses compétences en comportement et en soins au service
+            de votre animal. Chaque séjour commence par une rencontre afin de connaître ses habitudes, son
+            caractère et ses besoins.
+          </p>
+          <ul class="checklist">
+            <li>Éducatrice canine diplômée</li>
+            <li>Auxiliaire de santé vétérinaire</li>
+            <li>Vétérinaire référent : Dr Julien Joiret</li>
+          </ul>
+          <a href="qui-sommes-nous.html" class="link-arrow">Découvrir l'équipe</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SERVICES ===== -->
+    <section class="services section">
+      <div class="container">
+        <div class="center">
+          <p class="eyebrow">Nos services</p>
+          <h2 class="title">Un centre pluridisciplinaire pour chiens et chats</h2>
+        </div>
+
+        <div class="pillars">
+          <a class="pillar pillar--rust" href="education.html">
+            <span class="pillar__icon" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 24 C17 24 13 32 15 37 C17 41 21 39 24 39 C27 39 31 41 33 37 C35 32 31 24 24 24 Z" /><circle cx="16" cy="16" r="4" /><circle cx="32" cy="16" r="4" /><circle cx="10" cy="27" r="3.5" /><circle cx="38" cy="27" r="3.5" /></svg></span>
+            <span class="pillar__tag">Notre coeur de métier</span>
+            <h3>Éducation canine</h3>
+            <p>Des séances personnalisées, en méthodes bienveillantes, pour construire une relation complice avec votre chien.</p>
+            <span class="pillar__more">Découvrir</span>
+          </a>
+          <a class="pillar pillar--blue" href="pension.html">
+            <span class="pillar__icon" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M6 22 L24 8 L42 22 V42 H6 Z" /><path d="M18 42 V30 H30 V42" /></svg></span>
+            <span class="pillar__tag">Notre coeur de métier</span>
+            <h3>Pension chiens & chats</h3>
+            <p>Un hébergement chaleureux et sécurisé pour votre chien ou votre chat, entouré d'attention et de soins.</p>
+            <span class="pillar__more">Découvrir</span>
+          </a>
+        </div>
+
+        <p class="subhead">Et aussi, pour leur bien-être</p>
+        <div class="svc-grid svc-grid--compact">
+          <a class="svc-card" href="prevention-morsure.html">
+            <span class="svc-card__icon svc-card__icon--sand" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 6 L39 12 V23 C39 32 33 39 24 42 C15 39 9 32 9 23 V12 Z" /><path d="M17 24 L22 29 L31 19" /></svg></span>
+            <h3>Prévention morsure</h3>
+            <p>Apprendre à lire le langage du chien et adopter les bons gestes pour éviter les accidents, en famille.</p>
+            <span class="svc-card__more">En savoir plus</span>
+          </a>
+          <a class="svc-card" href="comportement-felin.html">
+            <span class="svc-card__icon svc-card__icon--blue" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M12 40 C8 34 9 24 12 18 L11 7 L19 13 C22 12 26 12 29 13 L37 7 L36 18 C39 24 40 34 36 40 Z" /><circle cx="19" cy="25" r="1.5" /><circle cx="29" cy="25" r="1.5" /><path d="M22 31 L24 33 L26 31" /></svg></span>
+            <h3>Comportement félin</h3>
+            <p>Comprendre votre chat pour résoudre malpropreté, griffades, stress ou conflits et retrouver une cohabitation sereine.</p>
+            <span class="svc-card__more">En savoir plus</span>
+          </a>
+          <a class="svc-card" href="osteopathie.html">
+            <span class="svc-card__icon svc-card__icon--brown" aria-hidden="true"><svg viewBox="0 0 48 48"><rect x="17" y="5" width="14" height="7" rx="3.5" /><rect x="16" y="15" width="16" height="7" rx="3.5" /><rect x="16" y="25" width="16" height="7" rx="3.5" /><rect x="17" y="35" width="14" height="7" rx="3.5" /></svg></span>
+            <h3>Ostéopathie</h3>
+            <p>Une approche manuelle et douce pour soulager les tensions et favoriser la mobilité et le confort de votre animal.</p>
+            <span class="svc-card__more">En savoir plus</span>
+          </a>
+          <a class="svc-card" href="kinesiologie.html">
+            <span class="svc-card__icon svc-card__icon--sand" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="17" /><path d="M10 24 C14 17 19 17 24 24 C29 31 34 31 38 24" /></svg></span>
+            <h3>Kinésiologie</h3>
+            <p>Une approche douce pour accompagner l'équilibre émotionnel de votre animal face au stress et aux changements.</p>
+            <span class="svc-card__more">En savoir plus</span>
+          </a>
+          <a class="svc-card" href="garde-a-domicile.html">
+            <span class="svc-card__icon svc-card__icon--rust" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M6 22 L24 8 L42 22 V42 H6 Z" /><path d="M24 36 C24 36 15 30.5 15 25 C15 22 17.2 20 19.6 20 C21.6 20 23.2 21.2 24 23 C24.8 21.2 26.4 20 28.4 20 C30.8 20 33 22 33 25 C33 30.5 24 36 24 36 Z" /></svg></span>
+            <h3>Garde à domicile</h3>
+            <p>Votre animal reste chez lui, dans ses habitudes : c'est nous qui passons pour les repas, les câlins et les soins.</p>
+            <span class="svc-card__more">En savoir plus</span>
+          </a>
+        </div>
+
+        <div class="center more">
+          <a href="services.html" class="btn btn--outline-dark">Voir tous nos services</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PREMIER SÉJOUR ===== -->
+    <section class="steps">
+      <div class="container">
+        <div class="center">
+          <p class="eyebrow eyebrow--light">Premier séjour</p>
+          <h2 class="title">Comment ça se passe ?</h2>
+        </div>
+
+        <ol class="steps__grid">
+          <li class="step">
+            <span class="step__num">1</span>
+            <h3>On fait connaissance</h3>
+            <p>Un premier rendez-vous pour visiter les lieux et nous parler de votre compagnon : habitudes, caractère, santé.</p>
+          </li>
+          <li class="step">
+            <span class="step__num">2</span>
+            <h3>On fixe l'heure d'arrivée</h3>
+            <p>Ensemble, nous convenons à l'avance du jour et de l'heure de dépôt et de reprise de votre compagnon.</p>
+          </li>
+          <li class="step">
+            <span class="step__num">3</span>
+            <h3>Partez l'esprit léger</h3>
+            <p>Pendant son séjour, nous prenons soin de lui comme du nôtre et vous donnons de ses nouvelles.</p>
+          </li>
+        </ol>
+
+        <div class="center more">
+          <a href="pension.html" class="btn btn--light">Découvrir la pension</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CONTACT ===== -->
+    <section class="contact section" id="contact">
+      <div class="container">
+        <div class="center">
+          <p class="eyebrow">Nous rencontrer</p>
+          <h2 class="title">Contact &amp; horaires</h2>
+        </div>
+
+        <div class="contact__grid">
+          <div class="contact__card">
+            <h3>Horaires d'accueil</h3>
+            <p class="contact__big">Tous les jours</p>
+            <p class="contact__big">de 8h30 à 18h</p>
+            <p class="muted">Sauf exceptions. L'heure d'arrivée et de départ de votre compagnon est convenue ensemble au préalable.</p>
+            <ul class="notes">
+              <li><strong>Sur rendez-vous :</strong> toute rencontre, que ce soit pour la pension ou l'éducation, se fait uniquement sur rendez-vous.</li>
+              <li><strong>Un petit retard ?</strong> Ça arrive à tout le monde&nbsp;! Un simple coup de fil pour nous prévenir, et votre compagnon vous attendra sereinement.</li>
+            </ul>
+          </div>
+
+          <div class="contact__card contact__card--accent">
+            <h3>Nous contacter</h3>
+            <ul class="contact__list">
+              <li>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12z" /><circle cx="12" cy="9" r="2.5" /></svg>
+                <span>N°28, Chaussée de Wavre — 4520 Wanze</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2" /></svg>
+                <a href="tel:+32455109797">0455 / 10.97.97</a>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 7l9 6 9-6" /></svg>
+                <a href="mailto:coeurdemeute1@gmail.com">coeurdemeute1@gmail.com</a>
+              </li>
+            </ul>
+            <a href="tel:+32455109797" class="btn btn--light">Appeler maintenant</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="container footer__grid">
+      <div class="footer__col footer__col--brand">
+        <p class="footer__logo">Coeur <span class="logo__de logo__de--small">de</span> Meute</p>
+        <p>Centre pluridisciplinaire<br>pour chiens &amp; chats<br>Éducation · Pension · Bien-être</p>
+        <p class="footer__tag">Sérénité · Sécurité · Santé</p>
+      </div>
+
+      <div class="footer__col">
+        <h4>Coordonnées</h4>
+        <p>N°28, Chaussée de Wavre<br>4520 Wanze — Belgique</p>
+        <p><a href="tel:+32455109797">0455 / 10.97.97</a><br>
+           <a href="mailto:coeurdemeute1@gmail.com">coeurdemeute1@gmail.com</a></p>
+      </div>
+
+      <div class="footer__col">
+        <h4>Horaires</h4>
+        <p>Tous les jours<br>de 8h30 à 18h, sauf exceptions</p>
+        <p>Heure d'accueil convenue au préalable.<br>Rencontres sur rendez-vous.</p>
+        <h4>Vétérinaire référent</h4>
+        <p>Dr Julien Joiret</p>
+      </div>
+
+      <div class="footer__col">
+        <h4>Navigation</h4>
+        <ul class="footer__links">
+          <li><a href="index.html">Accueil</a></li>
+          <li><a href="qui-sommes-nous.html">Qui sommes-nous</a></li>
+          <li><a href="services.html">Nos services</a></li>
+          <li><a href="galerie.html">Galerie</a></li>
+          <li><a href="a-propos.html">À propos</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer__bottom">
+      <div class="container">
+        <p>© <span id="year">2026</span> Coeur de Meute — Tous droits réservés.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
