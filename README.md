@@ -1,5 +1,8 @@
 # Coeur de Meute
 
+> **Version WordPress :** le thème complet se trouve dans `wordpress/coeur-de-meute/` (mode d'emploi : `wordpress/coeur-de-meute/LISEZMOI.md`).
+> Le site HTML ci-dessous reste disponible (aperçu GitHub Pages).
+
 Site vitrine de la pension & éducation canine Coeur de Meute (Wanze).
 
 Site statique : ouvrir `index.html` dans un navigateur.
