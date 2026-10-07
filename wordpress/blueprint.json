@@ -1,0 +1,29 @@
+{
+  "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+  "meta": {
+    "title": "Coeur de Meute — démo WordPress",
+    "description": "Ouvre un WordPress de démonstration avec le thème Coeur de Meute activé et son contenu.",
+    "author": "Coeur de Meute"
+  },
+  "landingPage": "/",
+  "preferredVersions": { "php": "8.3", "wp": "latest" },
+  "features": { "networking": true },
+  "login": true,
+  "steps": [
+    { "step": "setSiteLanguage", "language": "fr_FR" },
+    {
+      "step": "installTheme",
+      "themeData": {
+        "resource": "git:directory",
+        "url": "https://github.com/noahjfj/site-coeur-de-meute-V2",
+        "ref": "claude/coeur-de-meute-website-qw6a8e",
+        "refType": "branch",
+        "path": "wordpress/coeur-de-meute"
+      },
+      "options": { "activate": true }
+    },
+    { "step": "setSiteOptions", "options": { "permalink_structure": "/%postname%/" } },
+    { "step": "runPHP", "code": "<?php require '/wordpress/wp-load.php'; cdm_install_demo_content();" },
+    { "step": "runPHP", "code": "<?php require '/wordpress/wp-load.php'; flush_rewrite_rules();" }
+  ]
+}
