@@ -19,7 +19,9 @@ Site statique : ouvrir `index.html` dans un navigateur.
   - `kinesiologie.html` — Kinésiologie
   - `garde-a-domicile.html` — Garde à domicile
 - `galerie.html` — Galerie
-- `actualites.html` — Actualités (événements et presse)
+- `actualites.html` — Actualités (vue d'ensemble)
+  - `evenements.html` — Nos événements
+  - `presse.html` — Presse
 - `a-propos.html` — À propos (contact, plan, FAQ)
 
 L'en-tête (menu) et le pied de page sont identiques sur toutes les pages : une modification doit être reportée dans chaque fichier.

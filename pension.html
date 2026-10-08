@@ -57,7 +57,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </ul>
           </li>
           <li><a href="galerie.html">Galerie</a></li>
-          <li><a href="actualites.html">Actualités</a></li>
+          <li class="has-sub">
+            <a href="actualites.html">Actualités</a>
+            <button class="sub-toggle" type="button" aria-expanded="false" aria-label="Afficher les pages Actualités">
+              <svg viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1.5 L6 6.5 L11 1.5" /></svg>
+            </button>
+            <ul class="sub-menu">
+              <li><a href="evenements.html">Nos événements</a></li>
+              <li><a href="presse.html">Presse</a></li>
+            </ul>
+          </li>
           <li><a href="a-propos.html">À propos</a></li>
         </ul>
         <a href="tel:+32455109797" class="btn btn--small site-nav__cta">0455 / 10.97.97</a>

@@ -57,7 +57,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </ul>
           </li>
           <li><a href="galerie.html">Galerie</a></li>
-          <li><a href="actualites.html" aria-current="page">Actualités</a></li>
+          <li class="has-sub">
+            <a href="actualites.html" aria-current="page">Actualités</a>
+            <button class="sub-toggle" type="button" aria-expanded="false" aria-label="Afficher les pages Actualités">
+              <svg viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1.5 L6 6.5 L11 1.5" /></svg>
+            </button>
+            <ul class="sub-menu">
+              <li><a href="evenements.html">Nos événements</a></li>
+              <li><a href="presse.html">Presse</a></li>
+            </ul>
+          </li>
           <li><a href="a-propos.html">À propos</a></li>
         </ul>
         <a href="tel:+32455109797" class="btn btn--small site-nav__cta">0455 / 10.97.97</a>
@@ -96,7 +105,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
             <div class="event__body">
               <span class="event__tag">En intérieur</span>
-              <h3>Le marché de Noël de Coeur de Meute</h3>
+              <h3><a href="evenements.html#marche-de-noel">Le marché de Noël de Coeur de Meute</a></h3>
               <p>Différents exposants sont venus présenter leurs produits et leur savoir-faire. Un événement chaleureux qui permet de rassembler et de faire connaître tout le monde&nbsp;: propriétaires, artisans et passionnés du monde animal.</p>
               <ul class="event__meta">
                 <li>Exposants</li>
@@ -113,7 +122,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
             <div class="event__body">
               <span class="event__tag">En extérieur</span>
-              <h3>La garden party de Coeur de Meute</h3>
+              <h3><a href="evenements.html#garden-party">La garden party de Coeur de Meute</a></h3>
               <p>Le même esprit que notre marché de Noël, mais au grand air&nbsp;! Exposants, propriétaires et compagnons à quatre pattes se retrouvent dehors pour découvrir de nouveaux produits, échanger et partager un bon moment.</p>
               <ul class="event__meta">
                 <li>Plein air</li>
@@ -130,7 +139,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
             <div class="event__body">
               <span class="event__tag">Compétition</span>
-              <h3>Le concours de dressage de Coeur de Meute</h3>
+              <h3><a href="evenements.html#concours">Le concours de dressage de Coeur de Meute</a></h3>
               <p>Un concours ouvert à tous les niveaux, avec quatre catégories selon le niveau d'éducation des chiens. Chaque binôme peut ainsi participer, progresser et être récompensé à sa juste valeur.</p>
               <ul class="event__meta">
                 <li>4 catégories</li>
@@ -139,6 +148,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               </ul>
             </div>
           </article>
+        </div>
+
+        <div class="center more">
+          <a href="evenements.html" class="btn btn--outline-dark">Tous les détails de nos événements</a>
         </div>
 
         <p class="events__note">Les dates de nos prochains événements seront annoncées ici. Vous souhaitez exposer ou participer&nbsp;? <a href="tel:+32455109797">Appelez-nous au 0455 / 10.97.97</a>.</p>
@@ -168,6 +181,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <p>Un article sur les ateliers de prévention qu'Elodie anime auprès des enfants, pour leur apprendre les bons gestes avec les chiens et éviter les accidents.</p>
             <span class="press-card__more">Lire l'article</span>
           </a>
+        </div>
+
+        <div class="center more">
+          <a href="presse.html" class="btn btn--outline-dark">Voir la revue de presse</a>
         </div>
       </div>
     </section>
