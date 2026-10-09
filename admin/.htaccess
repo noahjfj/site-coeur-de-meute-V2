@@ -2,7 +2,8 @@
 Options -Indexes
 DirectoryIndex index.php
 
-<FilesMatch "^(acces\.php|.*\.tmp-.*)$">
+# Fichiers privés : accès, protection, code d'installation, fichiers temporaires
+<FilesMatch "^(acces|securite|code-installation)\.php$|\.tmp-">
   <IfModule mod_authz_core.c>
     Require all denied
   </IfModule>

@@ -22,12 +22,13 @@ if (lightbox) {
   const img = lightbox.querySelector('img');
   const close = () => { lightbox.hidden = true; img.src = ''; };
 
-  document.querySelectorAll('.gallery__open').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      img.src = btn.dataset.full;
-      img.alt = btn.querySelector('img').alt;
-      lightbox.hidden = false;
-    });
+  // Délégation : fonctionne aussi pour les photos ajoutées depuis l'administration
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.gallery__open');
+    if (!btn) return;
+    img.src = btn.dataset.full;
+    img.alt = btn.querySelector('img').alt;
+    lightbox.hidden = false;
   });
 
   lightbox.addEventListener('click', (e) => { if (e.target !== img) close(); });
