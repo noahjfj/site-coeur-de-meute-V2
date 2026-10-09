@@ -11,6 +11,6 @@ window.TARIFS_PENSION = {
   "gabarits": [
     { "id": "petit", "nom": "Petit chien", "description": "Jusqu'à 10 kg", "prix": 22, "prixLongSejour": 20 },
     { "id": "moyen", "nom": "Chien moyen", "description": "De 10 à 25 kg", "prix": 26, "prixLongSejour": 24 },
-    { "id": "grand", "nom": "Grand chien", "description": "Plus de 25 kg", "prix": 28, "prixLongSejour": 26 }
+    { "id": "grand", "nom": "Grand chien", "description": "Plus de 25 kg", "prix": 30, "prixLongSejour": 28 }
   ]
 };

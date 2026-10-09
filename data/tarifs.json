@@ -19,8 +19,8 @@
       "id": "grand",
       "nom": "Grand chien",
       "description": "Plus de 25 kg",
-      "prix": 28,
-      "prixLongSejour": 26
+      "prix": 30,
+      "prixLongSejour": 28
     }
   ]
 }
