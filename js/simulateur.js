@@ -91,10 +91,11 @@
   });
   renderMinPrice();
 
-  // Tarifs enregistrés depuis l'espace administrateur
+  // Tarifs enregistrés depuis l'espace gérante (api/tarifs.php), sinon data/tarifs.json
+  const getJson = (url) => fetch(url, { cache: 'no-store' }).then((res) => (res.ok ? res.json() : Promise.reject()));
   if (location.protocol.startsWith('http')) {
-    fetch('data/tarifs.json', { cache: 'no-store' })
-      .then((res) => (res.ok ? res.json() : null))
+    getJson('api/tarifs.php')
+      .catch(() => getJson('data/tarifs.json'))
       .then((data) => {
         if (!data || !Array.isArray(data.gabarits) || !data.gabarits.length) return;
         tarifs = data;

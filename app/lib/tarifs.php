@@ -17,7 +17,17 @@ const DEFAULT_TARIFS = [
     'cartes' => ['offertes10' => 1, 'offertes20' => 2, 'validiteMois' => 12],
 ];
 
+/*
+ * Les prix modifiés par la gérante sont rangés dans le dossier de stockage (hors de GitHub),
+ * pour qu'une mise à jour du site depuis GitHub ne les écrase jamais.
+ * data/tarifs.json (dans GitHub) ne sert que de valeurs de départ.
+ */
 function tarifs_file(): string
+{
+    return rtrim((string) config('storage_dir', APP_DIR . '/storage'), '/') . '/tarifs.json';
+}
+
+function default_tarifs_file(): string
 {
     return SITE_DIR . '/data/tarifs.json';
 }
@@ -25,7 +35,8 @@ function tarifs_file(): string
 function load_tarifs(): array
 {
     $t = DEFAULT_TARIFS;
-    $raw = is_file(tarifs_file()) ? json_decode((string) file_get_contents(tarifs_file()), true) : null;
+    $file = is_file(tarifs_file()) ? tarifs_file() : default_tarifs_file();
+    $raw = is_file($file) ? json_decode((string) file_get_contents($file), true) : null;
     if (is_array($raw)) {
         if (isset($raw['seuilJours']) && is_numeric($raw['seuilJours'])) {
             $t['seuilJours'] = (int) $raw['seuilJours'];
@@ -56,6 +67,9 @@ function tarif_for(string $size): array
 
 function save_tarifs(array $t): bool
 {
+    if (!is_dir(dirname(tarifs_file()))) {
+        mkdir(dirname(tarifs_file()), 0750, true);
+    }
     $json = json_encode($t, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n";
     $tmp = tarifs_file() . '.tmp-' . bin2hex(random_bytes(4));
     if (file_put_contents($tmp, $json, LOCK_EX) === false) {

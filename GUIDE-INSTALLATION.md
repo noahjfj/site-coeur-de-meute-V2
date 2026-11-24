@@ -17,8 +17,13 @@ Les captures d'écran changent selon l'hébergeur, mais les étapes sont toujour
 
 ## 2. Envoyer les fichiers du site
 
-1. Ouvrez le **gestionnaire de fichiers** de l'hébergeur (ou un logiciel FTP comme FileZilla).
-2. Envoyez tout le contenu du site dans le dossier public (souvent `public_html`), **y compris les fichiers `.htaccess`**.
+**Avec GitHub (conseillé, mise à jour automatique)** : chez Hostinger, panneau **Avancé → Git**.
+Indiquez le dépôt GitHub, la branche à publier et le dossier `public_html`. Pour un dépôt privé, Hostinger affiche une
+« clé de déploiement » à coller dans GitHub (Settings → Deploy keys, en lecture seule). Activez le déploiement automatique.
+Vos réglages (`app/config.php`), les contrats et les prix modifiés (`app/storage/`) ne sont pas dans GitHub : une mise à jour ne les touche jamais.
+
+**Sans GitHub** : ouvrez le **gestionnaire de fichiers** de l'hébergeur (ou FileZilla) et envoyez tout le contenu du site
+dans le dossier public (souvent `public_html`), **y compris les fichiers `.htaccess`**.
 
 ## 3. Créer le fichier de réglages
 

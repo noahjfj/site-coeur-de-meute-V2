@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             flash('success', 'Les tarifs sont enregistrés. Le site et le simulateur sont à jour.');
             redirect('/gerante/tarifs.php');
         }
-        $errors[] = 'Impossible d\'enregistrer : le fichier data/tarifs.json n\'est pas modifiable sur l\'hébergement.';
+        $errors[] = 'Impossible d\'enregistrer : le dossier app/storage n\'est pas modifiable sur l\'hébergement.';
     }
 }
 
