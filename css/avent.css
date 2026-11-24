@@ -328,17 +328,13 @@ html.avent-lock { overflow: hidden; }
 .avent__deco--bleue { --str: 90px; width: 190px; right: 40px; top: 120px; animation-delay: -2s; }
 .avent__deco--sable { --str: 210px; width: 110px; right: 220px; top: 240px; animation-delay: -3.5s; }
 .avent__deco--canne { width: 210px; left: -30px; top: 520px; transform: perspective(900px) rotateY(28deg) rotateZ(-14deg); }
-.avent__deco--sapin-g { width: 330px; left: -70px; bottom: -30px; transform: perspective(900px) rotateX(35deg) rotateZ(14deg); }
-.avent__deco--sapin-d { width: 360px; right: -90px; bottom: 120px; transform: perspective(900px) rotateY(-30deg) scaleX(-1) rotateZ(-8deg); }
-@keyframes swing { from { rotate: -3deg; } to { rotate: 3deg; } }
+@keyframes swing { from { transform: rotate(calc(-1 * var(--sw, 4deg))); } to { transform: rotate(var(--sw, 4deg)); } }
 @media (max-width: 1100px) { .avent__deco--canne { left: -80px; } .avent__deco--sable { display: none; } }
 @media (max-width: 700px) {
   .avent { padding-top: 84px; }
   .avent__deco--rouille { --str: 0px; width: 62px; left: -14px; top: -26px; }
   .avent__deco--bleue { --str: 0px; width: 72px; right: -16px; top: -22px; }
   .avent__deco--canne { width: 110px; left: -40px; top: 470px; }
-  .avent__deco--sapin-g { display: none; }
-  .avent__deco--sapin-d { width: 200px; right: -70px; bottom: 40px; }
   .avent__blob--1 { width: 200px; height: 140px; } .avent__blob--2 { display: none; } .avent__blob--3 { width: 180px; height: 150px; }
 }
 @media (prefers-reduced-motion: reduce) { .avent__deco--hang { animation: none; } }
@@ -347,25 +343,65 @@ html.avent-lock { overflow: hidden; }
 .avent__grid.is-waiting .niche:not(.is-in) { animation-play-state: paused; }
 .avent__deco { translate: 0 calc(var(--sy, 0) * var(--par, 60) * 1px); transition: translate .2s linear; }
 .avent__deco--rouille { --par: 90; } .avent__deco--bleue { --par: 60; } .avent__deco--sable { --par: 130; }
-.avent__deco--canne { --par: -70; } .avent__deco--sapin-g { --par: -40; } .avent__deco--sapin-d { --par: -55; }
+.avent__deco--canne { --par: -70; }
 .avent__deco--sable img { animation-delay: -1s; }
 
 /* ---------- Téléphone : mise en page dédiée ---------- */
 @media (max-width: 520px) {
-  .avent { --w: 90px; --r: 36px; --h: 68px; --d: 46px; padding: 150px 0 190px; }
+  .avent { --w: 90px; --r: 36px; --h: 68px; --d: 46px; padding: 170px 0 150px; }
   .avent__grid { gap: 50px 6px; transform: translateX(-9px); padding-top: 20px; }
   .avent__title { font-size: 2.05rem; }
   .avent__lead { font-size: .98rem; }
   .avent__status { font-size: .9rem; padding: 8px 16px; }
   /* boules suspendues en haut, comme une guirlande */
-  .avent__deco--rouille { --str: 34px; --par: -20; width: 72px; left: 16px; top: 34px; }
-  .avent__deco--bleue { --str: 18px; --par: -12; width: 86px; right: 14px; top: 18px; }
-  .avent__deco--sable { display: block; --str: 26px; --par: -28; width: 46px; left: auto; right: 116px; top: 30px; }
-  /* au sol, sous les niches : sapin, canne couchée dans la neige */
-  .avent__deco--sapin-g { display: block; width: 230px; left: -60px; bottom: -6px; top: auto; }
-  .avent__deco--sapin-d { width: 240px; right: -80px; bottom: 6px; }
-  .avent__deco--canne { width: 92px; left: calc(50% - 30px); top: auto; bottom: 4px; transform: perspective(700px) rotateX(40deg) rotateZ(-62deg); }
+  .avent__deco--rouille { --str: 46px; --par: -14; --sw: 9deg; width: 74px; left: 18px; top: 46px; }
+  .avent__deco--bleue { --str: 26px; --par: -8; --sw: 7deg; width: 88px; right: 16px; top: 26px; }
+  .avent__deco--sable { display: block; --str: 70px; --par: -18; --sw: 11deg; width: 48px; left: auto; right: 122px; top: 70px; }
+  .avent__deco--canne { display: none; }
   .avent__blob--1 { width: 210px; height: 150px; top: -70px; left: -90px; }
   .avent__blob--3 { width: 200px; height: 160px; top: auto; bottom: -60px; right: -80px; }
   .avent__blob--4 { width: 120px; height: 90px; top: 70px; bottom: auto; right: -40px; }
+}
+
+/* ---------- Boules : balancement visible + petit coup quand on les touche ---------- */
+.avent__deco--hang { pointer-events: auto; cursor: grab; -webkit-tap-highlight-color: transparent; }
+.avent__deco--hang img { pointer-events: none; }
+.avent__deco--hang.is-hit { animation: swing-hit 2.2s cubic-bezier(.3, .6, .4, 1); }
+@keyframes swing-hit { 0% { transform: rotate(0); } 12% { transform: rotate(24deg); } 30% { transform: rotate(-17deg); } 48% { transform: rotate(11deg); }
+  66% { transform: rotate(-6deg); } 84% { transform: rotate(3deg); } 100% { transform: rotate(0); } }
+
+/* ---------- La niche du jour, bien mise en avant ---------- */
+.niche.is-today.is-ready { scale: 1.16; z-index: 3; }
+.is-today.is-ready .niche__rays { opacity: 1; transform: translate(-50%, -50%) scale(.95); animation: rays-idle 14s linear infinite;
+  background: repeating-conic-gradient(rgba(166, 90, 67, .2) 0 6deg, rgba(244, 214, 160, .45) 6deg 12deg, rgba(244, 214, 160, 0) 12deg 22deg); }
+@keyframes rays-idle { to { transform: translate(-50%, -50%) scale(.95) rotate(360deg); } }
+.is-today.is-ready .niche__badge { font-size: .9rem; padding: 6px 14px; background: var(--rust); color: #fff; }
+.is-today.is-ready .niche__badge::after { border-top-color: var(--rust); }
+.niche.is-called { animation: called .55s ease-in-out 3; }
+@keyframes called { 25% { rotate: -7deg; } 75% { rotate: 6deg; } }
+.avent__go { display: flex; align-items: center; gap: 8px; margin: 16px auto 0; width: max-content; box-shadow: 0 14px 30px -14px rgba(166, 90, 67, .8); animation: go-pulse 2.4s ease-in-out infinite; }
+.avent__go span { display: inline-block; animation: go-arrow 1.2s ease-in-out infinite; }
+@keyframes go-pulse { 50% { box-shadow: 0 14px 30px -14px rgba(166, 90, 67, .8), 0 0 0 8px rgba(166, 90, 67, .12); } }
+@keyframes go-arrow { 50% { transform: translateY(4px); } }
+
+/* ---------- Bas de page : congères de neige et traces de pattes ---------- */
+.avent { background: linear-gradient(180deg, #fbf8f4 0%, #f7f3ee 55%, #f1e9e0 100%); }
+.avent__ground { position: absolute; left: 0; right: 0; bottom: 0; height: 150px; z-index: 1; pointer-events: none; }
+.avent__ground svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.avent__ground .g1 { fill: #e9eef3; }
+.avent__ground .g2 { fill: #fff; filter: drop-shadow(0 -6px 10px rgba(142, 162, 181, .25)); }
+.avent__paws i { position: absolute; left: var(--x); top: var(--y); width: 16px; height: 16px; opacity: 0;
+  rotate: calc(80deg + var(--k) * 2deg); background: no-repeat center / contain
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='%238ea2b5'%3E%3Cellipse cx='16' cy='21' rx='7' ry='6'/%3E%3Cellipse cx='7.5' cy='12.5' rx='3' ry='3.8'/%3E%3Cellipse cx='13' cy='7.5' rx='3' ry='3.8'/%3E%3Cellipse cx='19' cy='7.5' rx='3' ry='3.8'/%3E%3Cellipse cx='24.5' cy='12.5' rx='3' ry='3.8'/%3E%3C/svg%3E");
+  animation: paw 7s ease-in-out infinite; animation-delay: calc(var(--k) * .35s); }
+@keyframes paw { 0% { opacity: 0; transform: scale(.6); } 6% { opacity: .75; transform: scale(1); } 60% { opacity: .6; } 85%, 100% { opacity: 0; } }
+.avent .container { position: relative; z-index: 2; }
+@media (max-width: 520px) { .avent__ground { height: 110px; } .avent__paws i { width: 12px; height: 12px; } }
+@media (prefers-reduced-motion: reduce) { .avent__paws i { animation: none; opacity: .5; } .avent__go, .avent__go span, .is-today.is-ready .niche__rays { animation: none; } }
+.avent__go { border-color: transparent; }
+@media (max-width: 520px) {
+  .niche.is-today.is-ready { scale: 1.1; }
+  .is-today.is-ready .niche__badge { font-size: .78rem; padding: 4px 11px; }
+  .avent__blob--3 { display: none; }
+  .avent__paws i { width: 17px; height: 17px; }
 }

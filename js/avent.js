@@ -138,6 +138,18 @@
     status.innerHTML = `La première niche s’ouvre le <strong>1<sup>er</sup> décembre</strong> — plus que <strong>${days} jour${days > 1 ? 's' : ''}</strong>&nbsp;!`;
   } else if (openUntil < 24 || isToday(24)) {
     status.innerHTML = `Aujourd’hui, c’est la niche n°<strong>${openUntil}</strong> qui s’ouvre. Les jours passés restent ouverts&nbsp;!`;
+    if (!opened.includes(openUntil)) {
+      const go = document.createElement('button');
+      go.type = 'button'; go.className = 'btn avent__go';
+      go.innerHTML = `Ouvrir la niche du jour <span aria-hidden="true">↓</span>`;
+      go.addEventListener('click', () => {
+        const el = grid.querySelector(`.niche:nth-child(${openUntil})`);
+        el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+        el.classList.remove('is-called'); void el.offsetWidth; el.classList.add('is-called');
+        setTimeout(() => el.focus({ preventScroll: true }), 700);
+      });
+      status.after(go);
+    }
   } else {
     status.innerHTML = 'Toutes les niches sont ouvertes. Joyeuses fêtes de toute la meute&nbsp;!';
   }
@@ -198,6 +210,16 @@
     }), { rootMargin: '0px 0px -8% 0px' });
     grid.querySelectorAll('.niche').forEach((el) => io.observe(el));
   }
+
+  // ---------- Les boules se balancent quand on les touche ----------
+  root.querySelectorAll('.avent__deco--hang').forEach((b) => {
+    const hit = () => { b.classList.remove('is-hit'); void b.offsetWidth; b.classList.add('is-hit'); };
+    b.addEventListener('pointerdown', hit);
+    b.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') hit(); });
+    b.addEventListener('animationend', (e) => { if (e.animationName === 'swing-hit') b.classList.remove('is-hit'); });
+  });
+  // la porte du jour se rappelle à l'ordre
+  grid.addEventListener('animationend', (e) => { if (e.animationName === 'called') e.target.closest('.niche')?.classList.remove('is-called'); });
 
   // ---------- Neige ----------
   const canvas = root.querySelector('.avent__snow');
@@ -324,6 +346,7 @@
     const already = btn.classList.contains('is-opened');
     btn.classList.remove('is-ready'); btn.classList.add('is-opened', 'is-opening');
     btn.querySelector('.niche__badge')?.remove();
+    root.querySelector('.avent__go')?.remove();
     remember(n);
     if (already || instant || reduceMotion) { showModal(n); return; }
     setTimeout(() => burst(btn), 450);
