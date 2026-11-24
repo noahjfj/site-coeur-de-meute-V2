@@ -132,4 +132,4 @@ page_start('Clients', 'gerante', 'clients');
     </tbody>
   </table>
 </div>
-<?php page_end();
+<?php page_end(['/js/espace.js']);

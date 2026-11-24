@@ -220,7 +220,7 @@ legend { font-weight: 600; margin-bottom: 12px; padding: 0; }
 .facts--tiles dd { font-family: var(--serif); font-weight: 400; font-size: 1.25rem; }
 
 /* ---------- Tableaux ---------- */
-.table-box { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--white); }
+.table-box { position: relative; overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--white); }
 .table { width: 100%; min-width: 640px; border-collapse: collapse; font-size: .93rem; }
 .table th, .table td { padding: 14px 18px; text-align: left; vertical-align: top; }
 .table thead th { background: var(--cream); font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); font-weight: 600; }
@@ -390,4 +390,13 @@ legend { font-weight: 600; margin-bottom: 12px; padding: 0; }
   .facts { grid-template-columns: 1fr; }
   .topbar__nav { order: 3; width: 100%; flex: none; gap: 2px 16px; }
   .summary { position: static; }
+  /* Tableaux en fiches empilées (quand JavaScript a recopié les titres de colonnes) */
+  .table-box:has(.table--stack) { overflow-x: visible; border: 0; background: none; }
+  .table--stack { min-width: 0; }
+  .table--stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .table--stack, .table--stack tbody, .table--stack tr, .table--stack td, .table--stack tbody th { display: block; width: 100%; }
+  .table--stack tbody tr { border: 1px solid var(--line); border-radius: var(--radius); background: var(--white); padding: 8px 4px; margin-bottom: 12px; }
+  .table--stack td, .table--stack tbody th { padding: 6px 14px; }
+  .table--stack td[data-label]::before { content: attr(data-label); display: block; font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); font-weight: 600; margin-bottom: 2px; }
+  .table--stack td:empty { display: none; }
 }

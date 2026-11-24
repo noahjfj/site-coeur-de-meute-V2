@@ -4,3 +4,4 @@ app/storage/contrats/*
 !app/storage/contrats/.gitkeep
 admin/acces.php
 data/tarifs.json.tmp-*
+app/storage/tarifs.json

@@ -9,6 +9,17 @@
     });
   });
 
+  // Sur téléphone, chaque ligne de tableau devient une petite fiche : on recopie le titre de colonne
+  document.querySelectorAll('table.table:not(.table--inputs)').forEach(function (table) {
+    var heads = Array.prototype.map.call(table.querySelectorAll('thead th'), function (th) { return th.querySelector('.sr-only') ? '' : th.textContent.trim(); });
+    table.classList.add('table--stack');
+    table.querySelectorAll('tbody tr').forEach(function (tr) {
+      Array.prototype.forEach.call(tr.children, function (cell, i) {
+        if (heads[i]) cell.setAttribute('data-label', heads[i]);
+      });
+    });
+  });
+
   // ---------- Demande de séjour ----------
   var form = document.getElementById('request-form');
   if (!form) return;
