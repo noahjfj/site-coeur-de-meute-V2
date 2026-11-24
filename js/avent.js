@@ -1,29 +1,20 @@
 // =========================================================
-//  Calendrier de l'avent de Coeur de Meute
-//  Une grande niche illustrée sous la neige : 24 volets à ouvrir,
-//  des chiens à caresser, de la neige, des guirlandes…
-//  - la case du jour s'ouvre, celles des jours passés aussi, les suivantes restent fermées ;
+//  Calendrier de l'avent : 24 niches en 3D (CSS) sous la neige
+//  On peut caresser les chiens des niches ouvertes.
+//  - la niche du jour s'ouvre, celles des jours passés aussi, les suivantes restent fermées ;
 //  - lien direct vers une case : index.html?jour=5 (pour les réseaux sociaux) ;
 //  - la date suivie est celle de la Belgique.
-//  Le contenu des 24 cases se trouve dans js/avent-contenu.js
 // =========================================================
 (function () {
   const root = document.getElementById('avent');
   const data = window.AVENT;
   if (!root || !data) return;
 
-  const art = root.querySelector('.scene__art');
-  const wall = root.querySelector('.scene__wall');
-  const fx = root.querySelector('.scene__fx');
+  const grid = root.querySelector('.avent__grid');
   const status = root.querySelector('.avent__status');
-  const chips = root.querySelector('.avent__chips');
-  const counter = root.querySelector('.scene__pets');
-  const hint = root.querySelector('.scene__hint');
-  const soundBtn = root.querySelector('.scene__sound');
   const modal = document.getElementById('avent-modal');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  const rand = (a, b) => a + Math.random() * (b - a);
 
   // ---------- Date du jour (heure belge) ----------
   const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Brussels', year: 'numeric', month: '2-digit', day: '2-digit' })
@@ -31,20 +22,25 @@
   const todayIso = `${parts.year}-${parts.month}-${parts.day}`;
   const params = new URLSearchParams(location.search);
 
-  // Mode test (seulement en local ou sur les adresses provisoires) : ?avent-test=12 fait comme si on était le 12 décembre
+  // Mode test (seulement en local ou sur l'adresse provisoire) : ?avent-test=12 fait comme si on était le 12 décembre
   const testHost = !location.protocol.startsWith('http') || /^(localhost|127\.0\.0\.1)$|\.netlify\.app$|\.hostingersite\.com$/.test(location.hostname);
   const testDay = testHost ? parseInt(params.get('avent-test'), 10) : NaN;
 
   let openUntil; // dernier jour ouvrable (0 = aucun)
-  if (testDay >= 0 && testDay <= 25) openUntil = Math.min(testDay, 24);
-  else if (todayIso > data.finAffichage) { root.hidden = true; return; }
-  else if (todayIso < `${data.annee}-12-01`) openUntil = 0;
-  else if (todayIso > `${data.annee}-12-24`) openUntil = 24;
-  else openUntil = parseInt(parts.day, 10);
+  if (testDay >= 0 && testDay <= 25) {
+    openUntil = Math.min(testDay, 24);
+  } else if (todayIso > data.finAffichage) {
+    root.hidden = true; return;
+  } else if (todayIso < `${data.annee}-12-01`) {
+    openUntil = 0;
+  } else if (todayIso > `${data.annee}-12-24`) {
+    openUntil = 24;
+  } else {
+    openUntil = parseInt(parts.day, 10);
+  }
   const isToday = (n) => n === openUntil && (testDay >= 0 || todayIso <= `${data.annee}-12-24`);
-  const tipText = (n) => (openUntil === 0 ? 'Patience, on ouvre le 1<sup>er</sup> décembre&nbsp;! 🐾' : `Patience&nbsp;! Ouverture le ${n} décembre 🐾`);
 
-  // ---------- Cases déjà ouvertes (mémorisées sur cet appareil) ----------
+  // ---------- Niches déjà ouvertes (mémorisées sur cet appareil) ----------
   const KEY = `avent-${data.annee}`;
   let opened = [];
   try { opened = JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { /* navigation privée */ }
@@ -53,251 +49,202 @@
     try { localStorage.setItem(KEY, JSON.stringify(opened)); } catch (e) { /* ignore */ }
   };
 
+  // ---------- Construction des niches ----------
+  const COLORS = ['rust', 'blue', 'sand', 'brown', 'ink', 'copper'];
+  const DOGS = [ // couleurs du chien qui sort de la niche : [pelage, oreilles, museau]
+    ['#c98a62', '#8b6a52', '#f2dcc6'], ['#f4f0ea', '#c9a98a', '#ffffff'], ['#3d3a39', '#22201f', '#8b7b6e'],
+    ['#d9b98f', '#a8805c', '#f6e8d4'], ['#8b6a52', '#5c4432', '#d8b99c'], ['#e9e2d8', '#3d3a39', '#ffffff'],
+  ];
+
+  // Chaque chien a son look : oreilles tombantes ou dressées, bonnet, écharpe ou noeud
+  const LOOKS = ['hat', 'scarf', 'bow', 'none'];
+  const dogSvg = (n) => {
+    const [fur, ear, snout] = DOGS[n % DOGS.length];
+    const pointy = n % 3 === 1;
+    const look = n === 24 ? 'hat' : LOOKS[n % 4];
+    const ears = pointy
+      ? `<g class="dog__ear dog__ear--l"><path d="M24 34 L20 6 L40 22 Z" fill="${ear}"/><path d="M26 28 L24 13 L35 22 Z" fill="#e9b3a6"/></g>
+         <g class="dog__ear dog__ear--r"><path d="M76 34 L80 6 L60 22 Z" fill="${ear}"/><path d="M74 28 L76 13 L65 22 Z" fill="#e9b3a6"/></g>`
+      : `<g class="dog__ear dog__ear--l"><path d="M22 20 C8 22 4 48 14 58 C20 52 26 40 30 28 Z" fill="${ear}"/></g>
+         <g class="dog__ear dog__ear--r"><path d="M78 20 C92 22 96 48 86 58 C80 52 74 40 70 28 Z" fill="${ear}"/></g>`;
+    const extra = {
+      hat: '<g class="dog__hat"><path d="M27 22 C34 4 58 -6 74 6 C66 8 60 14 58 20 Z" fill="#c0392b"/><circle cx="76" cy="6" r="6" fill="#fff"/><rect x="22" y="17" width="56" height="9" rx="4.5" fill="#fff"/></g>',
+      scarf: '<path d="M26 78 Q50 90 74 78 L74 86 Q50 98 26 86 Z" fill="#2e6b47"/><path d="M60 84 L66 100 L56 100 L54 86 Z" fill="#2e6b47"/><path d="M30 80 L30 88 M40 83 L40 91 M50 84 L50 92 M60 83 L60 91 M70 80 L70 88" stroke="#24553a" stroke-width="2"/>',
+      bow: '<g transform="translate(70 20) rotate(15)"><path d="M0 0 L-10 -7 L-10 7 Z M0 0 L10 -7 L10 7 Z" fill="#a65a43"/><circle r="3" fill="#8a4733"/></g>',
+      none: '<path d="M30 80 Q50 88 70 80" stroke="#a65a43" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="50" cy="87" r="4" fill="#f4c95d"/>',
+    }[look];
+    return `<svg class="niche__dog" viewBox="0 -8 100 108" aria-hidden="true">
+      ${ears}
+      <path d="M50 12 C26 12 20 34 22 52 C24 74 38 86 50 86 C62 86 76 74 78 52 C80 34 74 12 50 12 Z" fill="${fur}"/>
+      <ellipse cx="50" cy="66" rx="17" ry="13" fill="${snout}"/>
+      <g class="dog__eyes"><circle cx="38" cy="46" r="4.6" fill="#2a2522"/><circle cx="62" cy="46" r="4.6" fill="#2a2522"/>
+      <circle cx="39.6" cy="44.4" r="1.5" fill="#fff"/><circle cx="63.6" cy="44.4" r="1.5" fill="#fff"/></g>
+      <g class="dog__happy"><path d="M33 47 Q38 41 43 47 M57 47 Q62 41 67 47" stroke="#2a2522" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+      <ellipse cx="30" cy="57" rx="5" ry="3" fill="#ff8fa3" opacity=".7"/><ellipse cx="70" cy="57" rx="5" ry="3" fill="#ff8fa3" opacity=".7"/></g>
+      <path d="M44 59 Q50 55 56 59 Q55 65 50 66 Q45 65 44 59 Z" fill="#2a2522"/>
+      <path d="M50 66 V70 M43 71 Q50 77 57 71" stroke="#2a2522" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path class="dog__tongue" d="M46 73 Q50 86 54 73 Z" fill="#e57b7b"/>
+      ${extra}
+    </svg>`;
+  };
+
+  // guirlande lumineuse le long du toit (petites ampoules posées sur le bord du toit)
+  const lightsHtml = (() => {
+    const colors = ['#ff5d5d', '#ffd34d', '#5ecbff', '#7ee07a', '#ff9de1'];
+    let dots = '';
+    for (let k = 0; k <= 12; k++) {
+      const t = k / 12, x = 7 + t * 86, y = 92 - (1 - Math.abs(t - .5) * 2) * 70 + (k % 2 ? 4 : 0);
+      dots += `<i style="left:${x.toFixed(1)}%;top:${y.toFixed(1)}%;--c:${colors[k % colors.length]};--k:${k}"></i>`;
+    }
+    return `<span class="niche__lights" aria-hidden="true">${dots}</span>`;
+  })();
+
+  const lockSvg = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11 V8 a4 4 0 0 1 8 0 V11" fill="none"/></svg>';
+
+  data.jours.forEach((jour, i) => {
+    const n = i + 1;
+    const color = n === 24 ? 'gold' : COLORS[(i * 5) % COLORS.length];
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = `niche niche--${color}${n === 24 ? ' niche--big' : ''}`;
+    btn.dataset.day = n;
+    btn.style.setProperty('--i', i);
+    const state = n > openUntil ? 'locked' : opened.includes(n) ? 'opened' : 'ready';
+    btn.classList.add(`is-${state}`);
+    if (isToday(n)) btn.classList.add('is-today');
+    btn.setAttribute('aria-label', n > openUntil ? `Niche du ${n} décembre, pas encore ouverte` : `Ouvrir la niche du ${n} décembre`);
+    btn.innerHTML = `
+      <span class="niche__body">
+        <span class="niche__roof-side"></span>
+        <span class="niche__side"></span>
+        <span class="niche__roof"></span>
+        ${lightsHtml}
+        <span class="niche__gable"><span class="niche__plate">${n}</span></span>
+        <span class="niche__wall">
+          <span class="niche__hole">${dogSvg(n)}<span class="niche__item">${esc(jour.emoji || '🎁')}</span></span>
+          <span class="niche__door"><span class="niche__door-front"><span class="niche__num">${n}</span><span class="niche__lock">${lockSvg}</span></span><span class="niche__door-back"></span></span>
+        </span>
+        <span class="niche__bowl" aria-hidden="true"></span>
+      </span>
+      <span class="niche__rays" aria-hidden="true"></span>
+      ${isToday(n) && !opened.includes(n) ? '<span class="niche__badge">Ouvre-moi&nbsp;!</span>' : ''}
+      <span class="niche__tip" role="status"></span>`;
+    grid.appendChild(btn);
+  });
+
   // ---------- Texte d'état ----------
   if (openUntil === 0) {
     const days = Math.round((Date.parse(`${data.annee}-12-01`) - Date.parse(todayIso)) / 86400000);
-    status.innerHTML = `Le premier volet s’ouvre le <strong>1<sup>er</sup> décembre</strong> — plus que <strong>${days} jour${days > 1 ? 's' : ''}</strong>&nbsp;!`;
+    status.innerHTML = `La première niche s’ouvre le <strong>1<sup>er</sup> décembre</strong> — plus que <strong>${days} jour${days > 1 ? 's' : ''}</strong>&nbsp;!`;
   } else if (openUntil < 24 || isToday(24)) {
-    status.innerHTML = `Aujourd’hui, c’est le volet n°<strong>${openUntil}</strong> qui s’ouvre. Les jours passés restent ouverts&nbsp;!`;
+    status.innerHTML = `Aujourd’hui, c’est la niche n°<strong>${openUntil}</strong> qui s’ouvre. Les jours passés restent ouverts&nbsp;!`;
   } else {
-    status.innerHTML = 'Tous les volets sont ouverts. Joyeuses fêtes de toute la meute&nbsp;!';
+    status.innerHTML = 'Toutes les niches sont ouvertes. Joyeuses fêtes de toute la meute&nbsp;!';
   }
 
-  // =========================================================
-  //  Son (coupé par défaut)
-  // =========================================================
-  let audio = null, soundOn = false;
-  soundBtn.addEventListener('click', () => {
-    soundOn = !soundOn;
-    soundBtn.setAttribute('aria-pressed', String(soundOn));
-    soundBtn.innerHTML = soundOn ? '🔔 Son activé' : '🔕 Son coupé';
-    if (soundOn && !audio) { try { audio = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { soundOn = false; } }
-    if (soundOn) chime();
-  });
-  const tone = (f, t0, dur, type = 'sine', vol = .15, f2) => {
-    if (!soundOn || !audio) return;
-    const o = audio.createOscillator(), g = audio.createGain(), t = audio.currentTime + t0;
-    o.type = type; o.frequency.setValueAtTime(f, t);
-    if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + dur);
-    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
-    o.connect(g).connect(audio.destination); o.start(t); o.stop(t + dur + .05);
-  };
-  const chime = () => [1318, 1568, 2093, 2637, 3136].forEach((f, i) => tone(f, i * .08, .6, 'triangle', .06));
-  const pop = () => tone(rand(700, 1000), 0, .12, 'sine', .06, 1400);
-  const bark = (small) => { const b = small ? 560 : 320; [0, .16].forEach((t) => { tone(b, t, .13, 'sawtooth', .06, b * .6); tone(b * 2, t, .09, 'square', .02, b); }); };
-  const knock = () => tone(170, 0, .14, 'square', .05, 120);
-
-  // =========================================================
-  //  Effets : particules et bulles
-  // =========================================================
-  const PAW = '<svg viewBox="0 0 64 64"><ellipse cx="32" cy="42" rx="14" ry="12"/><ellipse cx="15" cy="25" rx="6" ry="8"/><ellipse cx="26" cy="16" rx="6" ry="8"/><ellipse cx="38" cy="16" rx="6" ry="8"/><ellipse cx="49" cy="25" rx="6" ry="8"/></svg>';
-  const HEART = '<svg viewBox="0 0 64 64"><path d="M32 56 C6 38 6 14 20 12 C27 11 30 16 32 20 C34 16 37 11 44 12 C58 14 58 38 32 56 Z"/></svg>';
-  const STAR = '<svg viewBox="0 0 64 64"><path d="M32 4 L39 24 L60 25 L43 38 L49 59 L32 47 L15 59 L21 38 L4 25 L25 24 Z"/></svg>';
-  const SPARK = '<svg viewBox="0 0 64 64"><path d="M32 2 C34 24 40 30 62 32 C40 34 34 40 32 62 C30 40 24 34 2 32 C24 30 30 24 32 2 Z"/></svg>';
-  const localXY = (clientX, clientY) => { const r = art.getBoundingClientRect(); return [clientX - r.left, clientY - r.top]; };
-  const particle = (html, cls, x, y, o = {}) => {
-    if (reduceMotion && !o.force) return;
-    const p = document.createElement('span');
-    p.className = `fx ${cls}`; p.innerHTML = html;
-    p.style.left = `${x}px`; p.style.top = `${y}px`;
-    p.style.setProperty('--dx', `${o.dx || 0}px`); p.style.setProperty('--dy', `${o.dy || -80}px`);
-    p.style.setProperty('--rot', `${o.rot || 0}deg`); p.style.setProperty('--s', o.s || 1);
-    p.style.setProperty('--d', `${o.d || 1.2}s`);
-    fx.appendChild(p);
-    p.addEventListener('animationend', () => p.remove());
-  };
-  const burstAt = (x, y, count = 36) => {
-    const kinds = [[PAW, 'fx--paw'], [HEART, 'fx--heart'], [STAR, 'fx--star'], [SPARK, 'fx--spark']];
-    for (let i = 0; i < count; i++) {
-      const [h, c] = kinds[i % kinds.length], a = rand(0, Math.PI * 2), dist = rand(70, 230);
-      particle(h, `${c} fx--burst`, x, y, { dx: Math.cos(a) * dist, dy: Math.sin(a) * dist - 70, rot: rand(-260, 260), s: rand(.6, 1.25), d: rand(.9, 1.5) });
-    }
-  };
-  const bubble = (html, x, y, cls = '', ttl = 1800) => {
-    const b = document.createElement('span');
-    b.className = `scene__bubble ${cls}`; b.innerHTML = html;
-    fx.appendChild(b);
-    const w = art.clientWidth, half = Math.min(b.offsetWidth / 2 + 6, w / 2);
-    b.style.left = `${Math.min(w - half, Math.max(half, x))}px`; b.style.top = `${y}px`;
-    setTimeout(() => { b.classList.add('is-out'); setTimeout(() => b.remove(), 300); }, ttl);
-    return b;
-  };
-
-  // =========================================================
-  //  Les 24 volets
-  // =========================================================
-  const shutters = [];
-  data.jours.forEach((jour, i) => {
-    const n = i + 1;
-    const b = document.createElement('button');
-    b.type = 'button'; b.className = 'volet'; b.dataset.day = n;
-    b.style.setProperty('--i', i);
-    const locked = n > openUntil;
-    if (locked) b.classList.add('is-locked');
-    if (opened.includes(n) && !locked) b.classList.add('is-open');
-    if (isToday(n)) b.classList.add('is-today');
-    if (n === 24) b.classList.add('is-24');
-    b.setAttribute('aria-label', locked ? `Volet du ${n} décembre, pas encore ouvert` : `Ouvrir le volet du ${n} décembre`);
-    b.innerHTML = `
-      <span class="volet__glow" aria-hidden="true"></span>
-      <img class="volet__frame" src="assets/avent/fenetre.webp" alt="" draggable="false">
-      <span class="volet__inside" aria-hidden="true">${esc(jour.emoji || '🎁')}</span>
-      <span class="volet__door" aria-hidden="true">
-        <span class="volet__num">${n}</span>
-        ${locked ? '<svg class="volet__lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11 V8 a4 4 0 0 1 8 0 V11"/></svg>' : ''}
-      </span>
-      ${isToday(n) && !opened.includes(n) ? '<span class="volet__badge">Ouvre-moi&nbsp;!</span>' : ''}`;
-    wall.appendChild(b);
-    shutters.push(b);
-  });
-
-  const centerOf = (el) => { const r = el.getBoundingClientRect(); return localXY(r.left + r.width / 2, r.top + r.height / 2); };
-
-  const openDay = (n, opts = {}) => {
-    const b = shutters[n - 1];
-    if (!b) return;
-    if (n > openUntil) {
-      b.classList.remove('is-shake'); void b.offsetWidth; b.classList.add('is-shake');
-      const [x, y] = centerOf(b);
-      bubble(tipText(n), x, y + b.offsetHeight * .75, 'scene__bubble--tip scene__bubble--below', 2200);
-      knock();
-      return;
-    }
-    const was = b.classList.contains('is-open');
-    b.classList.add('is-open');
-    b.querySelector('.volet__badge')?.remove();
-    remember(n); syncChip(n);
-    if (was || opts.instant || reduceMotion) { showModal(n); return; }
-    b.classList.add('is-opening');
-    chime();
-    setTimeout(() => {
-      const [x, y] = centerOf(b);
-      burstAt(x, y);
-      dogs.forEach((d, k) => setTimeout(() => cheer(d, 1400), k * 90));
-      bark(false);
-    }, 420);
-    setTimeout(() => { b.classList.remove('is-opening'); showModal(n); }, 1500);
-  };
-  wall.addEventListener('click', (e) => { const b = e.target.closest('.volet'); if (b) openDay(+b.dataset.day); });
-
-  // ---------- Pastilles 1 à 24 (accès rapide) ----------
-  const chipEls = shutters.map((s, i) => {
-    const n = i + 1, c = document.createElement('button');
-    c.type = 'button'; c.className = 'avent__chip'; c.textContent = n;
-    if (n > openUntil) c.classList.add('is-locked');
-    if (isToday(n)) c.classList.add('is-today');
-    if (opened.includes(n) && n <= openUntil) c.classList.add('is-opened');
-    c.setAttribute('aria-label', n > openUntil ? `${n} décembre : pas encore ouvert` : `Ouvrir la case du ${n} décembre`);
-    c.addEventListener('click', () => {
-      if (n > openUntil) { c.classList.remove('is-shake'); void c.offsetWidth; c.classList.add('is-shake'); }
-      openDay(n);
+  // ---------- Effet 3D : la scène suit la souris / l'inclinaison ----------
+  if (!reduceMotion) {
+    let raf = 0;
+    const tilt = (x, y) => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        root.style.setProperty('--ry', `${-16 + x * 14}deg`);
+        root.style.setProperty('--rx', `${-8 - y * 8}deg`);
+      });
+    };
+    root.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      const r = root.getBoundingClientRect();
+      tilt((e.clientX - r.left) / r.width - 0.5, (e.clientY - r.top) / r.height - 0.5);
     });
-    chips.appendChild(c); return c;
-  });
-  function syncChip(n) { chipEls[n - 1]?.classList.add('is-opened'); }
-
-  // =========================================================
-  //  Les chiens
-  // =========================================================
-  const PHRASES = ['Wouf&nbsp;!', 'Wouf wouf&nbsp;! 🐾', 'Encore&nbsp;! ❤️', 'Joyeux Noël&nbsp;! 🎄', 'Une caresse&nbsp;?', 'On joue&nbsp;? 🎾', 'Merci&nbsp;! 🥰', 'Tu as une friandise&nbsp;? 🦴'];
-  let pets = 0;
-  const dogs = [...root.querySelectorAll('.chien')].map((el) => ({ el, name: el.dataset.name, small: el.dataset.small === '1', sleepy: el.classList.contains('is-asleep'), calm: 0, nextHeart: 0 }));
-
-  // une seule bulle à la fois par chien
-  const say = (d, ...args) => { d.bubble?.remove(); d.bubble = bubble(...args); };
-  function cheer(d, ms = 1200) {
-    d.el.classList.add('is-happy');
-    if (d.sleepy) d.el.classList.remove('is-asleep');
-    d.el.classList.remove('is-hop'); void d.el.offsetWidth; d.el.classList.add('is-hop');
-    clearTimeout(d.calm);
-    d.calm = setTimeout(() => calm(d), ms);
+    root.addEventListener('pointerleave', () => tilt(0, 0));
   }
-  function calm(d) {
-    d.el.classList.remove('is-happy');
-    if (d.sleepy) d.calm = setTimeout(() => d.el.classList.add('is-asleep'), 6000);
-  }
-  const pet = (d, clientX, clientY, quiet) => {
-    const now = performance.now();
-    const wasAsleep = d.el.classList.contains('is-asleep');
-    d.el.classList.add('is-happy', 'is-petted');
-    d.el.classList.remove('is-asleep');
-    clearTimeout(d.calm); clearTimeout(d.petEnd);
-    d.petEnd = setTimeout(() => d.el.classList.remove('is-petted'), 260);
-    d.calm = setTimeout(() => calm(d), 1100);
-    const [x, y] = localXY(clientX, clientY);
-    if (wasAsleep && !quiet) say(d, `${d.name} se réveille… 🥱`, x, y - 30, '', 1600);
-    if (now < d.nextHeart) return;
-    d.nextHeart = now + 130;
-    particle(HEART, 'fx--heart fx--float', x, y, { dx: rand(-40, 40), dy: rand(-110, -70), rot: rand(-30, 30), s: rand(.7, 1.1), d: 1.3 });
-    pets++;
-    counter.innerHTML = `❤️ <strong>${pets}</strong> caresse${pets > 1 ? 's' : ''}`;
-    counter.classList.add('is-visible');
-    counter.classList.remove('is-bump'); void counter.offsetWidth; counter.classList.add('is-bump');
-    hint?.classList.add('is-done');
-    pop();
-    if (pets % 25 === 0) {
-      say(d, `${d.name} vous adore&nbsp;! 🥰`, x, y - 40, 'scene__bubble--love', 2200);
-      for (let k = 0; k < 14; k++) particle(HEART, 'fx--heart fx--burst', x, y, { dx: rand(-140, 140), dy: rand(-200, -60), rot: rand(-90, 90), s: rand(.6, 1.2), d: 1.4 });
-      cheer(d, 1600); bark(d.small);
-    }
-  };
-  dogs.forEach((d) => {
-    let down = null;
-    d.el.addEventListener('pointerdown', (e) => { down = { x: e.clientX, y: e.clientY }; d.el.setPointerCapture?.(e.pointerId); });
-    d.el.addEventListener('pointermove', (e) => {
-      if (e.pointerType === 'mouse' || down) {
-        const r = d.el.getBoundingClientRect();
-        if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) pet(d, e.clientX, e.clientY);
-      }
-    });
-    d.el.addEventListener('pointerup', (e) => {
-      if (down && Math.hypot(e.clientX - down.x, e.clientY - down.y) < 10) {
-        const [x] = localXY(e.clientX, e.clientY);
-        const wasAsleep = d.el.classList.contains('is-asleep');
-        cheer(d, 1500); pet(d, e.clientX, e.clientY, true); bark(d.small);
-        const r = d.el.getBoundingClientRect(), [, top] = localXY(0, r.top);
-        say(d, wasAsleep ? `${d.name} se réveille… 🥱` : PHRASES[Math.floor(Math.random() * PHRASES.length)], x, top + r.height * .12, '', 1500);
-      }
-      down = null;
-    });
-    d.el.addEventListener('pointercancel', () => { down = null; });
-    d.el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); const r = d.el.getBoundingClientRect(); cheer(d, 1500); pet(d, r.left + r.width / 2, r.top + r.height / 3); bark(d.small); } });
-  });
-  // le chiot fait des petits bonds de temps en temps
-  if (!reduceMotion) setInterval(() => { const d = dogs.find((x) => x.name === 'Biscuit'); if (d && !document.hidden && !d.el.classList.contains('is-happy')) { d.el.classList.remove('is-hop'); void d.el.offsetWidth; d.el.classList.add('is-hop'); } }, 4200);
 
-  // =========================================================
-  //  Neige qui tombe (canvas)
-  // =========================================================
-  const canvas = root.querySelector('.scene__snow');
+  // ---------- Neige ----------
+  const canvas = root.querySelector('.avent__snow');
   if (canvas && !reduceMotion) {
     const ctx = canvas.getContext('2d');
     let flakes = [], w = 0, h = 0, running = false;
     const resize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      w = art.clientWidth; h = art.clientHeight;
+      w = root.clientWidth; h = root.clientHeight;
       canvas.width = w * dpr; canvas.height = h * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const count = Math.round(Math.min(220, w * h / 6000));
-      flakes = Array.from({ length: count }, () => ({ x: rand(0, w), y: rand(0, h), r: rand(.6, 3.2), s: rand(.3, 1), d: rand(0, 6) }));
+      const count = Math.round(Math.min(160, w * h / 9000));
+      flakes = Array.from({ length: count }, () => ({ x: Math.random() * w, y: Math.random() * h, r: Math.random() * 2.4 + .6, s: Math.random() * .6 + .3, d: Math.random() * Math.PI * 2 }));
     };
     const frame = () => {
       if (!running) return;
       ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = 'rgba(255,255,255,.85)';
+      ctx.beginPath();
       flakes.forEach((f) => {
-        f.d += .012; f.y += f.s * (f.r * .45 + .35); f.x += Math.sin(f.d) * .45;
-        if (f.y > h + 5) { f.y = -5; f.x = rand(0, w); }
-        ctx.globalAlpha = .45 + f.r / 6; ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2); ctx.fillStyle = '#fff'; ctx.fill();
+        f.d += .01; f.y += f.s * (f.r * .6 + .4); f.x += Math.sin(f.d) * .4;
+        if (f.y > h + 5) { f.y = -5; f.x = Math.random() * w; }
+        ctx.moveTo(f.x, f.y); ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
       });
+      ctx.fill();
       requestAnimationFrame(frame);
     };
     resize();
-    new ResizeObserver(resize).observe(art);
-    new IntersectionObserver(([e]) => { const was = running; running = e.isIntersecting; if (running && !was) frame(); }).observe(art);
+    window.addEventListener('resize', resize);
+    new IntersectionObserver(([e]) => { const was = running; running = e.isIntersecting; if (running && !was) frame(); }).observe(root);
   }
 
-  // =========================================================
-  //  Fenêtre de la case
-  // =========================================================
+  // ---------- Particules (pattes, étoiles, coeurs) ----------
+  const SHAPES = {
+    paw: '<svg viewBox="0 0 64 64"><ellipse cx="32" cy="42" rx="14" ry="12"/><ellipse cx="15" cy="25" rx="6" ry="8"/><ellipse cx="26" cy="16" rx="6" ry="8"/><ellipse cx="38" cy="16" rx="6" ry="8"/><ellipse cx="49" cy="25" rx="6" ry="8"/></svg>',
+    heart: '<svg viewBox="0 0 64 64"><path d="M32 56 C6 38 6 14 20 12 C27 11 30 16 32 20 C34 16 37 11 44 12 C58 14 58 38 32 56 Z"/></svg>',
+    star: '<svg viewBox="0 0 64 64"><path d="M32 4 L39 24 L60 25 L43 38 L49 59 L32 47 L15 59 L21 38 L4 25 L25 24 Z"/></svg>',
+    spark: '<svg viewBox="0 0 64 64"><path d="M32 2 C34 24 40 30 62 32 C40 34 34 40 32 62 C30 40 24 34 2 32 C24 30 30 24 32 2 Z"/></svg>',
+  };
+  const particle = (kind, x, y, dx, dy, size, dur) => {
+    const p = document.createElement('span');
+    p.className = `avent-particle avent-particle--${kind}`;
+    p.innerHTML = SHAPES[kind];
+    p.style.left = `${x}px`; p.style.top = `${y}px`;
+    p.style.setProperty('--dx', `${dx}px`); p.style.setProperty('--dy', `${dy}px`);
+    p.style.setProperty('--rot', `${Math.random() * 500 - 250}deg`);
+    p.style.setProperty('--d', `${dur}s`);
+    p.style.width = p.style.height = `${size}px`;
+    document.body.appendChild(p);
+    p.addEventListener('animationend', () => p.remove());
+  };
+  const burst = (el) => {
+    if (reduceMotion) return;
+    const r = el.getBoundingClientRect();
+    const cx = r.left + r.width / 2, cy = r.top + r.height * .6;
+    const kinds = ['paw', 'heart', 'star', 'spark'];
+    for (let k = 0; k < 30; k++) {
+      const angle = Math.random() * Math.PI * 2, dist = 80 + Math.random() * 150;
+      particle(kinds[k % 4], cx, cy, Math.cos(angle) * dist, Math.sin(angle) * dist - 70, 14 + Math.random() * 16, 1 + Math.random() * .5);
+    }
+  };
+
+  // ---------- Caresser les chiens des niches ouvertes ----------
+  let pets = 0, nextHeart = 0;
+  const pets$ = root.querySelector('.avent__pets');
+  const pet = (btn, x, y) => {
+    btn.classList.add('is-petted');
+    clearTimeout(btn._pet); btn._pet = setTimeout(() => btn.classList.remove('is-petted'), 700);
+    const now = performance.now();
+    if (now < nextHeart) return;
+    nextHeart = now + 140;
+    if (!reduceMotion) particle('heart', x, y, Math.random() * 60 - 30, -70 - Math.random() * 40, 16 + Math.random() * 8, 1.2);
+    pets++;
+    pets$.innerHTML = `❤️ <strong>${pets}</strong> caresse${pets > 1 ? 's' : ''} donnée${pets > 1 ? 's' : ''}`;
+    pets$.hidden = false;
+    pets$.classList.remove('is-bump'); void pets$.offsetWidth; pets$.classList.add('is-bump');
+  };
+  let touchPet = false;
+  grid.addEventListener('pointerdown', (e) => { touchPet = e.pointerType !== 'mouse'; });
+  grid.addEventListener('pointerup', () => { touchPet = false; });
+  grid.addEventListener('pointermove', (e) => {
+    if (e.pointerType !== 'mouse' && !touchPet) return;
+    const hole = e.target.closest('.niche.is-opened .niche__hole');
+    if (hole) pet(hole.closest('.niche'), e.clientX, e.clientY);
+  });
+
+  // ---------- Fenêtre de la case ----------
   let current = 0;
   const showModal = (n) => {
     const jour = data.jours[n - 1];
@@ -305,16 +252,14 @@
     const media = jour.image
       ? `<img src="${esc(jour.image)}" alt="${esc(jour.titre)}">`
       : `<span class="avent-card__emoji" aria-hidden="true">${esc(jour.emoji)}</span>`;
-    const m = modal.querySelector('.avent-card__media');
-    m.innerHTML = `${media}<span class="avent-card__day"><small>Volet</small>${n}<small>décembre</small></span>`;
-    m.className = `avent-card__media avent-card__media--${n % 6}${jour.image ? ' has-img' : ''}`;
+    modal.querySelector('.avent-card__media').innerHTML = `${media}<span class="avent-card__day"><small>Niche</small>${n}<small>décembre</small></span>`;
+    modal.querySelector('.avent-card__media').className = `avent-card__media avent-card__media--${n % 6}${jour.image ? ' has-img' : ''}`;
     modal.querySelector('.avent-card__title').textContent = jour.titre;
     modal.querySelector('.avent-card__text').textContent = jour.texte;
     const cta = modal.querySelector('.avent-card__cta');
     if (jour.bouton) { cta.hidden = false; cta.textContent = jour.bouton.texte; cta.href = jour.bouton.lien; } else cta.hidden = true;
     modal.querySelector('[data-nav="prev"]').disabled = n <= 1;
     modal.querySelector('[data-nav="next"]').disabled = n >= openUntil;
-    modal.querySelector('.avent-card__share-done').textContent = '';
     modal.hidden = false;
     modal.classList.remove('is-in'); void modal.offsetWidth; modal.classList.add('is-in');
     document.documentElement.classList.add('avent-lock');
@@ -323,16 +268,43 @@
   const closeModal = () => {
     modal.hidden = true;
     document.documentElement.classList.remove('avent-lock');
-    shutters[current - 1]?.focus({ preventScroll: true });
-    if (params.has('jour')) history.replaceState(null, '', location.pathname + location.search.replace(/[?&]jour=\d+/, '').replace(/^&/, '?') + '#avent');
+    const btn = grid.querySelector(`[data-day="${current}"]`);
+    if (btn) btn.focus({ preventScroll: true });
+    if (params.has('jour')) history.replaceState(null, '', location.pathname + location.hash.replace(/^#jour-\d+/, ''));
   };
+
+  const openNiche = (btn, instant) => {
+    const n = +btn.dataset.day;
+    if (n > openUntil) {
+      const tip = btn.querySelector('.niche__tip');
+      tip.textContent = openUntil === 0 ? 'Patience, on ouvre le 1er décembre !' : `Patience ! Ouverture le ${n} décembre 🐾`;
+      btn.classList.remove('is-shaking'); void btn.offsetWidth; btn.classList.add('is-shaking', 'show-tip');
+      clearTimeout(btn._t); btn._t = setTimeout(() => btn.classList.remove('show-tip'), 2200);
+      return;
+    }
+    const already = btn.classList.contains('is-opened');
+    btn.classList.remove('is-ready'); btn.classList.add('is-opened', 'is-opening');
+    btn.querySelector('.niche__badge')?.remove();
+    remember(n);
+    if (already || instant || reduceMotion) { showModal(n); return; }
+    setTimeout(() => burst(btn), 450);
+    setTimeout(() => btn.classList.remove('is-opening'), 1400);
+    setTimeout(() => showModal(n), 1350);
+  };
+
+  grid.addEventListener('click', (e) => {
+    const btn = e.target.closest('.niche');
+    if (btn) openNiche(btn);
+  });
+
   modal.addEventListener('click', (e) => {
     if (e.target === modal || e.target.closest('.avent-card__close')) closeModal();
     const nav = e.target.closest('[data-nav]');
     if (nav && !nav.disabled) {
       const n = current + (nav.dataset.nav === 'next' ? 1 : -1);
-      shutters[n - 1].classList.add('is-open'); shutters[n - 1].querySelector('.volet__badge')?.remove();
-      remember(n); syncChip(n); showModal(n);
+      const btn = grid.querySelector(`[data-day="${n}"]`);
+      btn.classList.remove('is-ready'); btn.classList.add('is-opened'); remember(n);
+      showModal(n);
     }
     if (e.target.closest('.avent-card__share')) share();
   });
@@ -342,9 +314,10 @@
     if (e.key === 'ArrowRight' && current < openUntil) modal.querySelector('[data-nav="next"]').click();
     if (e.key === 'ArrowLeft' && current > 1) modal.querySelector('[data-nav="prev"]').click();
   });
+
   const share = () => {
     const url = `${location.origin}${location.pathname}?jour=${current}#avent`;
-    const text = `Volet n°${current} du calendrier de l'avent de Coeur de Meute 🐾`;
+    const text = `Niche n°${current} du calendrier de l'avent de Coeur de Meute 🐾`;
     const done = modal.querySelector('.avent-card__share-done');
     if (navigator.share) { navigator.share({ title: 'Coeur de Meute', text, url }).catch(() => {}); return; }
     (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(() => {
@@ -353,13 +326,11 @@
     }).catch(() => { done.textContent = url; });
   };
 
-  // pour les tests et les aperçus
-  window.AVENT_SCENE = { openDay, dogs, pet, cheer };
-
   // ---------- Lien direct depuis les réseaux sociaux : ?jour=5 ----------
   const wanted = parseInt(params.get('jour') || (location.hash.match(/^#jour-(\d+)/) || [])[1], 10);
   if (wanted >= 1 && wanted <= 24) {
+    const btn = grid.querySelector(`[data-day="${wanted}"]`);
     root.scrollIntoView({ behavior: 'instant', block: 'start' });
-    setTimeout(() => openDay(wanted), 900);
+    setTimeout(() => openNiche(btn), 700);
   }
 })();
