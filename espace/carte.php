@@ -4,7 +4,7 @@ $user = require_client();
 $uid = (int) $user['id'];
 
 $cards = q_all('SELECT * FROM cards WHERE user_id = ? ORDER BY (expires_at >= CURDATE() AND used_days < paid_days + free_days) DESC, expires_at DESC', [$uid]);
-$dogNames = array_column(user_dogs($uid), 'name');
+$userDogs = user_dogs($uid);
 $tarifs = load_tarifs();
 
 page_start('Mes cartes journée', 'client', 'carte');
@@ -35,6 +35,7 @@ page_start('Mes cartes journée', 'client', 'carte');
     $left = card_remaining($c);
     $expired = $c['expires_at'] < today();
     $premium = (int) $c['paid_days'] >= 20;
+    $dogNames = array_column(array_filter($userDogs, static fn($d) => $d['size'] === $c['size']), 'name');
     $state = $expired ? 'Expirée' : ($left <= 0 ? 'Terminée' : $left . ' restante' . ($left > 1 ? 's' : ''));
 ?>
 <section class="cardshow<?= $expired || $left <= 0 ? ' cardshow--old' : '' ?>" id="carte-<?= $i ?>" data-panel="<?= $i ?>"<?= count($cards) > 1 ? ' role="tabpanel" aria-labelledby="tab-' . $i . '"' : '' ?><?= $i > 0 ? ' hidden' : '' ?>>

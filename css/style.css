@@ -2381,3 +2381,32 @@ p { margin: 0 0 1em; }
   .gallery__item--tall { grid-row: auto; }
   .map iframe { height: 300px; }
 }
+
+/* =========================================================
+   Accueil : bandeau du marché de Noël
+   ========================================================= */
+.xmas {
+  position: relative; overflow: hidden; isolation: isolate; color: var(--white);
+  background: radial-gradient(circle at 85% 20%, rgba(201, 138, 98, .45), rgba(201, 138, 98, 0) 45%),
+              linear-gradient(135deg, var(--ink) 0%, #3b4a5e 55%, var(--rust-dark) 100%);
+  padding: clamp(48px, 8vw, 84px) 0;
+}
+.xmas__inner { display: flex; align-items: center; gap: clamp(28px, 6vw, 72px); flex-wrap: wrap; }
+.xmas__tree { position: relative; flex: none; width: clamp(110px, 18vw, 170px); aspect-ratio: 1; display: grid; place-items: center;
+  border-radius: 50%; background: rgba(255, 255, 255, .08); box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .12); }
+.xmas__tree svg { width: 62%; fill: none; stroke: #e8c9b4; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.xmas__star { position: absolute; top: 14%; left: 50%; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%;
+  background: #f4d6a0; box-shadow: 0 0 18px 6px rgba(244, 214, 160, .6); animation: xmas-twinkle 2.4s ease-in-out infinite; }
+.xmas__text { flex: 1 1 320px; max-width: 640px; }
+.xmas__kicker { font-size: .78rem; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: #e8c9b4; margin: 0 0 10px; }
+.xmas__title { font-family: var(--serif); font-weight: 400; font-size: clamp(1.7rem, 4vw, 2.6rem); line-height: 1.15; margin: 0 0 14px; color: var(--white); }
+.xmas__text p { color: rgba(255, 255, 255, .86); }
+.xmas__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+.xmas__snow { position: absolute; inset: -40px 0 0; z-index: -1; pointer-events: none; opacity: .5;
+  background-image: radial-gradient(2px 2px at 20px 30px, #fff, transparent), radial-gradient(2px 2px at 80px 120px, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 150px 60px, #fff, transparent), radial-gradient(2.5px 2.5px at 210px 160px, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 260px 20px, #fff, transparent);
+  background-size: 300px 200px; animation: xmas-snow 18s linear infinite; }
+@keyframes xmas-snow { from { background-position: 0 0; } to { background-position: 60px 200px; } }
+@keyframes xmas-twinkle { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .55; transform: scale(.75); } }
+@media (prefers-reduced-motion: reduce) { .xmas__snow, .xmas__star { animation: none; } }
