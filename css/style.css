@@ -2398,6 +2398,12 @@ p { margin: 0 0 1em; }
   background: var(--white); color: var(--ink); box-shadow: 0 24px 50px -20px rgba(0, 0, 0, .55); transform: rotate(-4deg);
   border-top: 10px solid var(--rust); animation: xmas-swing 5s ease-in-out infinite;
 }
+.xmas__date { position: relative; }
+.xmas__tree { position: absolute; top: -46px; right: -46px; width: 104px; height: 104px; display: grid; place-items: center;
+  border-radius: 50%; background: var(--ink); box-shadow: 0 10px 24px -8px rgba(0, 0, 0, .5), inset 0 0 0 2px rgba(255, 255, 255, .15); transform: rotate(4deg); }
+.xmas__tree svg { width: 58%; fill: none; stroke: #e8c9b4; stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
+.xmas__star { position: absolute; top: 15px; left: 50%; width: 9px; height: 9px; margin-left: -4.5px; border-radius: 50%;
+  background: #f4d6a0; box-shadow: 0 0 14px 5px rgba(244, 214, 160, .6); animation: xmas-twinkle 2.4s ease-in-out infinite; }
 .xmas__day { display: block; font-size: .8rem; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--rust); }
 .xmas__num { display: block; font-family: var(--serif); font-size: clamp(4rem, 9vw, 5.6rem); line-height: 1; margin: 4px 0; }
 .xmas__month { display: block; font-family: var(--serif); font-style: italic; font-size: 1.25rem; }
@@ -2420,5 +2426,5 @@ p { margin: 0 0 1em; }
   background-size: 300px 200px; animation: xmas-snow 18s linear infinite; }
 @keyframes xmas-snow { from { background-position: 0 0; } to { background-position: 60px 200px; } }
 @keyframes xmas-twinkle { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .55; transform: scale(.75); } }
-@media (prefers-reduced-motion: reduce) { .xmas__snow, .xmas__date { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .xmas__snow, .xmas__date, .xmas__star { animation: none; } }
 .event-detail__date { font-size: 1.1rem; color: var(--rust-dark); }
