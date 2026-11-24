@@ -42,6 +42,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $clients = q_all("SELECT id, first_name, last_name, email FROM users WHERE role = 'client' ORDER BY last_name, first_name");
+$dogsByClient = [];
+foreach (q_all("SELECT d.user_id, d.name, d.size FROM dogs d JOIN users u ON u.id = d.user_id WHERE u.role = 'client' ORDER BY d.name") as $d) {
+    $dogsByClient[(int) $d['user_id']][] = $d;
+}
+$selectedClient = $preset ?: post_int('client_id');
 $cards = q_all('SELECT c.*, u.first_name, u.last_name, u.id AS uid FROM cards c JOIN users u ON u.id = c.user_id WHERE c.expires_at >= ? AND c.used_days < c.paid_days + c.free_days ORDER BY c.expires_at', [today()]);
 $soon = (new DateTimeImmutable('today'))->modify('+1 month')->format('Y-m-d');
 $priceHints = [];
@@ -72,24 +77,31 @@ page_start('Cartes journée', 'gerante', 'cartes');
 
 <section class="card section" id="activer">
   <h2>Activer une carte vendue</h2>
-  <p class="muted">La carte est payée sur place ou par virement, puis activée ici. Elle est valable <?= (int) $tarifs['cartes']['validiteMois'] ?> mois à partir de l'achat et sert pour tous les chiens du client.</p>
+  <p class="muted">La carte est payée sur place ou par virement, puis activée ici. Elle est valable <?= (int) $tarifs['cartes']['validiteMois'] ?> mois à partir de l'achat et sert pour les chiens du client de ce gabarit.</p>
   <?php errors_box($errors); ?>
   <form method="post" class="form form--wide" id="card-form" data-prices="<?= h(json_encode($priceHints)) ?>">
     <?= csrf_field() ?>
-    <label>Client
-      <select name="client_id" required>
-        <option value="">— Choisir —</option>
-        <?php foreach ($clients as $c): ?>
-          <option value="<?= (int) $c['id'] ?>"<?= selected((int) $c['id'] === ($preset ?: post_int('client_id'))) ?>><?= h($c['last_name'] . ' ' . $c['first_name'] . ' (' . $c['email'] . ')') ?></option>
+    <fieldset class="picker" data-picker>
+      <legend>Client</legend>
+      <input type="search" class="picker__search" data-picker-search placeholder="Rechercher par nom du client ou du chien…" aria-label="Rechercher un client">
+      <div class="picker__list">
+        <?php foreach ($clients as $c): $cd = $dogsByClient[(int) $c['id']] ?? []; ?>
+        <label class="picker__item" data-search="<?= h(mb_strtolower($c['first_name'] . ' ' . $c['last_name'] . ' ' . $c['email'] . ' ' . implode(' ', array_column($cd, 'name')))) ?>" data-sizes="<?= h(implode(' ', array_unique(array_column($cd, 'size')))) ?>">
+          <input type="radio" name="client_id" value="<?= (int) $c['id'] ?>" required<?= checked((int) $c['id'] === $selectedClient) ?>>
+          <span><strong><?= h($c['last_name'] . ' ' . $c['first_name']) ?></strong>
+            <small><?= $cd ? h(implode(', ', array_map(static fn($d) => $d['name'] . ' (' . mb_strtolower(size_label($d['size'])) . ')', $cd))) : 'Pas encore de chien' ?> · <?= h($c['email']) ?></small></span>
+        </label>
         <?php endforeach; ?>
-      </select></label>
+        <p class="muted picker__none" data-picker-none hidden>Aucun client ne correspond.</p>
+      </div>
+    </fieldset>
     <div class="grid2">
       <label>Carte
         <select name="type">
           <option value="10">10 journées + <?= (int) $tarifs['cartes']['offertes10'] ?> offerte(s)</option>
           <option value="20"<?= selected(post_int('type') === 20) ?>>20 journées + <?= (int) $tarifs['cartes']['offertes20'] ?> offerte(s)</option>
         </select></label>
-      <label>Gabarit (pour le prix)
+      <label>Gabarit des chiens
         <select name="size" required>
           <option value="">— Choisir —</option>
           <?php foreach (SIZES as $k => $label): ?><option value="<?= h($k) ?>"<?= selected(post('size', 10) === $k) ?>><?= h($label) ?></option><?php endforeach; ?>

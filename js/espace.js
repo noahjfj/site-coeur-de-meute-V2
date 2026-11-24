@@ -20,6 +20,34 @@
     });
   });
 
+  // Choix d'un client dans une longue liste : filtre en direct par nom du client ou du chien
+  document.querySelectorAll('[data-picker]').forEach(function (picker) {
+    var search = picker.querySelector('[data-picker-search]');
+    var items = Array.prototype.slice.call(picker.querySelectorAll('[data-search]'));
+    var none = picker.querySelector('[data-picker-none]');
+    var sizeSelect = picker.form && picker.form.querySelector('select[name=size]');
+    search.addEventListener('input', function () {
+      var words = search.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
+      var shown = 0;
+      items.forEach(function (item) {
+        var hay = item.getAttribute('data-search');
+        var ok = words.every(function (w) { return hay.indexOf(w) !== -1; });
+        item.hidden = !ok;
+        if (ok) shown++;
+      });
+      if (none) none.hidden = shown > 0;
+    });
+    // Si tous les chiens du client ont le même gabarit, on le présélectionne
+    picker.addEventListener('change', function (e) {
+      var item = e.target.closest('[data-sizes]');
+      var sizes = item ? item.getAttribute('data-sizes').split(' ').filter(Boolean) : [];
+      if (sizeSelect && sizes.length === 1) {
+        sizeSelect.value = sizes[0];
+        sizeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+  });
+
   // ---------- Demande de séjour ----------
   var form = document.getElementById('request-form');
   if (!form) return;
@@ -27,6 +55,9 @@
   var seuil = Number(form.getAttribute('data-seuil')) || 5;
   var prices = {};
   try { prices = JSON.parse(form.getAttribute('data-prices')) || {}; } catch (e) { prices = {}; }
+  var cards = {};
+  try { cards = JSON.parse(form.getAttribute('data-cards')) || {}; } catch (e) { cards = {}; }
+  var sizeNames = { petit: 'petit chien', moyen: 'chien moyen', grand: 'grand chien' };
   var mois = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
   var summary = document.getElementById('summary-lines');
 
@@ -58,6 +89,7 @@
     summary.textContent = '';
     if (!dogs.length) { summary.appendChild(text('p', 'muted', 'Choisissez au moins un chien.')); return; }
     var total = 0, complete = true;
+    var used = {};
     dogs.forEach(function (d) {
       var id = d.value;
       var from = diff ? (q('input[name="from[' + id + ']"]') || {}).value : (q('input[name=same_from]') || {}).value;
@@ -71,8 +103,15 @@
         left.appendChild(text('span', '', 'Dates à choisir'));
         complete = false;
       } else if (journee) {
-        left.appendChild(text('span', '', 'Journée du ' + fmt(from)));
-        right = '1 journée';
+        var sz = d.getAttribute('data-size');
+        used[sz] = (used[sz] || 0) + 1;
+        if (used[sz] > (cards[sz] || 0)) {
+          left.appendChild(text('span', 'summary__warn', 'Pas de journée disponible sur une carte « ' + sizeNames[sz] + ' »'));
+          complete = false;
+        } else {
+          left.appendChild(text('span', '', 'Journée du ' + fmt(from) + ' · carte ' + sizeNames[sz]));
+          right = '1 journée';
+        }
       } else {
         var n = days(from, to);
         var p = prices[d.getAttribute('data-size')] || [0, 0];

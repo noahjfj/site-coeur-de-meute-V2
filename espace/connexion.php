@@ -24,9 +24,17 @@ page_start('Connexion');
 ?>
 <div class="auth">
   <div class="auth__intro">
+    <span class="auth__blob auth__blob--1" aria-hidden="true"></span>
+    <span class="auth__blob auth__blob--2" aria-hidden="true"></span>
+    <img class="auth__logo" src="/assets/img/logo-coeur-de-meute.svg" alt="" width="96" height="84">
     <p class="eyebrow">Espace client</p>
     <h1 class="welcome">Bienvenue dans la meute</h1>
     <p class="lead">Retrouvez les fiches de vos chiens, demandez vos dates de séjour, suivez vos cartes journée et vos contrats.</p>
+    <ul class="auth__perks">
+      <li><span aria-hidden="true">🐾</span>Les fiches de vos chiens, toujours à jour</li>
+      <li><span aria-hidden="true">📅</span>Vos demandes de séjour, confirmées par e-mail</li>
+      <li><span aria-hidden="true">🎟️</span>Vos cartes journée et vos contrats au même endroit</li>
+    </ul>
   </div>
   <div class="card auth__box">
     <div class="tabs"><a href="/espace/connexion.php" aria-current="page">Se connecter</a><a href="/espace/inscription.php">Créer un compte</a></div>

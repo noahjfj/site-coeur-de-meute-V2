@@ -10,7 +10,8 @@ const CLIENT_NAV = [
 ];
 
 const GERANTE_NAV = [
-    'demandes' => ['/gerante/', 'Demandes'],
+    'demandes'   => ['/gerante/', 'Demandes'],
+    'historique' => ['/gerante/historique.php', 'Historique'],
     'clients'  => ['/gerante/clients.php', 'Clients et chiens'],
     'cartes'   => ['/gerante/cartes.php', 'Cartes journée'],
     'tarifs'   => ['/gerante/tarifs.php', 'Tarifs'],

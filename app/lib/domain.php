@@ -79,25 +79,42 @@ function card_remaining(array $c): int
     return card_total($c) - (int) $c['used_days'];
 }
 
-/** Cartes encore valables (non expirées, au moins une journée restante). */
-function active_cards(int $userId, ?string $onDate = null): array
+/**
+ * Cartes encore valables (non expirées, au moins une journée restante).
+ * Une carte ne sert que pour un chien de son gabarit : $size filtre par gabarit (null = toutes).
+ */
+function active_cards(int $userId, ?string $onDate = null, ?string $size = null): array
 {
     $onDate ??= today();
-    return q_all('SELECT * FROM cards WHERE user_id = ? AND expires_at >= ? AND used_days < paid_days + free_days ORDER BY expires_at, id', [$userId, $onDate]);
+    return q_all('SELECT * FROM cards WHERE user_id = ? AND expires_at >= ? AND used_days < paid_days + free_days AND (? IS NULL OR size = ?) ORDER BY expires_at, id', [$userId, $onDate, $size, $size]);
 }
 
-function remaining_days(int $userId, ?string $onDate = null): int
+function remaining_days(int $userId, ?string $onDate = null, ?string $size = null): int
 {
     $n = 0;
-    foreach (active_cards($userId, $onDate) as $c) {
+    foreach (active_cards($userId, $onDate, $size) as $c) {
         $n += card_remaining($c);
     }
     return $n;
 }
 
-function pending_day_requests(int $userId): int
+/** Journées demandées (en attente), pour un gabarit de chien ou pour tous. */
+function pending_day_requests(int $userId, ?string $size = null): int
 {
-    return (int) q("SELECT COUNT(*) FROM stay_requests WHERE user_id = ? AND kind = 'journee' AND status = 'pending'", [$userId])->fetchColumn();
+    return (int) q("SELECT COUNT(*) FROM stay_requests r JOIN dogs d ON d.id = r.dog_id WHERE r.user_id = ? AND r.kind = 'journee' AND r.status = 'pending' AND (? IS NULL OR d.size = ?)", [$userId, $size, $size])->fetchColumn();
+}
+
+/** Journées encore utilisables par gabarit : ['petit' => 3, ...] (seulement les gabarits avec une carte). */
+function available_days_by_size(int $userId): array
+{
+    $out = [];
+    foreach (active_cards($userId) as $c) {
+        $out[$c['size']] = ($out[$c['size']] ?? 0) + card_remaining($c);
+    }
+    foreach ($out as $size => $n) {
+        $out[$size] = max(0, $n - pending_day_requests($userId, $size));
+    }
+    return $out;
 }
 
 /* ---------- Demandes de séjour ---------- */
@@ -149,11 +166,19 @@ function create_requests(array $user, string $kind, array $items, string $note):
         $rows[] = [$dog, $from, $to];
     }
     if ($kind === 'journee' && !$errors) {
-        $available = remaining_days($uid, $rows[0][1]) - pending_day_requests($uid);
-        if ($available < count($rows)) {
-            $errors[] = $available <= 0
-                ? 'Vous n\'avez plus de journée disponible sur une carte valable à cette date. Contactez la pension pour acheter une carte.'
-                : 'Il ne vous reste que ' . $available . ' journée(s) disponible(s) sur vos cartes.';
+        // Une carte « petit chien » ne sert que pour un petit chien, etc.
+        $needed = [];
+        foreach ($rows as [$dog, $from]) {
+            $needed[$dog['size']][] = $dog['name'];
+        }
+        foreach ($needed as $size => $names) {
+            $available = remaining_days($uid, $rows[0][1], $size) - pending_day_requests($uid, $size);
+            if ($available < count($names)) {
+                $label = mb_strtolower(size_label($size));
+                $errors[] = $available <= 0
+                    ? 'Pas de journée disponible sur une carte « ' . $label . ' » valable à cette date pour ' . implode(' et ', $names) . '. Contactez la pension pour acheter une carte de ce gabarit.'
+                    : 'Il ne vous reste que ' . $available . ' journée(s) sur vos cartes « ' . $label . ' ».';
+            }
         }
     }
     if ($errors) {
@@ -209,10 +234,10 @@ function decide_request(int $managerId, int $requestId, string $decision, string
         }
         $cardId = $r['card_id'];
         if ($decision === 'confirmed' && $r['kind'] === 'journee') {
-            $card = q_one('SELECT * FROM cards WHERE user_id = ? AND expires_at >= ? AND used_days < paid_days + free_days ORDER BY expires_at, id LIMIT 1 FOR UPDATE', [$r['user_id'], $r['start_date']]);
+            $card = q_one('SELECT c.* FROM cards c JOIN dogs d ON d.id = ? AND d.size = c.size WHERE c.user_id = ? AND c.expires_at >= ? AND c.used_days < c.paid_days + c.free_days ORDER BY c.expires_at, c.id LIMIT 1 FOR UPDATE', [$r['dog_id'], $r['user_id'], $r['start_date']]);
             if (!$card) {
                 $pdo->rollBack();
-                return 'Ce client n\'a plus de journée disponible sur une carte valable à cette date.';
+                return 'Ce client n\'a plus de journée disponible sur une carte de ce gabarit valable à cette date.';
             }
             q('UPDATE cards SET used_days = used_days + 1 WHERE id = ?', [$card['id']]);
             $cardId = $card['id'];

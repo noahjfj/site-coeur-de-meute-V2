@@ -61,9 +61,17 @@ page_start('Créer un compte');
 ?>
 <div class="auth">
   <div class="auth__intro">
+    <span class="auth__blob auth__blob--1" aria-hidden="true"></span>
+    <span class="auth__blob auth__blob--2" aria-hidden="true"></span>
+    <img class="auth__logo" src="/assets/img/logo-coeur-de-meute.svg" alt="" width="96" height="84">
     <p class="eyebrow">Espace client</p>
     <h1 class="welcome">Rejoindre la meute</h1>
     <p class="lead">Créez votre compte pour enregistrer vos chiens, demander vos dates et retrouver vos contrats.</p>
+    <ul class="auth__perks">
+      <li><span aria-hidden="true">🐾</span>Les fiches de vos chiens, toujours à jour</li>
+      <li><span aria-hidden="true">📅</span>Vos demandes de séjour, confirmées par e-mail</li>
+      <li><span aria-hidden="true">🎟️</span>Vos cartes journée et vos contrats au même endroit</li>
+    </ul>
   </div>
   <div class="card auth__box">
 <?php if ($sent): ?>

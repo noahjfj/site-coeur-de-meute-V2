@@ -5,3 +5,4 @@ app/storage/contrats/*
 admin/acces.php
 data/tarifs.json.tmp-*
 app/storage/tarifs.json
+app/storage/erreurs.log

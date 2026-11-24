@@ -13,6 +13,17 @@ $sameFrom = $sameTo = '';
 $from = $to = [];
 $note = '';
 
+// Arrivée depuis une carte journée : « Journée » déjà choisi, et les chiens du gabarit de la carte cochés
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['kind'] ?? '') === 'journee') {
+    $kind = 'journee';
+    $sizeFromCard = is_string($_GET['size'] ?? null) && isset(SIZES[$_GET['size']]) ? $_GET['size'] : null;
+    foreach ($dogs as $d) {
+        if ($sizeFromCard === null || $d['size'] === $sizeFromCard) {
+            $chosen[] = (int) $d['id'];
+        }
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $kind = post('kind', 10) === 'journee' ? 'journee' : 'sejour';
     $mode = post('mode', 10) === 'diff' ? 'diff' : 'same';
@@ -39,7 +50,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$hasCard = remaining_days($uid) - pending_day_requests($uid);
+$cardDays = available_days_by_size($uid);
+$hasCard = array_sum($cardDays);
+$cardText = [];
+foreach (SIZES as $sid => $_) {
+    if (isset($cardDays[$sid])) {
+        $cardText[] = $cardDays[$sid] . ' ' . mb_strtolower(size_label($sid));
+    }
+}
 $priceData = [];
 foreach ($tarifs['gabarits'] as $g) {
     $priceData[$g['id']] = [$g['prix'], $g['prixLongSejour']];
@@ -56,13 +74,13 @@ page_start('Demander un séjour', 'client', 'demande');
   </div>
 <?php else: ?>
 <?php errors_box($errors); ?>
-<form method="post" class="request" id="request-form" data-seuil="<?= (int) $tarifs['seuilJours'] ?>" data-prices="<?= h(json_encode($priceData)) ?>">
+<form method="post" class="request" id="request-form" data-seuil="<?= (int) $tarifs['seuilJours'] ?>" data-prices="<?= h(json_encode($priceData)) ?>" data-cards="<?= h(json_encode((object) $cardDays)) ?>">
   <?= csrf_field() ?>
   <div class="request__main">
     <fieldset class="choices">
       <legend>1. Type de garde</legend>
       <label class="choice"><input type="radio" name="kind" value="sejour"<?= checked($kind === 'sejour') ?>><span><strong>Séjour en pension</strong><small>Avec nuits sur place</small></span></label>
-      <label class="choice"><input type="radio" name="kind" value="journee"<?= checked($kind === 'journee') ?>><span><strong>Journée</strong><small><?= $hasCard > 0 ? 'Avec ma carte (' . $hasCard . ' disponible' . ($hasCard > 1 ? 's' : '') . ')' : 'Nécessite une carte journée' ?></small></span></label>
+      <label class="choice"><input type="radio" name="kind" value="journee"<?= checked($kind === 'journee') ?>><span><strong>Journée</strong><small><?= $hasCard > 0 ? 'Avec ma carte : ' . h(implode(', ', $cardText)) : 'Nécessite une carte journée' ?></small></span></label>
     </fieldset>
 
     <fieldset class="choices">

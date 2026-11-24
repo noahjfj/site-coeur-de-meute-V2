@@ -16,6 +16,8 @@ function db(): PDO
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES   => false,
         ]);
+        // Même jeu de caractères et même règle de tri que les tables (évite les erreurs « mix of collations » sur MySQL 8)
+        $pdo->exec('SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci');
         $pdo->exec("SET time_zone = '" . (new DateTimeImmutable())->format('P') . "', sql_mode = 'STRICT_ALL_TABLES,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO'");
     }
     return $pdo;

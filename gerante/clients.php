@@ -110,10 +110,16 @@ if ($id) {
 
 $search = is_string($_GET['q'] ?? null) ? mb_substr(trim($_GET['q']), 0, 100) : '';
 $like = '%' . str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $search) . '%';
-$clients = q_all("SELECT u.id, u.first_name, u.last_name, u.email, u.phone, GROUP_CONCAT(d.name ORDER BY d.name SEPARATOR ', ') AS dogs
-    FROM users u LEFT JOIN dogs d ON d.user_id = u.id
-    WHERE u.role = 'client' AND (? = '' OR u.first_name LIKE ? OR u.last_name LIKE ? OR u.email LIKE ? OR d.name LIKE ?)
-    GROUP BY u.id ORDER BY u.last_name, u.first_name LIMIT 300", [$search, $like, $like, $like, $like]);
+$sql = "SELECT u.id, u.first_name, u.last_name, u.email, u.phone,
+        (SELECT GROUP_CONCAT(d.name ORDER BY d.name SEPARATOR ', ') FROM dogs d WHERE d.user_id = u.id) AS dogs
+    FROM users u WHERE u.role = 'client'";
+$params = [];
+if ($search !== '') {
+    $sql .= ' AND (u.first_name LIKE ? OR u.last_name LIKE ? OR u.email LIKE ? OR CONCAT(u.first_name, \' \', u.last_name) LIKE ?
+        OR EXISTS (SELECT 1 FROM dogs d2 WHERE d2.user_id = u.id AND d2.name LIKE ?))';
+    $params = [$like, $like, $like, $like, $like];
+}
+$clients = q_all($sql . ' ORDER BY u.last_name, u.first_name LIMIT 300', $params);
 
 page_start('Clients', 'gerante', 'clients');
 ?>

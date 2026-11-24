@@ -51,6 +51,10 @@ function config(string $key, $default = null)
 if (PHP_SAPI !== 'cli') {
     set_exception_handler(static function (Throwable $e): void {
         error_log('[coeurdemeute] ' . $e);
+        // Copie dans app/storage/erreurs.log (dossier protégé, jamais servi au public) pour pouvoir diagnostiquer
+        $dir = rtrim((string) config('storage_dir', APP_DIR . '/storage'), '/');
+        @file_put_contents($dir . '/erreurs.log', date('Y-m-d H:i:s') . ' ' . ($_SERVER['REQUEST_URI'] ?? '') . "\n" . get_class($e) . ': ' . $e->getMessage()
+            . "\n  à " . str_replace(SITE_DIR, '', $e->getFile()) . ':' . $e->getLine() . "\n\n", FILE_APPEND | LOCK_EX);
         if (!headers_sent()) {
             http_response_code(500);
         }

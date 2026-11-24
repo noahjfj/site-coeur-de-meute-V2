@@ -15,8 +15,8 @@ $upcoming = q_all("SELECT r.*, d.name AS dog, d.size, u.first_name, u.last_name,
 function request_detail(array $r): string
 {
     if ($r['kind'] === 'journee') {
-        $left = remaining_days((int) $r['uid'], $r['start_date']);
-        return 'Journée avec carte · ' . $left . ' journée' . ($left > 1 ? 's' : '') . ' disponible' . ($left > 1 ? 's' : '');
+        $left = remaining_days((int) $r['uid'], $r['start_date'], $r['size']);
+        return 'Journée avec carte ' . mb_strtolower(size_label($r['size'])) . ' · ' . $left . ' journée' . ($left > 1 ? 's' : '') . ' disponible' . ($left > 1 ? 's' : '');
     }
     [$days, $rate, $total] = estimate_stay($r['size'], $r['start_date'], $r['end_date']);
     return 'Séjour · ' . $days . ' jour' . ($days > 1 ? 's' : '') . ' × ' . euros($rate) . ' = ' . euros($total);
