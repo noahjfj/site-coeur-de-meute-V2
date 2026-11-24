@@ -57,6 +57,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </ul>
           </li>
           <li><a href="galerie.html">Galerie</a></li>
+          <li class="has-sub">
+            <a href="actualites.html">Actualités</a>
+            <button class="sub-toggle" type="button" aria-expanded="false" aria-label="Afficher les pages Actualités">
+              <svg viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1.5 L6 6.5 L11 1.5" /></svg>
+            </button>
+            <ul class="sub-menu">
+              <li><a href="evenements.html">Nos événements</a></li>
+              <li><a href="presse.html">Presse</a></li>
+            </ul>
+          </li>
           <li><a href="a-propos.html">À propos</a></li>
           <li><a href="espace/">Espace client</a></li>
         </ul>
@@ -114,7 +124,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="container about__grid">
         <figure class="about__media">
           <span class="blob blob--rust about__blob" aria-hidden="true"></span>
-          <img src="assets/img/devanture.jpg" alt="L'équipe de Coeur de Meute souriante devant la devanture de la pension">
+          <img data-photo="accueil-equipe" src="assets/img/devanture.jpg" alt="L'équipe de Coeur de Meute souriante devant la devanture de la pension">
         </figure>
 
         <div class="about__text">
@@ -201,6 +211,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="center more">
           <a href="services.html" class="btn btn--outline-dark">Voir tous nos services</a>
         </div>
+      </div>
+    </section>
+
+    <!-- ===== ILS PARLENT DE NOUS ===== -->
+    <section class="press-strip">
+      <div class="container press-strip__inner">
+        <div class="press-strip__label">
+          <p class="eyebrow">Ils parlent de nous</p>
+          <span class="press-card__source">Sudinfo</span>
+        </div>
+        <p class="press-strip__quote">«&nbsp;Coeur de Meute, un centre pluridisciplinaire pour chiens et chats qui cartonne&nbsp;»</p>
+        <a href="actualites.html#presse" class="link-arrow">Lire nos 2 articles de presse</a>
       </div>
     </section>
 
@@ -359,6 +381,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <li><a href="qui-sommes-nous.html">Qui sommes-nous</a></li>
           <li><a href="services.html">Nos services</a></li>
           <li><a href="galerie.html">Galerie</a></li>
+          <li><a href="actualites.html">Actualités</a></li>
           <li><a href="a-propos.html">À propos</a></li>
           <li><a href="espace/">Espace client</a></li>
         </ul>
@@ -372,6 +395,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
   </footer>
 
+  <script src="js/photos.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

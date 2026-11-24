@@ -6,3 +6,9 @@ admin/acces.php
 data/tarifs.json.tmp-*
 app/storage/tarifs.json
 app/storage/erreurs.log
+
+# Espace photos (admin/) : fichiers créés sur le serveur
+admin/securite.php
+admin/code-installation.php
+assets/uploads/*
+!assets/uploads/.htaccess

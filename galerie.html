@@ -57,6 +57,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </ul>
           </li>
           <li><a href="galerie.html" aria-current="page">Galerie</a></li>
+          <li class="has-sub">
+            <a href="actualites.html">Actualités</a>
+            <button class="sub-toggle" type="button" aria-expanded="false" aria-label="Afficher les pages Actualités">
+              <svg viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1.5 L6 6.5 L11 1.5" /></svg>
+            </button>
+            <ul class="sub-menu">
+              <li><a href="evenements.html">Nos événements</a></li>
+              <li><a href="presse.html">Presse</a></li>
+            </ul>
+          </li>
           <li><a href="a-propos.html">À propos</a></li>
           <li><a href="espace/">Espace client</a></li>
         </ul>
@@ -82,7 +92,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- ===== GALERIE ===== -->
     <section class="section">
       <div class="container">
-        <div class="gallery">
+        <div class="gallery" data-gallery>
           <figure class="gallery__item gallery__item--wide">
             <button type="button" class="gallery__open" data-full="assets/img/devanture.jpg">
               <img src="assets/img/devanture.jpg" alt="L'équipe de Coeur de Meute devant la pension">
@@ -153,6 +163,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <li><a href="qui-sommes-nous.html">Qui sommes-nous</a></li>
           <li><a href="services.html">Nos services</a></li>
           <li><a href="galerie.html">Galerie</a></li>
+          <li><a href="actualites.html">Actualités</a></li>
           <li><a href="a-propos.html">À propos</a></li>
           <li><a href="espace/">Espace client</a></li>
         </ul>
@@ -166,6 +177,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
   </footer>
 
+  <script src="js/photos.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
