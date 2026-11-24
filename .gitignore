@@ -1,2 +1,10 @@
-# Accès administrateur créé sur le serveur (ne pas versionner)
+# Fichiers créés sur le serveur par l'espace administrateur (ne pas versionner)
 admin/acces.php
+admin/securite.php
+admin/code-installation.php
+assets/uploads/*
+!assets/uploads/.htaccess
+
+# Réglages locaux de l espace client (jamais sur GitHub)
+app/config.php
+app/storage/

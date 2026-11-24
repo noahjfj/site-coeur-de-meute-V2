@@ -22,12 +22,13 @@ if (lightbox) {
   const img = lightbox.querySelector('img');
   const close = () => { lightbox.hidden = true; img.src = ''; };
 
-  document.querySelectorAll('.gallery__open').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      img.src = btn.dataset.full;
-      img.alt = btn.querySelector('img').alt;
-      lightbox.hidden = false;
-    });
+  // Délégation : fonctionne aussi pour les photos ajoutées depuis l'administration
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.gallery__open');
+    if (!btn) return;
+    img.src = btn.dataset.full;
+    img.alt = btn.querySelector('img').alt;
+    lightbox.hidden = false;
   });
 
   lightbox.addEventListener('click', (e) => { if (e.target !== img) close(); });
@@ -50,4 +51,15 @@ document.addEventListener('click', (e) => {
       item.querySelector('.sub-toggle').setAttribute('aria-expanded', 'false');
     }
   });
+});
+
+// Marché de Noël : compte à rebours, puis le bandeau disparaît tout seul une fois l'événement passé
+document.querySelectorAll('[data-event-end]').forEach((box) => {
+  if (Date.now() > Date.parse(box.dataset.eventEnd)) { box.hidden = true; return; }
+  const out = box.querySelector('[data-countdown]');
+  if (!out) return;
+  const start = Date.parse(out.dataset.countdown);
+  const day = (t) => { const d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); };
+  const days = Math.round((day(start) - day(Date.now())) / 86400000);
+  out.textContent = Date.now() >= start ? 'C’est maintenant, venez nous voir !' : days === 0 ? 'C’est aujourd’hui !' : days === 1 ? 'C’est demain !' : `Plus que ${days} jours`;
 });
