@@ -15,7 +15,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=20261124d">
 </head>
 <body>
 <!-- Google Tag Manager (noscript) -->
@@ -57,6 +57,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </ul>
           </li>
           <li><a href="galerie.html">Galerie</a></li>
+          <li class="has-sub">
+            <a href="actualites.html">Actualités</a>
+            <button class="sub-toggle" type="button" aria-expanded="false" aria-label="Afficher les pages Actualités">
+              <svg viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1.5 L6 6.5 L11 1.5" /></svg>
+            </button>
+            <ul class="sub-menu">
+              <li><a href="evenements.html">Nos événements</a></li>
+              <li><a href="presse.html">Presse</a></li>
+            </ul>
+          </li>
           <li><a href="a-propos.html">À propos</a></li>
         </ul>
         <a href="tel:+32455109797" class="btn btn--small site-nav__cta">0455 / 10.97.97</a>
@@ -92,6 +102,39 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   <main>
 
+    <!-- ===== MARCHÉ DE NOËL (mis en avant) ===== -->
+    <section class="xmas" aria-labelledby="xmas-title" data-event-end="2026-12-05T21:00:00+01:00">
+      <span class="xmas__snow" aria-hidden="true"></span>
+      <div class="container xmas__inner">
+        <div class="xmas__date" aria-hidden="true">
+          <span class="xmas__day">Samedi</span>
+          <span class="xmas__num">5</span>
+          <span class="xmas__month">décembre</span>
+          <span class="xmas__hours">14h – 21h</span>
+          <span class="xmas__tree">
+            <svg viewBox="0 0 48 48"><path d="M24 5 L34 19 H29 L37 30 H31 L39 40 H9 L17 30 H11 L19 19 H14 Z" /><path d="M24 40 V45" /></svg>
+            <span class="xmas__star"></span>
+          </span>
+        </div>
+        <div class="xmas__text">
+          <p class="xmas__kicker">🎄 2<sup>e</sup> édition · Entrée libre</p>
+          <h2 class="xmas__title" id="xmas-title">Le marché de Noël de Coeur de Meute revient&nbsp;!</h2>
+          <p class="xmas__when"><strong>Samedi 5 décembre, de 14h à 21h</strong><span class="xmas__countdown" data-countdown="2026-12-05T14:00:00+01:00"></span></p>
+          <p>Venez flâner entre les stands, dénicher de jolies idées cadeaux pour Noël, boire un bon vin chaud, savourer un chocolat chaud et profiter de bien d'autres surprises&nbsp;! De nouveaux indépendants vous feront découvrir leurs créations, aux côtés d'exposants déjà présents l'an dernier.</p>
+          <ul class="xmas__perks">
+            <li>🎁 Idées cadeaux</li>
+            <li>🍷 Vin chaud</li>
+            <li>☕ Chocolat chaud</li>
+            <li>🐾 Créateurs du monde animal</li>
+          </ul>
+          <div class="xmas__actions">
+            <a href="evenements.html#marche-de-noel" class="btn btn--light">Découvrir le marché</a>
+            <a href="tel:+32455109797" class="btn btn--outline">Exposant&nbsp;? Réserver un stand</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- ===== INTRO ===== -->
     <section class="intro section">
       <div class="container narrow center">
@@ -113,7 +156,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="container about__grid">
         <figure class="about__media">
           <span class="blob blob--rust about__blob" aria-hidden="true"></span>
-          <img src="assets/img/devanture.jpg" alt="L'équipe de Coeur de Meute souriante devant la devanture de la pension">
+          <img data-photo="accueil-equipe" src="assets/img/devanture.jpg" alt="L'équipe de Coeur de Meute souriante devant la devanture de la pension">
         </figure>
 
         <div class="about__text">
@@ -203,6 +246,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
     </section>
 
+    <!-- ===== ILS PARLENT DE NOUS ===== -->
+    <section class="press-strip">
+      <div class="container press-strip__inner">
+        <div class="press-strip__label">
+          <p class="eyebrow">Ils parlent de nous</p>
+          <span class="press-card__source">Sudinfo</span>
+        </div>
+        <p class="press-strip__quote">«&nbsp;Coeur de Meute, un centre pluridisciplinaire pour chiens et chats qui cartonne&nbsp;»</p>
+        <a href="actualites.html#presse" class="link-arrow">Lire nos 2 articles de presse</a>
+      </div>
+    </section>
+
     <!-- ===== PREMIER SÉJOUR ===== -->
     <section class="steps">
       <div class="container">
@@ -279,8 +334,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         <table class="sim__table" data-sim-table></table>
       </div>
-      <script src="js/tarifs.js"></script>
-      <script src="js/simulateur.js"></script>
+      <script src="js/tarifs.js?v=20261124d"></script>
+      <script src="js/simulateur.js?v=20261124d"></script>
     </section>
 
     <!-- ===== CONTACT ===== -->
@@ -358,6 +413,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <li><a href="qui-sommes-nous.html">Qui sommes-nous</a></li>
           <li><a href="services.html">Nos services</a></li>
           <li><a href="galerie.html">Galerie</a></li>
+          <li><a href="actualites.html">Actualités</a></li>
           <li><a href="a-propos.html">À propos</a></li>
         </ul>
       </div>
@@ -370,6 +426,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
   </footer>
 
-  <script src="js/main.js"></script>
+  <script src="js/photos.js?v=20261124d"></script>
+  <script src="js/main.js?v=20261124d"></script>
 </body>
 </html>
