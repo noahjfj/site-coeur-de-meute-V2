@@ -1,6 +1,9 @@
 <?php
 if (!defined('CDM')) { http_response_code(404); exit; }
 
+// Changer ce numéro à chaque mise à jour du style : les navigateurs rechargent alors les fichiers
+const ASSET_VERSION = '20261124b';
+
 const CLIENT_NAV = [
     'accueil'      => ['/espace/', 'Mon espace'],
     'demande'      => ['/espace/demande.php', 'Demander un séjour'],
@@ -35,7 +38,7 @@ function page_start(string $title, string $area = 'public', string $active = '')
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&amp;family=Open+Sans:wght@400;600;700&amp;display=swap">
-<link rel="stylesheet" href="/css/espace.css">
+<link rel="stylesheet" href="/css/espace.css?v=<?= ASSET_VERSION ?>">
 <link rel="icon" href="/assets/img/logo-coeur-de-meute.svg" type="image/svg+xml">
 </head>
 <body class="area-<?= h($area) ?>">
@@ -76,7 +79,7 @@ function page_end(array $scripts = []): void
   <p>Coeur de Meute — pension et éducation canine · <a href="/a-propos.html">Contact</a> · <a href="/espace/confidentialite.php">Vos données</a></p>
 </footer>
 <?php foreach ($scripts as $s): ?>
-<script src="<?= h($s) ?>" defer></script>
+<script src="<?= h($s) ?>?v=<?= ASSET_VERSION ?>" defer></script>
 <?php endforeach; ?>
 </body>
 </html>

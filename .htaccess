@@ -22,6 +22,10 @@ Options -Indexes
 </FilesMatch>
 
 <IfModule mod_headers.c>
+  # Pages HTML : toujours vérifier s'il y a une version plus récente
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
   Header always set X-Content-Type-Options "nosniff"
   Header always set Referrer-Policy "same-origin"
   Header always set X-Frame-Options "SAMEORIGIN"
