@@ -2,7 +2,7 @@
 if (!defined('CDM')) { http_response_code(404); exit; }
 
 // Changer ce numéro à chaque mise à jour du style : les navigateurs rechargent alors les fichiers
-const ASSET_VERSION = '20261124b';
+const ASSET_VERSION = '20261124c';
 
 const CLIENT_NAV = [
     'accueil'      => ['/espace/', 'Mon espace'],

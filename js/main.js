@@ -52,3 +52,14 @@ document.addEventListener('click', (e) => {
     }
   });
 });
+
+// Marché de Noël : compte à rebours, puis le bandeau disparaît tout seul une fois l'événement passé
+document.querySelectorAll('[data-event-end]').forEach((box) => {
+  if (Date.now() > Date.parse(box.dataset.eventEnd)) { box.hidden = true; return; }
+  const out = box.querySelector('[data-countdown]');
+  if (!out) return;
+  const start = Date.parse(out.dataset.countdown);
+  const day = (t) => { const d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); };
+  const days = Math.round((day(start) - day(Date.now())) / 86400000);
+  out.textContent = Date.now() >= start ? 'C’est maintenant, venez nous voir !' : days === 0 ? 'C’est aujourd’hui !' : days === 1 ? 'C’est demain !' : `Plus que ${days} jours`;
+});
