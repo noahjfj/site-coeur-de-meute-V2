@@ -1,5 +1,5 @@
 // =========================================================
-//  Calendrier de l'avent — contenu des 24 niches
+//  Calendrier de l'avent — contenu des 24 volets
 // ---------------------------------------------------------
 //  Pour changer une case : modifier le titre, le texte, etc.
 //  - image  : chemin d'une photo/visuel (ex. 'assets/avent/jour-01.jpg'). Laisser '' = illustration automatique.
@@ -12,7 +12,7 @@ window.AVENT = {
   finAffichage: '2027-01-06',
   jours: [
     { titre: 'Bienvenue dans le calendrier de la meute !', emoji: '🐾', image: '',
-      texte: 'Chaque jour jusqu’à Noël, une nouvelle niche s’ouvre. Conseils, coulisses de la pension, surprises… Revenez demain pour découvrir qui se cache derrière la porte n°2 !',
+      texte: 'Chaque jour jusqu’à Noël, un nouveau volet de la grande niche s’ouvre. Conseils, coulisses de la pension, surprises… Revenez demain pour découvrir ce qui se cache derrière le volet n°2 !',
       bouton: { texte: 'Découvrir Coeur de Meute', lien: 'qui-sommes-nous.html' } },
     { titre: 'Pattes au chaud', emoji: '❄️', image: '',
       texte: 'Le sel de déneigement irrite les coussinets. Après la promenade, rincez les pattes à l’eau tiède et séchez bien entre les doigts. Un baume pour coussinets fait des miracles !',
@@ -78,7 +78,7 @@ window.AVENT = {
       texte: 'Une séance d’éducation ou un bilan comportement à offrir : un cadeau utile pour toute la famille. Appelez-nous pour en savoir plus.',
       bouton: { texte: 'Nous appeler', lien: 'tel:+32455109797' } },
     { titre: 'La veille de la veille', emoji: '⭐', image: '',
-      texte: 'Plus qu’un dodo avant la dernière niche ! Gardez votre chien éloigné des emballages cadeaux, rubans et papiers brillants.',
+      texte: 'Plus qu’un dodo avant le dernier volet ! Gardez votre chien éloigné des emballages cadeaux, rubans et papiers brillants.',
       bouton: null },
     { titre: 'Joyeux Noël de toute la meute !', emoji: '🎅', image: '',
       texte: 'Merci de nous confier vos compagnons tout au long de l’année. Elodie et toute l’équipe vous souhaitent un merveilleux Noël, à vous et à vos boules de poils !',

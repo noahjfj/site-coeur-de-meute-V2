@@ -14,9 +14,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   <meta name="description" content="Coeur de Meute, centre d'éducation canine et pension canine &amp; féline au centre de Wanze. Sérénité, Sécurité, Santé.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Open+Sans:wght@300;400;600&family=Grandstander:wght@600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css?v=20261124d">
-  <link rel="stylesheet" href="css/avent.css?v=20261124f">
+  <link rel="stylesheet" href="css/avent.css?v=20261124g">
 </head>
 <body>
 <!-- Google Tag Manager (noscript) -->
@@ -105,25 +105,64 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     <!-- ===== CALENDRIER DE L'AVENT (contenu des cases : js/avent-contenu.js) ===== -->
     <section class="avent" id="avent" aria-labelledby="avent-title">
-      <span class="avent__stars" aria-hidden="true"></span>
-      <span class="avent__moon" aria-hidden="true"></span>
-      <canvas class="avent__snow" aria-hidden="true"></canvas>
+      <div class="container avent__head">
+        <p class="avent__kicker">🎄 Du 1<sup>er</sup> au 24 décembre</p>
+        <h2 class="avent__title" id="avent-title">Le calendrier de l’avent <em>de la meute</em></h2>
+        <p class="avent__lead">Chaque jour, un volet de la grande niche s’ouvre… Ouvrez celui du jour, retrouvez les jours passés, et n’oubliez pas de caresser les chiens&nbsp;!</p>
+        <p class="avent__status" aria-live="polite"></p>
+      </div>
+
+      <div class="scene">
+        <div class="scene__art">
+          <picture>
+            <source media="(max-width: 700px)" srcset="assets/avent/decor-portrait.webp">
+            <img class="scene__bg" src="assets/avent/decor-large.webp" srcset="assets/avent/decor-large-1280.webp 1280w, assets/avent/decor-large.webp 1920w" sizes="(max-width: 1280px) 100vw, 1280px" alt="La grande niche de Coeur de Meute sous la neige, la nuit de Noël" draggable="false">
+          </picture>
+          <span class="scene__moon" aria-hidden="true"></span>
+          <span class="scene__lantern" aria-hidden="true"></span>
+          <span class="scene__star" aria-hidden="true"></span>
+          <span class="scene__smoke" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="scene__sign" aria-hidden="true">Coeur<em>de</em>Meute</span>
+          <span class="scene__twinkles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+          <div class="scene__wall"></div>
+          <div class="scene__dogs">
+            <button class="chien chien--oslo" type="button" data-name="Oslo" aria-label="Caresser Oslo">
+              <img class="chien__img chien__img--base" src="assets/avent/chien-oslo.webp" alt="" draggable="false">
+              <img class="chien__img chien__img--happy" src="assets/avent/chien-oslo-content.webp" alt="" draggable="false">
+              <span class="chien__name">Oslo</span>
+            </button>
+            <button class="chien chien--rocky is-asleep" type="button" data-name="Rocky" aria-label="Caresser Rocky">
+              <img class="chien__img chien__img--base" src="assets/avent/chien-rocky.webp" alt="" draggable="false">
+              <img class="chien__img chien__img--happy" src="assets/avent/chien-rocky-content.webp" alt="" draggable="false">
+              <span class="chien__name">Rocky</span><span class="chien__zzz" aria-hidden="true"><i>z</i><i>z</i><i>Z</i></span>
+            </button>
+            <button class="chien chien--biscuit" type="button" data-name="Biscuit" data-small="1" aria-label="Caresser Biscuit">
+              <img class="chien__img" src="assets/avent/chien-biscuit.webp" alt="" draggable="false">
+              
+              <span class="chien__name">Biscuit</span>
+            </button>
+            <button class="chien chien--pepite" type="button" data-name="Pépite" data-small="1" aria-label="Caresser Pépite">
+              <img class="chien__img chien__img--base" src="assets/avent/chien-pepite.webp" alt="" draggable="false">
+              <img class="chien__img chien__img--happy" src="assets/avent/chien-pepite-content.webp" alt="" draggable="false">
+              <span class="chien__name">Pépite</span>
+            </button>
+            <button class="chien chien--nala" type="button" data-name="Nala" aria-label="Caresser Nala">
+              <img class="chien__img chien__img--base" src="assets/avent/chien-nala.webp" alt="" draggable="false">
+              <img class="chien__img chien__img--happy" src="assets/avent/chien-nala-content.webp" alt="" draggable="false">
+              <span class="chien__name">Nala</span>
+            </button>
+          </div>
+          <canvas class="scene__snow" aria-hidden="true"></canvas>
+          <div class="scene__fx" aria-hidden="true"></div>
+        </div>
+        <p class="scene__hint">🖐️ Passez la souris (ou le doigt) sur les chiens pour les caresser&nbsp;!</p>
+        <span class="scene__pets" aria-live="polite"></span>
+        <button class="scene__sound" type="button" aria-pressed="false">🔕 Son coupé</button>
+      </div>
+
       <div class="container">
-        <div class="avent__head">
-          <p class="avent__kicker">🎄 Du 1<sup>er</sup> au 24 décembre</p>
-          <h2 class="avent__title" id="avent-title">Le calendrier de l’avent <em>de la meute</em></h2>
-          <p class="avent__lead">Chaque jour, une niche s’ouvre… Qui se cache derrière la porte&nbsp;? Ouvrez la niche du jour et retrouvez celles des jours passés.</p>
-          <p class="avent__status" aria-live="polite"></p>
-        </div>
-        <div class="avent3d" data-three="js/vendor/three.min.js?v=r160">
-          <div class="avent3d__loader" aria-hidden="true"><span class="avent3d__paw">🐾</span>La meute arrive…</div>
-          <div class="avent3d__overlay" aria-hidden="true"></div>
-          <p class="avent3d__hint">🖐️ Passez la souris (ou le doigt) sur les chiens pour les caresser, et cliquez sur le volet du jour&nbsp;!</p>
-          <span class="avent3d__pets" aria-live="polite"></span>
-          <button class="avent3d__sound" type="button" aria-pressed="false">🔇 Son coupé</button>
-        </div>
+        <p class="avent__chips-title">Accès rapide</p>
         <div class="avent__chips" aria-label="Accès rapide aux 24 cases"></div>
-        <div class="avent__grid"></div>
       </div>
     </section>
 
@@ -473,9 +512,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </article>
   </div>
 
-  <script src="js/avent-contenu.js?v=20261124f"></script>
-  <script src="js/avent.js?v=20261124f"></script>
-  <script src="js/avent-3d.js?v=20261124f"></script>
+  <script src="js/avent-contenu.js?v=20261124g"></script>
+  <script src="js/avent.js?v=20261124g"></script>
   <script src="js/photos.js?v=20261124d"></script>
   <script src="js/main.js?v=20261124d"></script>
 </body>
