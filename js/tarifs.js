@@ -2,7 +2,7 @@
  * Tarifs de SECOURS de la pension canine — Coeur de Meute
  *
  * Les vrais prix sont dans data/tarifs.json et se modifient depuis l'espace
- * administrateur (dossier admin/). Ce fichier ne sert que si data/tarifs.json
+ * gérante (/gerante/tarifs.php). Ce fichier ne sert que si data/tarifs.json
  * ne peut pas être lu (par exemple en ouvrant le site directement depuis
  * l'ordinateur, sans serveur).
  */

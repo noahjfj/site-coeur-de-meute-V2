@@ -23,25 +23,21 @@ Site statique : ouvrir `index.html` dans un navigateur.
 
 L'en-tête (menu) et le pied de page sont identiques sur toutes les pages : une modification doit être reportée dans chaque fichier.
 
-## Tarifs de la pension et espace administrateur
+## Espace client et espace gérante
 
-Le site fonctionne chez **n'importe quel hébergeur web avec PHP** (OVH, Hostinger, one.com, Infomaniak, etc.).
-Pour l'installer ou le déménager : copier **tout le dossier** sur l'hébergement (par FTP ou le gestionnaire de fichiers de l'hébergeur).
+Le site contient un espace client (`/espace/`) et un espace gérante (`/gerante/`), écrits en PHP avec une base MySQL.
+Ils fonctionnent chez **n'importe quel hébergeur web avec PHP 8.1+ et MySQL/MariaDB** (Hostinger, OVH, Combell, one.com…).
+Sans PHP (Netlify, GitHub Pages), les pages du site s'affichent mais pas les espaces.
 
-- `data/tarifs.json` : les prix affichés par le simulateur.
-- `admin/` : espace administrateur (`https://votre-site/admin/`) pour modifier les prix.
-- `js/tarifs.js` : prix de secours, utilisés seulement si `data/tarifs.json` ne peut pas être lu.
+- Installation pas à pas : [GUIDE-INSTALLATION.md](GUIDE-INSTALLATION.md)
+- `espace/` : pages client (compte, chiens, demandes de séjour, réservations, contrats, cartes journée)
+- `gerante/` : demandes à traiter, clients, cartes journée, tarifs
+- `app/` : code commun et structure de la base (`app/schema.sql`), jamais accessible depuis le web
+- `data/tarifs.json` : les prix (modifiés depuis `/gerante/tarifs.php`, lus aussi par le simulateur du site)
+- `js/tarifs.js` : prix de secours, utilisés seulement si `data/tarifs.json` ne peut pas être lu
+- `admin/` : ancienne adresse de l'admin des prix, redirige vers `/gerante/tarifs.php`
 
-### Première connexion
+### Mettre à jour le site
 
-Ouvrir `https://votre-site/admin/` : la page propose de **créer l'identifiant et le mot de passe**.
-Ils sont enregistrés, chiffrés, dans `admin/acces.php` (fichier créé sur le serveur, illisible depuis le web).
-
-**Mot de passe oublié :** supprimer `admin/acces.php` sur l'hébergement, puis retourner sur `/admin/` pour recréer un accès.
-
-### Mettre à jour ou déménager le site
-
-- Les dossiers `data/` et `admin/` doivent être modifiables par le serveur (c'est le cas par défaut chez la plupart des hébergeurs).
-- Lors de l'envoi d'une nouvelle version du site, **ne pas écraser** `data/tarifs.json` (vos prix) ni `admin/acces.php` (votre accès) :
-  récupérez-les d'abord depuis l'hébergement, ou n'envoyez pas ces deux fichiers.
-- Sans PHP (GitHub Pages, Netlify…), le site et le simulateur fonctionnent, mais pas l'espace administrateur.
+Lors de l'envoi d'une nouvelle version, **ne pas écraser** sur l'hébergement :
+`app/config.php` (vos réglages), `app/storage/` (les contrats) et `data/tarifs.json` (vos prix).

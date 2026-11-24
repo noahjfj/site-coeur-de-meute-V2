@@ -1,2 +1,6 @@
-# Accès administrateur créé sur le serveur (ne pas versionner)
+# Fichiers créés sur l'hébergement : jamais sur GitHub (mots de passe, données des clients)
+app/config.php
+app/storage/contrats/*
+!app/storage/contrats/.gitkeep
 admin/acces.php
+data/tarifs.json.tmp-*

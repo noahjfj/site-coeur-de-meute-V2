@@ -1,0 +1,2 @@
+# Ce dossier contient le code interne de l'espace client : jamais accessible depuis le web.
+Require all denied
