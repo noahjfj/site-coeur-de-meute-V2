@@ -16,6 +16,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css?v=20261124d">
+  <link rel="stylesheet" href="css/avent.css?v=20261124l">
 </head>
 <body>
 <!-- Google Tag Manager (noscript) -->
@@ -101,6 +102,34 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </section>
 
   <main>
+
+    <!-- ===== CALENDRIER DE L'AVENT (contenu des cases : js/avent-contenu.js) ===== -->
+    <section class="avent" id="avent" aria-labelledby="avent-title">
+      <span class="avent__stars" aria-hidden="true"></span>
+      <canvas class="avent__snow" aria-hidden="true"></canvas>
+      <span class="avent__blob avent__blob--1 blob blob--rust" aria-hidden="true"></span>
+      <span class="avent__blob avent__blob--2 blob blob--sand" aria-hidden="true"></span>
+      <span class="avent__blob avent__blob--3 blob blob--blue" aria-hidden="true"></span>
+      <span class="avent__blob avent__blob--4 blob blob--brown" aria-hidden="true"></span>
+      <span class="avent__deco avent__deco--hang avent__deco--rouille" aria-hidden="true"><img src="assets/img/avent/boule-rouille.webp" alt="" width="360" height="468" loading="lazy"></span>
+      <span class="avent__deco avent__deco--hang avent__deco--bleue" aria-hidden="true"><img src="assets/img/avent/boule-bleue.webp" alt="" width="400" height="541" loading="lazy"></span>
+      <span class="avent__deco avent__deco--hang avent__deco--sable" aria-hidden="true"><img src="assets/img/avent/boule-sable.webp" alt="" width="260" height="344" loading="lazy"></span>
+      <span class="avent__ground" aria-hidden="true">
+        <svg viewBox="0 0 1440 160" preserveAspectRatio="none"><path class="g1" d="M0 70 C 180 30 360 40 540 62 S 900 96 1080 60 S 1340 30 1440 50 V160 H0 Z"/><path class="g2" d="M0 104 C 220 74 420 80 640 100 S 1020 128 1220 96 S 1400 84 1440 92 V160 H0 Z"/></svg>
+        <span class="avent__paws"><i style="--x:4.0%;--y:58%;--k:0"></i><i style="--x:12.2%;--y:76%;--k:1"></i><i style="--x:20.4%;--y:68%;--k:2"></i><i style="--x:28.6%;--y:79%;--k:3"></i><i style="--x:36.8%;--y:61%;--k:4"></i><i style="--x:45.0%;--y:66%;--k:5"></i><i style="--x:53.2%;--y:49%;--k:6"></i><i style="--x:61.4%;--y:60%;--k:7"></i><i style="--x:69.6%;--y:52%;--k:8"></i><i style="--x:77.8%;--y:70%;--k:9"></i><i style="--x:86.0%;--y:65%;--k:10"></i><i style="--x:94.2%;--y:80%;--k:11"></i></span>
+      </span>
+      <span class="avent__deco avent__deco--canne" aria-hidden="true"><img src="assets/img/avent/canne.webp" alt="" width="360" height="551" loading="lazy"></span>
+      <div class="container">
+        <div class="avent__head">
+          <p class="avent__kicker"><span>Du 1<sup>er</sup> au 24 décembre</span></p>
+          <h2 class="avent__title" id="avent-title">Le calendrier de l’avent <em>de Cœur de Meute</em></h2>
+          <p class="avent__lead">Chaque jour, une niche s’ouvre… Qui se cache derrière la porte&nbsp;? Ouvrez la niche du jour, retrouvez celles des jours passés… et caressez les chiens qui en sortent&nbsp;!</p>
+          <p class="avent__status" aria-live="polite"></p>
+          <p class="avent__pets" aria-live="polite" hidden></p>
+        </div>
+        <div class="avent__grid"></div>
+      </div>
+    </section>
 
     <!-- ===== MARCHÉ DE NOËL (mis en avant) ===== -->
     <section class="xmas" aria-labelledby="xmas-title" data-event-end="2026-12-05T21:00:00+01:00">
@@ -426,6 +455,30 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
   </footer>
 
+
+  <!-- Fenêtre d'une case du calendrier de l'avent -->
+  <div class="avent-modal" id="avent-modal" role="dialog" aria-modal="true" aria-labelledby="avent-card-title" hidden>
+    <article class="avent-card">
+      <button class="avent-card__close" type="button" aria-label="Fermer">×</button>
+      <div class="avent-card__media"></div>
+      <div class="avent-card__body">
+        <h3 class="avent-card__title" id="avent-card-title"></h3>
+        <p class="avent-card__text"></p>
+        <div class="avent-card__actions">
+          <a class="btn avent-card__cta" href="#"></a>
+          <button class="btn avent-card__share" type="button">Partager</button>
+          <span class="avent-card__share-done" aria-live="polite"></span>
+        </div>
+        <div class="avent-card__nav">
+          <button type="button" data-nav="prev">← Jour précédent</button>
+          <button type="button" data-nav="next">Jour suivant →</button>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <script src="js/avent-contenu.js?v=20261124l"></script>
+  <script src="js/avent.js?v=20261124l"></script>
   <script src="js/photos.js?v=20261124d"></script>
   <script src="js/main.js?v=20261124d"></script>
 </body>
