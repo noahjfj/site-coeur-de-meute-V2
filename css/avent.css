@@ -342,3 +342,30 @@ html.avent-lock { overflow: hidden; }
   .avent__blob--1 { width: 200px; height: 140px; } .avent__blob--2 { display: none; } .avent__blob--3 { width: 180px; height: 150px; }
 }
 @media (prefers-reduced-motion: reduce) { .avent__deco--hang { animation: none; } }
+
+/* ---------- Mouvement : apparition au défilement + parallaxe des décorations ---------- */
+.avent__grid.is-waiting .niche:not(.is-in) { animation-play-state: paused; }
+.avent__deco { translate: 0 calc(var(--sy, 0) * var(--par, 60) * 1px); transition: translate .2s linear; }
+.avent__deco--rouille { --par: 90; } .avent__deco--bleue { --par: 60; } .avent__deco--sable { --par: 130; }
+.avent__deco--canne { --par: -70; } .avent__deco--sapin-g { --par: -40; } .avent__deco--sapin-d { --par: -55; }
+.avent__deco--sable img { animation-delay: -1s; }
+
+/* ---------- Téléphone : mise en page dédiée ---------- */
+@media (max-width: 520px) {
+  .avent { --w: 90px; --r: 36px; --h: 68px; --d: 46px; padding: 150px 0 190px; }
+  .avent__grid { gap: 50px 6px; transform: translateX(-9px); padding-top: 20px; }
+  .avent__title { font-size: 2.05rem; }
+  .avent__lead { font-size: .98rem; }
+  .avent__status { font-size: .9rem; padding: 8px 16px; }
+  /* boules suspendues en haut, comme une guirlande */
+  .avent__deco--rouille { --str: 34px; --par: -20; width: 72px; left: 16px; top: 34px; }
+  .avent__deco--bleue { --str: 18px; --par: -12; width: 86px; right: 14px; top: 18px; }
+  .avent__deco--sable { display: block; --str: 26px; --par: -28; width: 46px; left: auto; right: 116px; top: 30px; }
+  /* au sol, sous les niches : sapin, canne couchée dans la neige */
+  .avent__deco--sapin-g { display: block; width: 230px; left: -60px; bottom: -6px; top: auto; }
+  .avent__deco--sapin-d { width: 240px; right: -80px; bottom: 6px; }
+  .avent__deco--canne { width: 92px; left: calc(50% - 30px); top: auto; bottom: 4px; transform: perspective(700px) rotateX(40deg) rotateZ(-62deg); }
+  .avent__blob--1 { width: 210px; height: 150px; top: -70px; left: -90px; }
+  .avent__blob--3 { width: 200px; height: 160px; top: auto; bottom: -60px; right: -80px; }
+  .avent__blob--4 { width: 120px; height: 90px; top: 70px; bottom: auto; right: -40px; }
+}

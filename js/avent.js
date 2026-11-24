@@ -158,6 +158,45 @@
       tilt((e.clientX - r.left) / r.width - 0.5, (e.clientY - r.top) / r.height - 0.5);
     });
     root.addEventListener('pointerleave', () => tilt(0, 0));
+
+    // Téléphone / tablette : la scène bouge quand on fait défiler la page…
+    const touch = window.matchMedia('(hover: none)').matches;
+    let gyro = false;
+    const onScroll = () => {
+      const r = root.getBoundingClientRect(), vh = window.innerHeight || 1;
+      const p = Math.max(-1, Math.min(1, (r.top + r.height / 2 - vh / 2) / vh));
+      root.style.setProperty('--sy', p.toFixed(3));
+      if (touch && !gyro) tilt(Math.sin(p * 3) * 0.6, p * 0.8);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    // … et suit l'inclinaison du téléphone quand c'est possible.
+    if (touch && 'DeviceOrientationEvent' in window) {
+      const onTilt = (e) => {
+        if (e.gamma == null) return;
+        gyro = true;
+        tilt(Math.max(-1, Math.min(1, e.gamma / 35)) * 0.7, Math.max(-1, Math.min(1, (e.beta - 45) / 40)) * 0.7);
+      };
+      const listen = () => window.addEventListener('deviceorientation', onTilt);
+      if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+        root.addEventListener('click', () => {
+          DeviceOrientationEvent.requestPermission().then((s) => { if (s === 'granted') listen(); }).catch(() => {});
+        }, { once: true });
+      } else listen();
+    }
+  }
+
+  // ---------- Les niches tombent quand elles arrivent à l'écran ----------
+  if (!reduceMotion && 'IntersectionObserver' in window) {
+    grid.classList.add('is-waiting');
+    const io = new IntersectionObserver((entries) => entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      const el = e.target, cols = getComputedStyle(grid).gridTemplateColumns.split(' ').length || 1;
+      el.style.animationDelay = `${(Number(el.style.getPropertyValue('--i')) % cols) * 90}ms`;
+      el.classList.add('is-in');
+      io.unobserve(el);
+    }), { rootMargin: '0px 0px -8% 0px' });
+    grid.querySelectorAll('.niche').forEach((el) => io.observe(el));
   }
 
   // ---------- Neige ----------
