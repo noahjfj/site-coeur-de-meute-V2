@@ -16,7 +16,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css?v=20261124d">
-  <link rel="stylesheet" href="css/avent.css?v=20261124e">
+  <link rel="stylesheet" href="css/avent.css?v=20261124f">
 </head>
 <body>
 <!-- Google Tag Manager (noscript) -->
@@ -115,6 +115,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <p class="avent__lead">Chaque jour, une niche s’ouvre… Qui se cache derrière la porte&nbsp;? Ouvrez la niche du jour et retrouvez celles des jours passés.</p>
           <p class="avent__status" aria-live="polite"></p>
         </div>
+        <div class="avent3d" data-three="js/vendor/three.min.js?v=r160">
+          <div class="avent3d__loader" aria-hidden="true"><span class="avent3d__paw">🐾</span>La meute arrive…</div>
+          <div class="avent3d__overlay" aria-hidden="true"></div>
+          <p class="avent3d__hint">🖐️ Passez la souris (ou le doigt) sur les chiens pour les caresser, et cliquez sur le volet du jour&nbsp;!</p>
+          <span class="avent3d__pets" aria-live="polite"></span>
+          <button class="avent3d__sound" type="button" aria-pressed="false">🔇 Son coupé</button>
+        </div>
+        <div class="avent__chips" aria-label="Accès rapide aux 24 cases"></div>
         <div class="avent__grid"></div>
       </div>
     </section>
@@ -465,8 +473,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </article>
   </div>
 
-  <script src="js/avent-contenu.js?v=20261124e"></script>
-  <script src="js/avent.js?v=20261124e"></script>
+  <script src="js/avent-contenu.js?v=20261124f"></script>
+  <script src="js/avent.js?v=20261124f"></script>
+  <script src="js/avent-3d.js?v=20261124f"></script>
   <script src="js/photos.js?v=20261124d"></script>
   <script src="js/main.js?v=20261124d"></script>
 </body>

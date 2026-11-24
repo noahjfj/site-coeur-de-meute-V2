@@ -46,6 +46,7 @@
   const remember = (n) => {
     if (!opened.includes(n)) opened.push(n);
     try { localStorage.setItem(KEY, JSON.stringify(opened)); } catch (e) { /* ignore */ }
+    root.dispatchEvent(new CustomEvent('avent:seen', { detail: n }));
   };
 
   // ---------- Construction des niches ----------
@@ -205,6 +206,7 @@
   const closeModal = () => {
     modal.hidden = true;
     document.documentElement.classList.remove('avent-lock');
+    root.dispatchEvent(new CustomEvent('avent:closed'));
     const btn = grid.querySelector(`[data-day="${current}"]`);
     if (btn) btn.focus({ preventScroll: true });
     if (params.has('jour')) history.replaceState(null, '', location.pathname + location.hash.replace(/^#jour-\d+/, ''));
@@ -241,6 +243,7 @@
       const btn = grid.querySelector(`[data-day="${n}"]`);
       btn.classList.remove('is-ready'); btn.classList.add('is-opened'); remember(n);
       showModal(n);
+      root.dispatchEvent(new CustomEvent('avent:navigate', { detail: n }));
     }
     if (e.target.closest('.avent-card__share')) share();
   });
@@ -262,11 +265,20 @@
     }).catch(() => { done.textContent = url; });
   };
 
+  // ---------- Outils partagés avec la scène 3D (js/avent-3d.js) ----------
+  const tipText = (n) => (openUntil === 0 ? 'Patience, on ouvre le 1er décembre !' : `Patience ! Ouverture le ${n} décembre 🐾`);
+  window.AVENT_API = {
+    root, data, openUntil, isToday, tipText, showModal, remember, reduceMotion,
+    isOpened: (n) => opened.includes(n),
+    isModalOpen: () => !modal.hidden,
+    pending: 0,
+  };
+
   // ---------- Lien direct depuis les réseaux sociaux : ?jour=5 ----------
   const wanted = parseInt(params.get('jour') || (location.hash.match(/^#jour-(\d+)/) || [])[1], 10);
   if (wanted >= 1 && wanted <= 24) {
-    const btn = grid.querySelector(`[data-day="${wanted}"]`);
     root.scrollIntoView({ behavior: 'instant', block: 'start' });
-    setTimeout(() => openNiche(btn), 700);
+    if (root.classList.contains('avent--3d')) window.AVENT_API.pending = wanted; // la scène 3D l'ouvrira dès qu'elle est prête
+    else setTimeout(() => openNiche(grid.querySelector(`[data-day="${wanted}"]`)), 700);
   }
 })();
