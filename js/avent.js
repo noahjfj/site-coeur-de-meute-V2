@@ -175,7 +175,7 @@
     const frame = () => {
       if (!running) return;
       ctx.clearRect(0, 0, w, h);
-      ctx.fillStyle = 'rgba(255,255,255,.85)';
+      ctx.fillStyle = 'rgba(142,162,181,.55)';
       ctx.beginPath();
       flakes.forEach((f) => {
         f.d += .01; f.y += f.s * (f.r * .6 + .4); f.x += Math.sin(f.d) * .4;
