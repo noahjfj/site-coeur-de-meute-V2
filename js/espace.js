@@ -10,14 +10,21 @@
   });
 
   // Sur téléphone, chaque ligne de tableau devient une petite fiche : on recopie le titre de colonne
-  document.querySelectorAll('table.table:not(.table--inputs)').forEach(function (table) {
+  document.querySelectorAll('table.table').forEach(function (table) {
     var heads = Array.prototype.map.call(table.querySelectorAll('thead th'), function (th) { return th.querySelector('.sr-only') ? '' : th.textContent.trim(); });
     table.classList.add('table--stack');
     table.querySelectorAll('tbody tr').forEach(function (tr) {
       Array.prototype.forEach.call(tr.children, function (cell, i) {
         if (heads[i]) cell.setAttribute('data-label', heads[i]);
+        // Case vide (« — ») : inutile de l'afficher dans la fiche
+        if (/^[—-]?$/.test(cell.textContent.trim()) && !cell.querySelector('input, select, button, a')) cell.classList.add('is-empty');
       });
     });
+  });
+
+  // Sur téléphone, les filtres de l'historique sont repliés (sauf s'il y a déjà un filtre actif)
+  document.querySelectorAll('[data-filterbox]').forEach(function (box) {
+    if (window.matchMedia('(max-width: 760px)').matches && !box.hasAttribute('data-active')) box.open = false;
   });
 
   // Choix d'un client dans une longue liste : filtre en direct par nom du client ou du chien

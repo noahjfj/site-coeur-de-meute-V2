@@ -74,6 +74,8 @@ page_start('Historique des demandes', 'gerante', 'historique');
     <?php endforeach; ?>
   </nav>
 
+  <details class="filterbox" open data-filterbox<?= ($f['q'] !== '' || $f['type'] !== '' || $f['du'] !== '' || $f['au'] !== '') ? ' data-active' : '' ?>>
+  <summary class="filterbox__toggle">Rechercher et filtrer</summary>
   <form method="get" class="filters">
     <?php if ($f['statut'] !== ''): ?><input type="hidden" name="statut" value="<?= h($f['statut']) ?>"><?php endif; ?>
     <label class="filters__q">Client ou chien<input type="search" name="q" value="<?= h($f['q']) ?>" placeholder="Nom, e-mail ou chien"></label>
@@ -90,6 +92,7 @@ page_start('Historique des demandes', 'gerante', 'historique');
       <?php if (array_filter($f)): ?><a class="linklike" href="/gerante/historique.php">Effacer</a><?php endif; ?>
     </div>
   </form>
+  </details>
 
   <?php if (!$rows): ?>
     <p class="muted">Aucune demande ne correspond à ces filtres.</p>

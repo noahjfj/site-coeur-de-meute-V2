@@ -13,6 +13,12 @@ page_start('Mon espace', 'client', 'accueil');
 ?>
 <p class="eyebrow">Mon espace</p>
 <h1>Bonjour <?= h($user['first_name']) ?></h1>
+<nav class="quick" aria-label="Raccourcis">
+  <a class="quick__item quick__item--main" href="/espace/demande.php"><?= icon('plus') ?><span>Demander un séjour</span></a>
+  <a class="quick__item" href="/espace/demande.php?kind=journee"><?= icon('card') ?><span>Réserver une journée</span></a>
+  <a class="quick__item" href="/espace/reservations.php"><?= icon('doc') ?><span>Mes réservations</span></a>
+  <a class="quick__item" href="/espace/chien.php"><?= icon('paw') ?><span>Ajouter un chien</span></a>
+</nav>
 
 <div class="tiles">
   <div class="tile">

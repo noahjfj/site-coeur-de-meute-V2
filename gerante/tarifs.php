@@ -82,4 +82,4 @@ page_start('Tarifs', 'gerante', 'tarifs');
   </div>
   <button type="submit" class="btn">Enregistrer les tarifs</button>
 </form>
-<?php page_end();
+<?php page_end(['/js/espace.js']);

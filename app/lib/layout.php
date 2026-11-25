@@ -2,7 +2,7 @@
 if (!defined('CDM')) { http_response_code(404); exit; }
 
 // Changer ce numéro à chaque mise à jour du style : les navigateurs rechargent alors les fichiers
-const ASSET_VERSION = '20261124d';
+const ASSET_VERSION = '20261125a';
 
 const CLIENT_NAV = [
     'accueil'      => ['/espace/', 'Mon espace'],
@@ -20,6 +20,44 @@ const GERANTE_NAV = [
     'tarifs'   => ['/gerante/tarifs.php', 'Tarifs'],
 ];
 
+// Menu du bas sur téléphone (façon application) : libellé court + icône
+const TABBAR = [
+    'client' => [
+        'accueil'      => ['Accueil', 'home'],
+        'demande'      => ['Demander', 'plus'],
+        'reservations' => ['Séjours', 'doc'],
+        'carte'        => ['Cartes', 'card'],
+        'compte'       => ['Compte', 'user'],
+    ],
+    'gerante' => [
+        'demandes'   => ['Demandes', 'inbox'],
+        'historique' => ['Historique', 'clock'],
+        'clients'    => ['Clients', 'users'],
+        'cartes'     => ['Cartes', 'card'],
+        'tarifs'     => ['Tarifs', 'euro'],
+    ],
+];
+
+const ICONS = [
+    'home'  => '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
+    'plus'  => '<rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/>',
+    'doc'   => '<path d="M7 3h7l5 5v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5M9.5 13h6M9.5 17h6"/>',
+    'card'  => '<rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M2.5 10h19M6.5 15h4"/>',
+    'user'  => '<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/>',
+    'inbox' => '<path d="M3 13l3-8h12l3 8v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M3 13h5l1 3h6l1-3h5"/>',
+    'clock' => '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    'users' => '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.5-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.5a3.5 3.5 0 0 1 0 7M18 14.8c2 .7 3.2 2.6 3.5 5.2"/>',
+    'euro'  => '<path d="M17.5 6.5a7 7 0 1 0 0 11"/><path d="M4 10h9M4 14h9"/>',
+    'paw'   => '<circle cx="6" cy="9" r="2"/><circle cx="10" cy="5.5" r="2"/><circle cx="14" cy="5.5" r="2"/><circle cx="18" cy="9" r="2"/><path d="M12 11c-3 0-6 4.5-6 7 0 1.6 1.3 2.5 3 2.5 1.2 0 2-.6 3-.6s1.8.6 3 .6c1.7 0 3-.9 3-2.5 0-2.5-3-7-6-7z"/>',
+    'arrow' => '<path d="M5 12h14M13 6l6 6-6 6"/>',
+];
+
+/** Petite icône au trait (dessin fixe, aucune donnée de l'utilisateur dedans). */
+function icon(string $name, string $class = 'ico'): string
+{
+    return '<svg class="' . h($class) . '" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' . (ICONS[$name] ?? '') . '</svg>';
+}
+
 /**
  * En-tête commun. $area : 'public' (connexion…), 'client' ou 'gerante'.
  */
@@ -32,7 +70,7 @@ function page_start(string $title, string $area = 'public', string $active = '')
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <title><?= h($title) ?> — Coeur de Meute</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -41,7 +79,7 @@ function page_start(string $title, string $area = 'public', string $active = '')
 <link rel="stylesheet" href="/css/espace.css?v=<?= ASSET_VERSION ?>">
 <link rel="icon" href="/assets/img/logo-coeur-de-meute.svg" type="image/svg+xml">
 </head>
-<body class="area-<?= h($area) ?>">
+<body class="area-<?= h($area) ?><?= $nav ? ' has-tabbar' : '' ?>">
 <a class="skip" href="#contenu">Aller au contenu</a>
 <header class="topbar<?= $area === 'gerante' ? ' topbar--dark' : '' ?>">
   <div class="wrap topbar__inner">
@@ -58,13 +96,24 @@ function page_start(string $title, string $area = 'public', string $active = '')
     <?php endif; ?>
     <?php if ($user): ?>
     <form class="topbar__user" method="post" action="/espace/deconnexion.php">
-      <span><?= h($user['first_name'] . ' ' . $user['last_name']) ?></span>
+      <span class="topbar__name"><?= h($user['first_name'] . ' ' . $user['last_name']) ?></span>
       <?= csrf_field() ?>
       <button type="submit" class="linklike">Déconnexion</button>
     </form>
     <?php endif; ?>
   </div>
 </header>
+<?php if ($nav):
+    $pendingCount = $area === 'gerante' ? (int) (q_one("SELECT COUNT(*) AS n FROM stay_requests WHERE status = 'pending'")['n'] ?? 0) : 0; ?>
+<nav class="tabbar" aria-label="Menu rapide">
+  <?php foreach (TABBAR[$area] as $key => [$label, $ico]): ?>
+  <a class="tabbar__item" href="<?= h($nav[$key][0]) ?>"<?= $key === $active ? ' aria-current="page"' : '' ?>>
+    <span class="tabbar__icon"><?= icon($ico) ?><?php if ($key === 'demandes' && $pendingCount > 0): ?><span class="tabbar__count"><?= $pendingCount > 99 ? '99+' : $pendingCount ?><span class="sr-only"> en attente</span></span><?php endif; ?></span>
+    <span class="tabbar__label"><?= h($label) ?></span>
+  </a>
+  <?php endforeach; ?>
+</nav>
+<?php endif; ?>
 <main id="contenu" class="wrap page">
 <?php foreach (take_flashes() as $f): ?>
   <p class="flash flash--<?= h($f['type']) ?>" role="status"><?= h($f['message']) ?></p>
