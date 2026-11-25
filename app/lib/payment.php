@@ -143,6 +143,9 @@ function payment_state(array $r): array
     if ($r['deposit_paid_at']) {
         return ['deposit', 'Acompte reçu'];
     }
+    if ($r['status'] === 'pending') {
+        return ['none', 'Acompte après confirmation'];
+    }
     return ['due', 'Acompte à verser : ' . euros($r['deposit_amount'])];
 }
 

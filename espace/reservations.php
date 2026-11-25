@@ -13,10 +13,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && post('action') === 'cancel') {
 }
 
 $requests = q_all('SELECT r.*, d.name AS dog FROM stay_requests r JOIN dogs d ON d.id = r.dog_id WHERE r.user_id = ? ORDER BY r.start_date DESC, r.id DESC LIMIT 200', [$uid]);
-// Acomptes à verser : un bloc par demande (même communication = un seul virement)
+// Acomptes à verser : seulement pour les séjours confirmés par la pension, un bloc par demande
 $due = [];
 foreach ($requests as $r) {
-    if ($r['kind'] === 'sejour' && $r['pay_ref'] && in_array($r['status'], ['pending', 'confirmed'], true)
+    if ($r['kind'] === 'sejour' && $r['pay_ref'] && $r['status'] === 'confirmed'
         && !$r['deposit_paid_at'] && !$r['paid_full_at'] && (float) $r['deposit_amount'] > 0 && $r['end_date'] >= today()) {
         $due[$r['pay_ref']][] = $r;
     }

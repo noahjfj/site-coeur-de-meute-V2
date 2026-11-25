@@ -169,7 +169,7 @@
         var a = document.createElement('div');
         a.className = 'summary__deposit';
         var dep = Math.round(total * pct) / 100;
-        a.appendChild(text('span', '', 'Acompte à verser (' + pct + ' %)'));
+        a.appendChild(text('span', '', 'Acompte après confirmation (' + pct + ' %)'));
         a.appendChild(text('strong', '', dep.toFixed(2).replace('.', ',').replace(',00', '') + ' €'));
         summary.appendChild(a);
       }

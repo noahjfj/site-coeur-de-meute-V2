@@ -44,7 +44,7 @@ if ($f['au'] !== '') {
 // Paiement : acompte pas encore reçu / acompte reçu (reste à payer) / tout payé
 if ($f['paiement'] !== '') {
     $where[] = [
-        'attendu' => "r.kind = 'sejour' AND r.price_total IS NOT NULL AND r.deposit_paid_at IS NULL AND r.paid_full_at IS NULL AND r.status IN ('pending','confirmed')",
+        'attendu' => "r.kind = 'sejour' AND r.price_total IS NOT NULL AND r.deposit_paid_at IS NULL AND r.paid_full_at IS NULL AND r.status = 'confirmed'",
         'acompte' => "r.kind = 'sejour' AND r.deposit_paid_at IS NOT NULL AND r.paid_full_at IS NULL",
         'paye'    => "r.kind = 'sejour' AND r.paid_full_at IS NOT NULL",
     ][$f['paiement']];

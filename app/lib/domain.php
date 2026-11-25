@@ -213,13 +213,11 @@ function create_requests(array $user, string $kind, array $items, string $note, 
         'Nouvelle demande (' . ($kind === 'journee' ? 'journée avec carte' : 'séjour') . ") :\n" . implode("\n", $lines)
         . ($note !== '' ? "\n\nMessage du client : " . $note : '') . "\n\nPour répondre : " . url('/gerante/'));
 
-    // Accusé de réception au client, avec l'acompte à verser pour un séjour
-    $saved = $kind === 'sejour' ? q_all('SELECT * FROM stay_requests WHERE id IN (' . implode(',', array_map('intval', $createdIds)) . ') ORDER BY id') : [];
-    $deposit = $saved ? deposit_text($saved) : '';
+    // Accusé de réception au client (l'acompte n'est demandé qu'après la confirmation de la pension)
     send_mail((string) $user['email'], 'Nous avons bien reçu votre demande', greet($user)
         . 'Merci ! Nous avons bien reçu votre demande :' . "\n" . implode("\n", $lines) . "\n\n"
         . 'La pension vous confirme chaque chien par e-mail.'
-        . ($deposit !== '' ? "\n\n" . $deposit : '')
+        . ($kind === 'sejour' ? ' Une fois le séjour confirmé, vous recevrez le montant de l\'acompte à verser et le numéro de compte.' : '')
         . "\n\nVoir vos réservations : " . url('/espace/reservations.php'));
     return [];
 }
@@ -302,8 +300,7 @@ function deposit_reminder(int $requestId): string
     if (!$r || $r['kind'] !== 'sejour' || $r['deposit_paid_at'] || $r['paid_full_at'] || (float) $r['deposit_amount'] <= 0) {
         return '';
     }
-    $group = array_values(array_filter(pay_group($r), static fn($g) => in_array($g['status'], ['pending', 'confirmed'], true)));
-    $text = deposit_text($group ?: [$r]);
+    $text = deposit_text([$r]);
     return $text !== '' ? "\n\n" . $text : '';
 }
 

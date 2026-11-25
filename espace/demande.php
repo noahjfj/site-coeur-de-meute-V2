@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $errors = create_requests($user, $kind, $items, $note);
     if (!$errors) {
         flash('success', (count($items) > 1 ? 'Vos demandes sont envoyées.' : 'Votre demande est envoyée.')
-            . ($kind === 'sejour' ? ' Pour bloquer vos dates, versez l\'acompte indiqué ci-dessous (vous le recevez aussi par e-mail).' : ' La pension vous répond par e-mail.'));
+            . ($kind === 'sejour' ? ' La pension vous répond par e-mail. Une fois le séjour confirmé, l\'acompte à verser s\'affichera ici.' : ' La pension vous répond par e-mail.'));
         redirect('/espace/reservations.php');
     }
 }
