@@ -22,6 +22,17 @@
     });
   });
 
+  // Menu « 3 lignes » du téléphone : se ferme avec la croix, la touche Échap ou en choisissant une page
+  document.querySelectorAll('[data-drawer]').forEach(function (drawer) {
+    var close = function () { drawer.open = false; };
+    drawer.querySelectorAll('[data-drawer-close], .drawer__link').forEach(function (el) { el.addEventListener('click', close); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && drawer.open) { close(); drawer.querySelector('summary').focus(); } });
+    drawer.addEventListener('toggle', function () {
+      document.documentElement.classList.toggle('menu-open', drawer.open);
+      drawer.querySelector('summary').setAttribute('aria-label', drawer.open ? 'Fermer le menu' : 'Ouvrir le menu');
+    });
+  });
+
   // Sur téléphone, les filtres de l'historique sont repliés (sauf s'il y a déjà un filtre actif)
   document.querySelectorAll('[data-filterbox]').forEach(function (box) {
     if (window.matchMedia('(max-width: 760px)').matches && !box.hasAttribute('data-active')) box.open = false;

@@ -2,7 +2,7 @@
 if (!defined('CDM')) { http_response_code(404); exit; }
 
 // Changer ce numéro à chaque mise à jour du style : les navigateurs rechargent alors les fichiers
-const ASSET_VERSION = '20261125a';
+const ASSET_VERSION = '20261125b';
 
 const CLIENT_NAV = [
     'accueil'      => ['/espace/', 'Mon espace'],
@@ -20,21 +20,21 @@ const GERANTE_NAV = [
     'tarifs'   => ['/gerante/tarifs.php', 'Tarifs'],
 ];
 
-// Menu du bas sur téléphone (façon application) : libellé court + icône
-const TABBAR = [
+// Icône de chaque entrée du menu (menu « 3 lignes » sur téléphone)
+const NAV_ICONS = [
     'client' => [
-        'accueil'      => ['Accueil', 'home'],
-        'demande'      => ['Demander', 'plus'],
-        'reservations' => ['Séjours', 'doc'],
-        'carte'        => ['Cartes', 'card'],
-        'compte'       => ['Compte', 'user'],
+        'accueil'      => 'home',
+        'demande'      => 'plus',
+        'reservations' => 'doc',
+        'carte'        => 'card',
+        'compte'       => 'user',
     ],
     'gerante' => [
-        'demandes'   => ['Demandes', 'inbox'],
-        'historique' => ['Historique', 'clock'],
-        'clients'    => ['Clients', 'users'],
-        'cartes'     => ['Cartes', 'card'],
-        'tarifs'     => ['Tarifs', 'euro'],
+        'demandes'   => 'inbox',
+        'historique' => 'clock',
+        'clients'    => 'users',
+        'cartes'     => 'card',
+        'tarifs'     => 'euro',
     ],
 ];
 
@@ -79,10 +79,39 @@ function page_start(string $title, string $area = 'public', string $active = '')
 <link rel="stylesheet" href="/css/espace.css?v=<?= ASSET_VERSION ?>">
 <link rel="icon" href="/assets/img/logo-coeur-de-meute.svg" type="image/svg+xml">
 </head>
-<body class="area-<?= h($area) ?><?= $nav ? ' has-tabbar' : '' ?>">
+<body class="area-<?= h($area) ?><?= $nav ? ' has-menu' : '' ?>">
 <a class="skip" href="#contenu">Aller au contenu</a>
 <header class="topbar<?= $area === 'gerante' ? ' topbar--dark' : '' ?>">
   <div class="wrap topbar__inner">
+    <?php if ($nav):
+        $pendingCount = $area === 'gerante' ? (int) (q_one("SELECT COUNT(*) AS n FROM stay_requests WHERE status = 'pending'")['n'] ?? 0) : 0; ?>
+    <details class="drawer" data-drawer>
+      <summary class="drawer__btn" aria-label="Ouvrir le menu"><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span><?php if ($pendingCount > 0): ?><span class="drawer__dot"><?= $pendingCount > 99 ? '99+' : $pendingCount ?></span><?php endif; ?></summary>
+      <div class="drawer__panel">
+        <div class="drawer__head">
+          <span class="drawer__blob" aria-hidden="true"></span>
+          <img class="drawer__logo" src="/assets/img/logo-coeur-de-meute.svg" alt="" width="64" height="56">
+          <span class="drawer__area"><?= $area === 'gerante' ? 'Espace gérante' : 'Mon espace' ?></span>
+          <?php if ($user): ?><strong class="drawer__hello">Bonjour <?= h($user['first_name']) ?></strong><?php endif; ?>
+          <button type="button" class="drawer__close" data-drawer-close aria-label="Fermer le menu">×</button>
+        </div>
+        <nav class="drawer__nav" aria-label="Menu">
+          <?php foreach ($nav as $key => [$href, $label]): ?>
+          <a class="drawer__link" href="<?= h($href) ?>"<?= $key === $active ? ' aria-current="page"' : '' ?>><?= icon(NAV_ICONS[$area][$key] ?? 'arrow') ?><span><?= h($label) ?></span><?php if ($key === 'demandes' && $pendingCount > 0): ?><span class="drawer__count"><?= $pendingCount ?><span class="sr-only"> en attente</span></span><?php endif; ?></a>
+          <?php endforeach; ?>
+        </nav>
+        <div class="drawer__foot">
+          <?php if ($area === 'client'): ?><a class="drawer__site" href="/index.html">← Retour au site</a><?php endif; ?>
+          <?php if ($user): ?>
+          <form method="post" action="/espace/deconnexion.php">
+            <?= csrf_field() ?>
+            <button type="submit" class="btn btn--ghost drawer__logout">Se déconnecter</button>
+          </form>
+          <?php endif; ?>
+        </div>
+      </div>
+    </details>
+    <?php endif; ?>
     <a class="topbar__logo" href="<?= $area === 'gerante' ? '/gerante/' : '/index.html' ?>"><img src="/assets/img/logo-coeur-de-meute.svg" alt="Coeur de Meute" width="74" height="65"></a>
     <?php if ($area === 'gerante'): ?><span class="topbar__badge">Espace gérante</span><?php endif; ?>
     <?php if ($nav): ?>
@@ -103,17 +132,6 @@ function page_start(string $title, string $area = 'public', string $active = '')
     <?php endif; ?>
   </div>
 </header>
-<?php if ($nav):
-    $pendingCount = $area === 'gerante' ? (int) (q_one("SELECT COUNT(*) AS n FROM stay_requests WHERE status = 'pending'")['n'] ?? 0) : 0; ?>
-<nav class="tabbar" aria-label="Menu rapide">
-  <?php foreach (TABBAR[$area] as $key => [$label, $ico]): ?>
-  <a class="tabbar__item" href="<?= h($nav[$key][0]) ?>"<?= $key === $active ? ' aria-current="page"' : '' ?>>
-    <span class="tabbar__icon"><?= icon($ico) ?><?php if ($key === 'demandes' && $pendingCount > 0): ?><span class="tabbar__count"><?= $pendingCount > 99 ? '99+' : $pendingCount ?><span class="sr-only"> en attente</span></span><?php endif; ?></span>
-    <span class="tabbar__label"><?= h($label) ?></span>
-  </a>
-  <?php endforeach; ?>
-</nav>
-<?php endif; ?>
 <main id="contenu" class="wrap page">
 <?php foreach (take_flashes() as $f): ?>
   <p class="flash flash--<?= h($f['type']) ?>" role="status"><?= h($f['message']) ?></p>
@@ -122,6 +140,9 @@ function page_start(string $title, string $area = 'public', string $active = '')
 
 function page_end(array $scripts = []): void
 {
+    if (!in_array('/js/espace.js', $scripts, true)) {
+        $scripts[] = '/js/espace.js'; // menu du téléphone, tableaux…
+    }
     ?>
 </main>
 <footer class="wrap foot">
