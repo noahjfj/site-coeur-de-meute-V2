@@ -2,7 +2,7 @@
 if (!defined('CDM')) { http_response_code(404); exit; }
 
 // Changer ce numéro à chaque mise à jour du style : les navigateurs rechargent alors les fichiers
-const ASSET_VERSION = '20261125d';
+const ASSET_VERSION = '20261125e';
 
 const CLIENT_NAV = [
     'accueil'      => ['/espace/', 'Mon espace'],
@@ -14,10 +14,11 @@ const CLIENT_NAV = [
 
 const GERANTE_NAV = [
     'demandes'   => ['/gerante/', 'Demandes'],
+    'planning'   => ['/gerante/planning.php', 'Planning'],
     'reservation' => ['/gerante/reservation.php', '+ Réservation'],
     'historique' => ['/gerante/historique.php', 'Historique'],
-    'clients'  => ['/gerante/clients.php', 'Clients et chiens'],
-    'cartes'   => ['/gerante/cartes.php', 'Cartes journée'],
+    'clients'  => ['/gerante/clients.php', 'Clients'],
+    'cartes'   => ['/gerante/cartes.php', 'Cartes'],
     'tarifs'   => ['/gerante/tarifs.php', 'Tarifs'],
 ];
 
@@ -32,6 +33,7 @@ const NAV_ICONS = [
     ],
     'gerante' => [
         'demandes'   => 'inbox',
+        'planning'   => 'calendar',
         'reservation' => 'plus',
         'historique' => 'clock',
         'clients'    => 'users',
@@ -52,6 +54,8 @@ const ICONS = [
     'euro'  => '<path d="M17.5 6.5a7 7 0 1 0 0 11"/><path d="M4 10h9M4 14h9"/>',
     'paw'   => '<circle cx="6" cy="9" r="2"/><circle cx="10" cy="5.5" r="2"/><circle cx="14" cy="5.5" r="2"/><circle cx="18" cy="9" r="2"/><path d="M12 11c-3 0-6 4.5-6 7 0 1.6 1.3 2.5 3 2.5 1.2 0 2-.6 3-.6s1.8.6 3 .6c1.7 0 3-.9 3-2.5 0-2.5-3-7-6-7z"/>',
     'arrow' => '<path d="M5 12h14M13 6l6 6-6 6"/>',
+    'camera' => '<path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/>',
+    'calendar' => '<rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4M7.5 14h2M11 14h2M14.5 14h2M7.5 17.5h2M11 17.5h2"/>',
 ];
 
 /** Petite icône au trait (dessin fixe, aucune donnée de l'utilisateur dedans). */
@@ -86,7 +90,10 @@ function page_start(string $title, string $area = 'public', string $active = '')
 <header class="topbar<?= $area === 'gerante' ? ' topbar--dark' : '' ?>">
   <div class="wrap topbar__inner">
     <?php if ($nav):
-        $pendingCount = $area === 'gerante' ? (int) (q_one("SELECT COUNT(*) AS n FROM stay_requests WHERE status = 'pending'")['n'] ?? 0) : 0; ?>
+        $pendingCount = $area === 'gerante' ? (int) (q_one("SELECT COUNT(*) AS n FROM stay_requests WHERE status = 'pending'")['n'] ?? 0) : 0;
+        $cardCount = $area === 'gerante' ? (int) (q_one("SELECT COUNT(*) AS n FROM cards WHERE status = 'requested'")['n'] ?? 0) : 0;
+        $counts = ['demandes' => $pendingCount, 'cartes' => $cardCount];
+        $pendingCount += $cardCount; ?>
     <details class="drawer" data-drawer>
       <summary class="drawer__btn" aria-label="Ouvrir le menu"><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span><?php if ($pendingCount > 0): ?><span class="drawer__dot"><?= $pendingCount > 99 ? '99+' : $pendingCount ?></span><?php endif; ?></summary>
       <div class="drawer__panel">
@@ -99,7 +106,7 @@ function page_start(string $title, string $area = 'public', string $active = '')
         </div>
         <nav class="drawer__nav" aria-label="Menu">
           <?php foreach ($nav as $key => [$href, $label]): ?>
-          <a class="drawer__link" href="<?= h($href) ?>"<?= $key === $active ? ' aria-current="page"' : '' ?>><?= icon(NAV_ICONS[$area][$key] ?? 'arrow') ?><span><?= h($key === 'reservation' ? 'Nouvelle réservation' : $label) ?></span><?php if ($key === 'demandes' && $pendingCount > 0): ?><span class="drawer__count"><?= $pendingCount ?><span class="sr-only"> en attente</span></span><?php endif; ?></a>
+          <a class="drawer__link" href="<?= h($href) ?>"<?= $key === $active ? ' aria-current="page"' : '' ?>><?= icon(NAV_ICONS[$area][$key] ?? 'arrow') ?><span><?= h(['reservation' => 'Nouvelle réservation', 'clients' => 'Clients et chiens', 'cartes' => 'Cartes journée'][$key] ?? $label) ?></span><?php if (($counts[$key] ?? 0) > 0): ?><span class="drawer__count"><?= $counts[$key] ?><span class="sr-only"> en attente</span></span><?php endif; ?></a>
           <?php endforeach; ?>
         </nav>
         <div class="drawer__foot">
@@ -119,7 +126,7 @@ function page_start(string $title, string $area = 'public', string $active = '')
     <?php if ($nav): ?>
     <nav class="topbar__nav" aria-label="Menu de l'espace">
       <?php foreach ($nav as $key => [$href, $label]): ?>
-        <a href="<?= h($href) ?>"<?= $key === $active ? ' aria-current="page"' : '' ?>><?= h($label) ?></a>
+        <a href="<?= h($href) ?>"<?= $key === $active ? ' aria-current="page"' : '' ?>><?= h($label) ?><?php if (($counts[$key] ?? 0) > 0): ?> <span class="topbar__count"><?= $counts[$key] ?><span class="sr-only"> en attente</span></span><?php endif; ?></a>
       <?php endforeach; ?>
     </nav>
     <?php else: ?>

@@ -22,6 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($active) {
             $errors[] = $dog['name'] . ' a une demande en cours : annulez-la d\'abord ou contactez la pension.';
         } else {
+            remove_dog_photo($dog);
             q('DELETE FROM dogs WHERE id = ? AND user_id = ?', [$dog['id'], $uid]);
             audit($uid, 'dog_deleted', (string) $dog['id']);
             flash('success', 'La fiche de ' . $dog['name'] . ' a été supprimée.');
@@ -38,9 +39,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $errors[] = 'Maximum 10 chiens par compte. Contactez la pension si besoin.';
                 } else {
                     q('INSERT INTO dogs (name, breed, birth_date, sex, size, sterilized, vaccines_until, vet, health, temperament, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [...$vals, $uid]);
+                    $dog = find_own_dog($uid, (int) db()->lastInsertId());
                 }
             }
             if (!$errors) {
+                // Photo : envoyée avec la fiche (appareil photo ou galerie du téléphone)
+                $photoErr = null;
+                if (post('remove_photo', 3) === '1') {
+                    remove_dog_photo($dog);
+                } elseif (($_FILES['photo']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+                    $photoErr = set_dog_photo($dog, $_FILES['photo']);
+                }
+                if ($photoErr) {
+                    flash('error', 'La fiche est enregistrée, mais pas la photo : ' . $photoErr);
+                    redirect('/espace/chien.php?id=' . (int) $dog['id']);
+                }
                 flash('success', 'La fiche de ' . $v['name'] . ' est enregistrée.');
                 redirect('/espace/');
             }
@@ -53,9 +66,21 @@ page_start($dog ? 'Fiche de ' . $dog['name'] : 'Ajouter un chien', 'client', 'ac
 <p class="eyebrow"><a href="/espace/">Mon espace</a></p>
 <h1><?= $dog ? 'Fiche de ' . h($dog['name']) : 'Ajouter un chien' ?></h1>
 <?php errors_box($errors); ?>
-<form method="post" class="card form form--wide">
+<form method="post" class="card form form--wide" enctype="multipart/form-data">
   <?= csrf_field() ?>
   <?php if ($dog): ?><input type="hidden" name="id" value="<?= (int) $dog['id'] ?>"><?php endif; ?>
+  <div class="photopick" data-photopick>
+    <span class="photopick__frame">
+      <img class="photopick__img" src="<?= h($dog ? (dog_photo_url($dog) ?? '') : '') ?>" alt=""<?= $dog && dog_photo_url($dog) ? '' : ' hidden' ?> data-photo-preview>
+      <span class="photopick__empty"<?= $dog && dog_photo_url($dog) ? ' hidden' : '' ?> data-photo-empty aria-hidden="true"><?= icon('paw') ?></span>
+    </span>
+    <div class="photopick__actions">
+      <strong>Photo de votre chien</strong>
+      <label class="btn btn--small photopick__btn">Prendre ou choisir une photo<input type="file" name="photo" accept="image/*" class="sr-only" data-photo-input></label>
+      <?php if ($dog && dog_photo_url($dog)): ?><label class="check small"><input type="checkbox" name="remove_photo" value="1"> Retirer la photo</label><?php endif; ?>
+      <span class="hint">Sur téléphone, vous pouvez utiliser l'appareil photo ou votre galerie.</span>
+    </div>
+  </div>
   <div class="grid2">
     <label>Nom<input type="text" name="name" value="<?= h($v['name']) ?>" required maxlength="80"></label>
     <label>Race<input type="text" name="breed" value="<?= h($v['breed']) ?>" maxlength="120"></label>

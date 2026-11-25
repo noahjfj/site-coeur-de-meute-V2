@@ -86,7 +86,7 @@ function card_remaining(array $c): int
 function active_cards(int $userId, ?string $onDate = null, ?string $size = null): array
 {
     $onDate ??= today();
-    return q_all('SELECT * FROM cards WHERE user_id = ? AND expires_at >= ? AND used_days < paid_days + free_days AND (? IS NULL OR size = ?) ORDER BY expires_at, id', [$userId, $onDate, $size, $size]);
+    return q_all("SELECT * FROM cards WHERE status = 'active' AND user_id = ? AND expires_at >= ? AND used_days < paid_days + free_days AND (? IS NULL OR size = ?) ORDER BY expires_at, id", [$userId, $onDate, $size, $size]);
 }
 
 function remaining_days(int $userId, ?string $onDate = null, ?string $size = null): int
@@ -257,7 +257,7 @@ function decide_request(int $managerId, int $requestId, string $decision, string
         }
         $cardId = $r['card_id'];
         if ($decision === 'confirmed' && $r['kind'] === 'journee') {
-            $card = q_one('SELECT c.* FROM cards c JOIN dogs d ON d.id = ? AND d.size = c.size WHERE c.user_id = ? AND c.expires_at >= ? AND c.used_days < c.paid_days + c.free_days ORDER BY c.expires_at, c.id LIMIT 1 FOR UPDATE', [$r['dog_id'], $r['user_id'], $r['start_date']]);
+            $card = q_one('SELECT c.* FROM cards c JOIN dogs d ON d.id = ? AND d.size = c.size WHERE c.status = \'active\' AND c.user_id = ? AND c.expires_at >= ? AND c.used_days < c.paid_days + c.free_days ORDER BY c.expires_at, c.id LIMIT 1 FOR UPDATE', [$r['dog_id'], $r['user_id'], $r['start_date']]);
             if (!$card) {
                 $pdo->rollBack();
                 return 'Ce client n\'a plus de journée disponible sur une carte de ce gabarit valable à cette date.';
@@ -328,36 +328,53 @@ function contract_path(array $c): string
     if (!preg_match('/^[a-f0-9]{64}$/', $c['stored_name'])) {
         throw new RuntimeException('Nom de fichier invalide');
     }
-    return contracts_dir() . '/' . $c['stored_name'] . '.pdf';
+    return contracts_dir() . '/' . $c['stored_name'] . '.' . (($c['ext'] ?? 'pdf') === 'jpg' ? 'jpg' : 'pdf');
 }
 
 const CONTRACT_MAX_BYTES = 10 * 1024 * 1024;
 
-/** Enregistre un PDF envoyé par la gérante. Retourne null ou un message d'erreur. */
-function store_contract(int $managerId, int $userId, string $title, array $file): ?string
+/**
+ * Enregistre un contrat envoyé par la gérante : un PDF, ou une photo prise avec le téléphone.
+ * $requestId : la réservation à laquelle il se rapporte (facultatif).
+ * Retourne null ou un message d'erreur.
+ */
+function store_contract(int $managerId, int $userId, string $title, array $file, ?int $requestId = null): ?string
 {
     if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK || !is_uploaded_file($file['tmp_name'] ?? '')) {
         return 'Le fichier n\'a pas pu être reçu.';
     }
-    if ($file['size'] > CONTRACT_MAX_BYTES) {
-        return 'Le fichier dépasse 10 Mo.';
-    }
-    $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
-    $head = (string) file_get_contents($file['tmp_name'], false, null, 0, 5);
-    if ($mime !== 'application/pdf' || $head !== '%PDF-') {
-        return 'Seuls les fichiers PDF sont acceptés.';
-    }
     if (!q_one("SELECT id FROM users WHERE id = ? AND role = 'client'", [$userId])) {
         return 'Client introuvable.';
     }
-    $title = $title !== '' ? $title : 'Contrat du ' . date_fr(today());
-    $stored = bin2hex(random_bytes(32));
-    $dest = contracts_dir() . '/' . $stored . '.pdf';
-    if (!move_uploaded_file($file['tmp_name'], $dest)) {
-        return 'Le fichier n\'a pas pu être enregistré.';
+    if ($requestId && !q_one('SELECT id FROM stay_requests WHERE id = ? AND user_id = ?', [$requestId, $userId])) {
+        return 'Réservation introuvable pour ce client.';
     }
-    chmod($dest, 0640);
-    q('INSERT INTO contracts (user_id, title, stored_name, size_bytes) VALUES (?, ?, ?, ?)', [$userId, $title, $stored, (int) $file['size']]);
+    $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
+    $stored = bin2hex(random_bytes(32));
+    if (str_starts_with((string) $mime, 'image/')) {
+        $ext = 'jpg';
+        $dest = contracts_dir() . '/' . $stored . '.jpg';
+        $err = save_image_upload($file, $dest, 2200);
+        if ($err) {
+            return $err;
+        }
+    } else {
+        if ($file['size'] > CONTRACT_MAX_BYTES) {
+            return 'Le fichier dépasse 10 Mo.';
+        }
+        $head = (string) file_get_contents($file['tmp_name'], false, null, 0, 5);
+        if ($mime !== 'application/pdf' || $head !== '%PDF-') {
+            return 'Seuls les PDF et les photos (JPEG, PNG) sont acceptés.';
+        }
+        $ext = 'pdf';
+        $dest = contracts_dir() . '/' . $stored . '.pdf';
+        if (!move_uploaded_file($file['tmp_name'], $dest)) {
+            return 'Le fichier n\'a pas pu être enregistré.';
+        }
+        chmod($dest, 0640);
+    }
+    $title = $title !== '' ? $title : 'Contrat du ' . date_fr(today());
+    q('INSERT INTO contracts (user_id, title, stored_name, size_bytes, request_id, ext) VALUES (?, ?, ?, ?, ?, ?)', [$userId, $title, $stored, (int) filesize($dest), $requestId ?: null, $ext]);
     audit($managerId, 'contract_uploaded', 'client ' . $userId);
     $u = q_one('SELECT email, first_name FROM users WHERE id = ?', [$userId]);
     send_mail($u['email'], 'Un nouveau document est disponible', greet($u) . 'La pension a déposé un document dans votre espace client : « ' . $title . " ».\n\nPour le consulter : " . url('/espace/reservations.php#contrats'));
@@ -372,8 +389,10 @@ function send_contract_file(array $c): never
         exit('Fichier introuvable.');
     }
     $safe = preg_replace('/[^A-Za-z0-9 _.-]+/', '', iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $c['title']) ?: 'contrat') ?: 'contrat';
-    header('Content-Type: application/pdf');
-    header('Content-Disposition: attachment; filename="' . trim($safe) . '.pdf"');
+    $isPhoto = ($c['ext'] ?? 'pdf') === 'jpg';
+    header('Content-Type: ' . ($isPhoto ? 'image/jpeg' : 'application/pdf'));
+    header('Content-Disposition: ' . ($isPhoto ? 'inline' : 'attachment') . '; filename="' . trim($safe) . ($isPhoto ? '.jpg' : '.pdf') . '"');
+    header('Cache-Control: private, no-store');
     header('Content-Length: ' . filesize($path));
     header('X-Content-Type-Options: nosniff');
     readfile($path);
@@ -386,6 +405,117 @@ function delete_user_account(int $userId): void
     foreach (q_all('SELECT * FROM contracts WHERE user_id = ?', [$userId]) as $c) {
         @unlink(contract_path($c));
     }
+    foreach (q_all('SELECT photo FROM dogs WHERE user_id = ? AND photo IS NOT NULL', [$userId]) as $d) {
+        @unlink(dog_photo_path($d['photo']));
+    }
     q('DELETE FROM users WHERE id = ? AND role = ?', [$userId, 'client']);
     audit(null, 'account_deleted', 'user ' . $userId);
+}
+
+/* ---------- Achat de cartes journée par le client ---------- */
+
+const MAX_PENDING_CARD_REQUESTS = 3;
+
+/** Prix d'une carte (10 ou 20) pour un gabarit, ou null si pas encore fixé. */
+function card_price(string $size, int $type): ?float
+{
+    $p = tarif_for($size)['prixCarte' . $type] ?? null;
+    return $p === null || $p === '' ? null : (float) $p;
+}
+
+/** Texte « comment payer » pour une carte demandée. */
+function card_payment_text(array $card): string
+{
+    $p = load_payment();
+    $text = 'Montant à verser : ' . euros($card['price_paid']) . "\n";
+    if ($p['iban'] !== '') {
+        $text .= 'Sur le compte : ' . format_iban($p['iban']) . ($p['titulaire'] !== '' ? ' (' . $p['titulaire'] . ')' : '') . "\n"
+            . ($p['bic'] !== '' ? 'BIC : ' . $p['bic'] . "\n" : '');
+    } else {
+        $text .= "Le numéro de compte vous sera communiqué par la pension.\n";
+    }
+    return $text . 'Merci d\'indiquer votre nom et « Carte ' . (int) $card['paid_days'] . ' » dans le virement. Vous pouvez aussi payer sur place.';
+}
+
+/** Le client demande une carte. Retourne [erreur|null, id de la carte]. */
+function request_card(array $user, string $size, int $type): array
+{
+    if (!isset(SIZES[$size]) || !in_array($type, [10, 20], true)) {
+        return ['Choisissez une carte.', 0];
+    }
+    $price = card_price($size, $type);
+    if ($price === null) {
+        return ['Le prix de cette carte n\'est pas encore fixé. Contactez la pension.', 0];
+    }
+    $uid = (int) $user['id'];
+    $pending = (int) q("SELECT COUNT(*) FROM cards WHERE user_id = ? AND status = 'requested'", [$uid])->fetchColumn();
+    if ($pending >= MAX_PENDING_CARD_REQUESTS) {
+        return ['Vous avez déjà ' . $pending . ' cartes en attente. Attendez qu\'elles soient activées, ou contactez la pension.', 0];
+    }
+    $t = load_tarifs();
+    $free = (int) $t['cartes']['offertes' . $type];
+    $expires = (new DateTimeImmutable('today'))->modify('+' . (int) $t['cartes']['validiteMois'] . ' months')->format('Y-m-d');
+    q("INSERT INTO cards (user_id, paid_days, free_days, size, price_paid, purchased_at, expires_at, status, requested_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'requested', NOW())",
+        [$uid, $type, $free, $size, $price, today(), $expires]);
+    $id = (int) db()->lastInsertId();
+    audit($uid, 'card_requested', 'carte ' . $type . ' ' . $size);
+    $card = q_one('SELECT * FROM cards WHERE id = ?', [$id]);
+    $label = 'Carte ' . $type . ' journées (+ ' . $free . ' offerte' . ($free > 1 ? 's' : '') . ') · ' . mb_strtolower(size_label($size));
+    send_mail((string) $user['email'], 'Votre demande de carte journée', greet($user)
+        . 'Merci ! Nous avons bien reçu votre demande : ' . $label . ".\n\n"
+        . card_payment_text($card) . "\n\n"
+        . 'La pension active votre carte dès que possible ; vous recevrez un e-mail à ce moment-là.'
+        . "\n\nVoir mes cartes : " . url('/espace/carte.php'));
+    send_mail((string) config('notify_email'), 'Achat de carte : ' . $user['first_name'] . ' ' . $user['last_name'],
+        'Nouvelle demande d\'achat de carte : ' . $label . ' — ' . euros($price) . ".\n\n"
+        . 'Client : ' . $user['first_name'] . ' ' . $user['last_name'] . ' (' . $user['email'] . ")\n\n"
+        . 'Pour activer la carte (avant ou après le paiement) : ' . url('/gerante/cartes.php'));
+    return [null, $id];
+}
+
+/** Le client annule sa demande de carte tant qu'elle n'est pas activée. */
+function client_cancel_card(int $userId, int $cardId): bool
+{
+    $done = q("DELETE FROM cards WHERE id = ? AND user_id = ? AND status = 'requested'", [$cardId, $userId])->rowCount() === 1;
+    if ($done) {
+        audit($userId, 'card_request_cancelled', (string) $cardId);
+    }
+    return $done;
+}
+
+/**
+ * La gérante active une carte demandée (avant ou après avoir reçu le paiement),
+ * ou la refuse. La validité commence le jour de l'activation.
+ */
+function decide_card(int $managerId, int $cardId, string $decision, bool $paid = false): ?string
+{
+    $c = q_one("SELECT c.*, u.email, u.first_name FROM cards c JOIN users u ON u.id = c.user_id WHERE c.id = ? AND c.status = 'requested'", [$cardId]);
+    if (!$c) {
+        return 'Cette demande de carte a déjà été traitée.';
+    }
+    if ($decision === 'refuse') {
+        q('DELETE FROM cards WHERE id = ?', [$cardId]);
+        audit($managerId, 'card_request_refused', (string) $cardId);
+        send_mail($c['email'], 'Votre demande de carte journée', greet($c)
+            . 'Votre demande de carte ' . (int) $c['paid_days'] . ' journées n\'a pas pu être acceptée. Contactez la pension pour en savoir plus.');
+        return null;
+    }
+    $months = (int) load_tarifs()['cartes']['validiteMois'];
+    $expires = (new DateTimeImmutable('today'))->modify('+' . $months . ' months')->format('Y-m-d');
+    q("UPDATE cards SET status = 'active', purchased_at = ?, expires_at = ?, paid_at = " . ($paid ? 'NOW()' : 'NULL') . ' WHERE id = ?', [today(), $expires, $cardId]);
+    audit($managerId, 'card_activated', 'carte ' . $cardId . ($paid ? ' payée' : ' non payée'));
+    $free = (int) $c['free_days'];
+    send_mail($c['email'], 'Votre carte journée est activée', greet($c)
+        . 'Bonne nouvelle : votre carte ' . (int) $c['paid_days'] . ' journées (+ ' . $free . ' offerte' . ($free > 1 ? 's' : '') . ') est active jusqu\'au ' . date_fr($expires) . ".\n\n"
+        . ($paid ? '' : "Si ce n'est pas encore fait, pensez à régler la carte :\n" . card_payment_text($c) . "\n\n")
+        . 'Pour réserver une journée : ' . url('/espace/demande.php?kind=journee&size=' . $c['size']) . "\nPour voir votre carte : " . url('/espace/carte.php'));
+    return null;
+}
+
+/** La gérante coche ou décoche « carte payée ». */
+function set_card_paid(int $managerId, int $cardId, bool $paid): bool
+{
+    $done = q('UPDATE cards SET paid_at = ' . ($paid ? 'COALESCE(paid_at, NOW())' : 'NULL') . " WHERE id = ? AND status = 'active'", [$cardId])->rowCount() >= 0;
+    audit($managerId, $paid ? 'card_paid' : 'card_unpaid', (string) $cardId);
+    return $done;
 }

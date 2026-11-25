@@ -151,7 +151,7 @@ function payment_state(array $r): array
 
 /* ---------- Mise à jour automatique de la base (pas besoin de phpMyAdmin) ---------- */
 
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 
 function ensure_schema(): void
 {
@@ -159,21 +159,43 @@ function ensure_schema(): void
     if (is_file($flag) && (int) file_get_contents($flag) >= SCHEMA_VERSION) {
         return;
     }
-    $have = array_column(q_all("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'stay_requests'"), 'COLUMN_NAME');
     $add = [
-        'price_total'     => 'DECIMAL(8,2) NULL',
-        'deposit_amount'  => 'DECIMAL(8,2) NULL',
-        'pay_ref'         => 'VARCHAR(24) NULL',
-        'deposit_paid_at' => 'DATETIME NULL',
-        'paid_full_at'    => 'DATETIME NULL',
-        'created_by'      => 'INT UNSIGNED NULL',
+        'stay_requests' => [
+            'price_total'     => 'DECIMAL(8,2) NULL',
+            'deposit_amount'  => 'DECIMAL(8,2) NULL',
+            'pay_ref'         => 'VARCHAR(24) NULL',
+            'deposit_paid_at' => 'DATETIME NULL',
+            'paid_full_at'    => 'DATETIME NULL',
+            'created_by'      => 'INT UNSIGNED NULL',
+        ],
+        'contracts' => [
+            'request_id' => 'INT UNSIGNED NULL',
+            'ext'        => "VARCHAR(4) NOT NULL DEFAULT 'pdf'",
+        ],
+        'dogs' => [
+            'photo' => 'CHAR(64) NULL',
+        ],
+        'cards' => [
+            'status'       => "VARCHAR(12) NOT NULL DEFAULT 'active'",
+            'paid_at'      => 'DATETIME NULL',
+            'requested_at' => 'DATETIME NULL',
+        ],
     ];
-    foreach ($add as $col => $def) {
-        if (!in_array($col, $have, true)) {
-            db()->exec('ALTER TABLE stay_requests ADD COLUMN ' . $col . ' ' . $def);
+    $newCardCols = false;
+    foreach ($add as $table => $cols) {
+        $have = array_column(q_all('SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?', [$table]), 'COLUMN_NAME');
+        foreach ($cols as $col => $def) {
+            if (!in_array($col, $have, true)) {
+                db()->exec('ALTER TABLE ' . $table . ' ADD COLUMN ' . $col . ' ' . $def);
+                $newCardCols = $newCardCols || ($table === 'cards' && $col === 'paid_at');
+            }
         }
     }
-    // Séjours déjà enregistrés avant cette mise à jour : on calcule leur prix et leur acompte
+    // Cartes activées avant cette mise à jour : elles avaient été payées
+    if ($newCardCols) {
+        q("UPDATE cards SET paid_at = created_at WHERE paid_at IS NULL AND status = 'active'");
+    }
+    // Séjours déjà enregistrés avant l'acompte : on calcule leur prix et leur acompte
     foreach (q_all("SELECT r.id, r.start_date, r.end_date, d.size FROM stay_requests r JOIN dogs d ON d.id = r.dog_id WHERE r.kind = 'sejour' AND r.price_total IS NULL") as $r) {
         $price = (float) estimate_stay($r['size'], $r['start_date'], $r['end_date'])[2];
         q('UPDATE stay_requests SET price_total = ?, deposit_amount = ?, pay_ref = COALESCE(pay_ref, ?) WHERE id = ?', [$price, deposit_for($price), structured_ref((int) $r['id']), $r['id']]);

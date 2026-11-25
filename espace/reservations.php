@@ -22,7 +22,13 @@ foreach ($requests as $r) {
     }
 }
 $pay = load_payment();
-$contracts = q_all('SELECT id, title, created_at FROM contracts WHERE user_id = ? ORDER BY created_at DESC', [$uid]);
+$contracts = q_all('SELECT c.id, c.title, c.created_at, c.ext, c.request_id, r.kind, r.start_date, r.end_date, d.name AS dog FROM contracts c LEFT JOIN stay_requests r ON r.id = c.request_id LEFT JOIN dogs d ON d.id = r.dog_id WHERE c.user_id = ? ORDER BY c.created_at DESC', [$uid]);
+$contractsByRequest = [];
+foreach ($contracts as $c) {
+    if ($c['request_id']) {
+        $contractsByRequest[(int) $c['request_id']][] = $c;
+    }
+}
 
 page_start('Mes réservations', 'client', 'reservations');
 ?>
@@ -53,7 +59,7 @@ page_start('Mes réservations', 'client', 'reservations');
 <?php else: ?>
 <div class="table-box">
   <table class="table">
-    <thead><tr><th scope="col">Chien</th><th scope="col">Type</th><th scope="col">Dates</th><th scope="col">État</th><th scope="col">Paiement</th><th scope="col">Message de la pension</th><th scope="col"><span class="sr-only">Action</span></th></tr></thead>
+    <thead><tr><th scope="col">Chien</th><th scope="col">Type</th><th scope="col">Dates</th><th scope="col">État</th><th scope="col">Paiement</th><th scope="col">Message de la pension</th><th scope="col">Contrat</th><th scope="col"><span class="sr-only">Action</span></th></tr></thead>
     <tbody>
     <?php foreach ($requests as $r): ?>
       <tr>
@@ -63,6 +69,7 @@ page_start('Mes réservations', 'client', 'reservations');
         <td><?= status_badge($r['status']) ?></td>
         <td><?php [$pc, $pt] = payment_state($r); ?><?= in_array($r['status'], ['refused', 'cancelled'], true) && $pc === 'due' ? '—' : '<span class="paystate paystate--' . h($pc) . '">' . h($pt) . '</span>' ?></td>
         <td class="muted"><?= h($r['manager_message'] ?? '') ?: '—' ?></td>
+        <td><?php foreach ($contractsByRequest[(int) $r['id']] ?? [] as $c): ?><a class="block" href="/espace/contrat.php?id=<?= (int) $c['id'] ?>"><?= h($c['title']) ?></a><?php endforeach; ?></td>
         <td>
           <?php if ($r['status'] === 'pending'): ?>
           <form method="post" data-confirm="Annuler cette demande ?">
@@ -88,9 +95,9 @@ page_start('Mes réservations', 'client', 'reservations');
   <div class="docs">
     <?php foreach ($contracts as $c): ?>
     <div class="card doc">
-      <span class="doc__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg></span>
-      <div class="doc__text"><strong><?= h($c['title']) ?></strong><span>Ajouté le <?= h(date_fr(substr($c['created_at'], 0, 10))) ?> · PDF</span></div>
-      <a href="/espace/contrat.php?id=<?= (int) $c['id'] ?>">Télécharger</a>
+      <span class="doc__icon" aria-hidden="true"><?= icon(($c['ext'] ?? 'pdf') === 'jpg' ? 'camera' : 'doc') ?></span>
+      <div class="doc__text"><strong><?= h($c['title']) ?></strong><span><?= $c['request_id'] && $c['start_date'] ? h(($c['kind'] === 'journee' ? 'Journée du ' . date_fr($c['start_date']) : 'Séjour ' . request_label($c)) . ' · ' . $c['dog']) . ' · ' : '' ?>ajouté le <?= h(date_fr(substr($c['created_at'], 0, 10))) ?> · <?= ($c['ext'] ?? 'pdf') === 'jpg' ? 'photo' : 'PDF' ?></span></div>
+      <a href="/espace/contrat.php?id=<?= (int) $c['id'] ?>"><?= ($c['ext'] ?? 'pdf') === 'jpg' ? 'Voir' : 'Télécharger' ?></a>
     </div>
     <?php endforeach; ?>
   </div>

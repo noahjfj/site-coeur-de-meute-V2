@@ -63,7 +63,11 @@ page_start('Mon espace', 'client', 'accueil');
     <?php foreach ($dogs as $i => $d): ?>
     <article class="card dog">
       <div class="dog__head">
-        <div class="dog__avatar dog__avatar--<?= $i % 3 ?>" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="6" cy="9" r="2.2"/><circle cx="10" cy="5.5" r="2.2"/><circle cx="14" cy="5.5" r="2.2"/><circle cx="18" cy="9" r="2.2"/><path d="M12 11c-3 0-6 4.5-6 7 0 1.6 1.3 2.5 3 2.5 1.2 0 2-.6 3-.6s1.8.6 3 .6c1.7 0 3-.9 3-2.5 0-2.5-3-7-6-7z"/></svg></div>
+        <?php if ($photo = dog_photo_url($d)): ?>
+        <a class="dog__avatar dog__avatar--photo" href="/espace/chien.php?id=<?= (int) $d['id'] ?>"><img src="<?= h($photo) ?>" alt="Photo de <?= h($d['name']) ?>" width="72" height="72" loading="lazy"></a>
+        <?php else: ?>
+        <a class="dog__avatar dog__avatar--<?= $i % 3 ?> dog__avatar--add" href="/espace/chien.php?id=<?= (int) $d['id'] ?>" title="Ajouter une photo"><span class="sr-only">Ajouter une photo de <?= h($d['name']) ?></span><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="6" cy="9" r="2.2"/><circle cx="10" cy="5.5" r="2.2"/><circle cx="14" cy="5.5" r="2.2"/><circle cx="18" cy="9" r="2.2"/><path d="M12 11c-3 0-6 4.5-6 7 0 1.6 1.3 2.5 3 2.5 1.2 0 2-.6 3-.6s1.8.6 3 .6c1.7 0 3-.9 3-2.5 0-2.5-3-7-6-7z"/></svg><span class="dog__plus" aria-hidden="true">+</span></a>
+        <?php endif; ?>
         <div class="dog__title">
           <h3><?= h($d['name']) ?></h3>
           <span><?= h(implode(' · ', array_filter([$d['breed'], dog_age($d['birth_date']), $d['sex'] === 'male' ? 'mâle' : ($d['sex'] === 'femelle' ? 'femelle' : '')]))) ?></span>

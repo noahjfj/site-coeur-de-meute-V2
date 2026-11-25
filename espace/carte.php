@@ -3,19 +3,55 @@ require __DIR__ . '/../app/bootstrap.php';
 $user = require_client();
 $uid = (int) $user['id'];
 
-$cards = q_all('SELECT * FROM cards WHERE user_id = ? ORDER BY (expires_at >= CURDATE() AND used_days < paid_days + free_days) DESC, expires_at DESC', [$uid]);
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && post('action', 20) === 'cancel_card') {
+    $ok = client_cancel_card($uid, post_int('id'));
+    flash($ok ? 'success' : 'error', $ok ? 'Votre demande de carte est annulée.' : 'Cette carte est déjà activée : contactez la pension.');
+    redirect('/espace/carte.php');
+}
+
+$waiting = q_all("SELECT * FROM cards WHERE user_id = ? AND status = 'requested' ORDER BY requested_at", [$uid]);
+$pay = load_payment();
+$cards = q_all('SELECT * FROM cards WHERE status = \'active\' AND user_id = ? ORDER BY (expires_at >= CURDATE() AND used_days < paid_days + free_days) DESC, expires_at DESC', [$uid]);
 $userDogs = user_dogs($uid);
 $tarifs = load_tarifs();
 
 page_start('Mes cartes journée', 'client', 'carte');
 ?>
 <p class="eyebrow">Mes cartes</p>
-<h1>Mes cartes journée</h1>
+<div class="section__head">
+  <h1>Mes cartes journée</h1>
+  <a class="btn btn--small" href="/espace/acheter-carte.php">+ Acheter une carte</a>
+</div>
 
-<?php if (!$cards): ?>
+<?php foreach ($waiting as $w): ?>
+<section class="card paybox" id="en-attente">
+  <div class="paybox__head">
+    <span class="paybox__icon" aria-hidden="true"><?= icon('card') ?></span>
+    <div>
+      <h2>Carte <?= (int) $w['paid_days'] ?> + <?= (int) $w['free_days'] ?> · <?= h(mb_strtolower(size_label($w['size']))) ?></h2>
+      <p class="muted">Demandée le <?= h(date_fr(substr((string) $w['requested_at'], 0, 10))) ?> · en attente d'activation par la pension</p>
+    </div>
+  </div>
+  <p>Réglez <strong><?= h(euros($w['price_paid'])) ?></strong> par virement, ou sur place :</p>
+  <dl class="paybox__facts">
+    <div><dt>Montant</dt><dd><?= h(euros($w['price_paid'])) ?></dd></div>
+    <div><dt>Compte</dt><dd><?= $pay['iban'] !== '' ? h(format_iban($pay['iban'])) : 'communiqué par la pension' ?></dd></div>
+    <?php if ($pay['iban'] !== '' && $pay['titulaire'] !== ''): ?><div><dt>Au nom de</dt><dd><?= h($pay['titulaire']) ?></dd></div><?php endif; ?>
+  </dl>
+  <p class="muted small">Indiquez votre nom et « Carte <?= (int) $w['paid_days'] ?> » dans le virement. Vous recevrez un e-mail dès que la carte est active.</p>
+  <form method="post" data-confirm="Annuler cette demande de carte ?">
+    <?= csrf_field() ?>
+    <input type="hidden" name="action" value="cancel_card">
+    <input type="hidden" name="id" value="<?= (int) $w['id'] ?>">
+    <button type="submit" class="linklike">Annuler cette demande</button>
+  </form>
+</section>
+<?php endforeach; ?>
+
+<?php if (!$cards && !$waiting): ?>
 <div class="card empty">
   <p>Vous n'avez pas encore de carte journée. Avec la carte 10 journées, la 11<sup>e</sup> est offerte ; avec la carte 20, vous recevez 2 journées offertes. Les cartes sont valables <?= (int) $tarifs['cartes']['validiteMois'] ?> mois et servent pour vos chiens du gabarit de la carte (petit, moyen ou grand chien).</p>
-  <p>Pour en acheter une, parlez-en à la pension : elle l'activera dans votre espace.</p>
+  <a class="btn" href="/espace/acheter-carte.php">Acheter une carte</a>
 </div>
 <?php endif; ?>
 

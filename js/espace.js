@@ -51,6 +51,46 @@
     sync();
   });
 
+  // Photo du chien : aperçu immédiat de la photo choisie
+  document.querySelectorAll('[data-photopick]').forEach(function (box) {
+    var input = box.querySelector('[data-photo-input]');
+    var img = box.querySelector('[data-photo-preview]');
+    var empty = box.querySelector('[data-photo-empty]');
+    input.addEventListener('change', function () {
+      var f = input.files && input.files[0];
+      if (!f || !/^image\//.test(f.type)) return;
+      img.src = URL.createObjectURL(f);
+      img.hidden = false;
+      if (empty) empty.hidden = true;
+    });
+  });
+
+  // Dépôt de contrat : on affiche le nom du fichier ou « Photo prête »
+  document.querySelectorAll('[data-upload]').forEach(function (form) {
+    var name = form.querySelector('[data-upload-name]');
+    var inputs = form.querySelectorAll('[data-upload-input]');
+    inputs.forEach(function (input) {
+      input.addEventListener('change', function () {
+        var f = input.files && input.files[0];
+        inputs.forEach(function (other) { if (other !== input) other.value = ''; });
+        if (!name) return;
+        name.hidden = !f;
+        name.textContent = f ? '✓ Prêt à envoyer : ' + (input.name === 'photo' ? 'photo prise avec le téléphone' : f.name) : '';
+      });
+    });
+  });
+
+  // Planning : copier le lien de l'agenda
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var field = btn.parentNode.querySelector('[data-copy-src]');
+      field.select();
+      var done = function () { btn.textContent = 'Copié ✓'; setTimeout(function () { btn.textContent = 'Copier'; }, 2000); };
+      if (navigator.clipboard) navigator.clipboard.writeText(field.value).then(done, function () { document.execCommand('copy'); done(); });
+      else { document.execCommand('copy'); done(); }
+    });
+  });
+
   // Choix d'un client dans une longue liste : filtre en direct par nom du client ou du chien
   document.querySelectorAll('[data-picker]').forEach(function (picker) {
     var search = picker.querySelector('[data-picker-search]');

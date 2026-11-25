@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS dogs (
   vet VARCHAR(190) NOT NULL DEFAULT '',
   health TEXT NULL,
   temperament TEXT NULL,
+  photo CHAR(64) NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   KEY idx_dogs_user (user_id),
   CONSTRAINT fk_dogs_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -46,6 +47,9 @@ CREATE TABLE IF NOT EXISTS cards (
   purchased_at DATE NOT NULL,
   expires_at DATE NOT NULL,
   reminder_sent TINYINT(1) NOT NULL DEFAULT 0,
+  status VARCHAR(12) NOT NULL DEFAULT 'active',
+  paid_at DATETIME NULL,
+  requested_at DATETIME NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   KEY idx_cards_user (user_id),
   CONSTRAINT fk_cards_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -83,6 +87,8 @@ CREATE TABLE IF NOT EXISTS contracts (
   title VARCHAR(190) NOT NULL,
   stored_name CHAR(64) NOT NULL,
   size_bytes INT UNSIGNED NOT NULL,
+  request_id INT UNSIGNED NULL,
+  ext VARCHAR(4) NOT NULL DEFAULT 'pdf',
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   KEY idx_contracts_user (user_id),
   CONSTRAINT fk_contracts_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE

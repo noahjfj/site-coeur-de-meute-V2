@@ -13,7 +13,7 @@ require __DIR__ . '/bootstrap.php';
 
 $soon = (new DateTimeImmutable('today'))->modify('+1 month')->format('Y-m-d');
 $cards = q_all('SELECT c.*, u.email, u.first_name FROM cards c JOIN users u ON u.id = c.user_id
-    WHERE c.reminder_sent = 0 AND c.expires_at BETWEEN CURDATE() AND ? AND c.used_days < c.paid_days + c.free_days', [$soon]);
+    WHERE c.status = \'active\' AND c.reminder_sent = 0 AND c.expires_at BETWEEN CURDATE() AND ? AND c.used_days < c.paid_days + c.free_days', [$soon]);
 foreach ($cards as $c) {
     $left = card_remaining($c);
     send_mail($c['email'], 'Votre carte journée expire bientôt', greet($c)
