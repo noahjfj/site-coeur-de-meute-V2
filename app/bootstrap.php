@@ -39,6 +39,7 @@ require APP_DIR . '/lib/security.php';
 require APP_DIR . '/lib/auth.php';
 require APP_DIR . '/lib/mail.php';
 require APP_DIR . '/lib/tarifs.php';
+require APP_DIR . '/lib/payment.php';
 require APP_DIR . '/lib/domain.php';
 require APP_DIR . '/lib/layout.php';
 
@@ -70,3 +71,6 @@ if (PHP_SAPI !== 'cli') {
     start_secure_session();
     check_post_request();
 }
+
+// Ajoute toute seule les nouvelles colonnes à la base après une mise à jour du site
+ensure_schema();

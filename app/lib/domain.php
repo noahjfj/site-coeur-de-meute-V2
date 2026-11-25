@@ -123,8 +123,9 @@ function available_days_by_size(int $userId): array
  * Crée une demande par chien. $items = [[dog_id, début, fin], ...].
  * Retourne la liste des erreurs (vide si tout est bon).
  */
-function create_requests(array $user, string $kind, array $items, string $note): array
+function create_requests(array $user, string $kind, array $items, string $note, ?int $managerId = null, array &$createdIds = []): array
 {
+    $createdIds = [];
     $errors = [];
     if (!in_array($kind, ['sejour', 'journee'], true)) {
         return ['Type de garde inconnu.'];
@@ -146,7 +147,7 @@ function create_requests(array $user, string $kind, array $items, string $note):
             $errors[] = 'Indiquez des dates valides pour ' . $dog['name'] . '.';
             continue;
         }
-        if ($from < today()) {
+        if ($from < today() && $managerId === null) {
             $errors[] = 'La date pour ' . $dog['name'] . ' est déjà passée.';
         } elseif ($from > $maxStart) {
             $errors[] = 'Les demandes sont possibles jusqu\'à un an à l\'avance.';
@@ -187,15 +188,39 @@ function create_requests(array $user, string $kind, array $items, string $note):
 
     db()->beginTransaction();
     foreach ($rows as [$dog, $from, $to]) {
-        q('INSERT INTO stay_requests (user_id, dog_id, kind, start_date, end_date, note) VALUES (?, ?, ?, ?, ?, ?)', [$uid, $dog['id'], $kind, $from, $to, $note !== '' ? $note : null]);
+        $price = $deposit = null;
+        if ($kind === 'sejour') {
+            $price = (float) estimate_stay($dog['size'], $from, $to)[2];
+            $deposit = deposit_for($price);
+        }
+        q('INSERT INTO stay_requests (user_id, dog_id, kind, start_date, end_date, note, price_total, deposit_amount, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [$uid, $dog['id'], $kind, $from, $to, $note !== '' ? $note : null, $price, $deposit, $managerId]);
+        $createdIds[] = (int) db()->lastInsertId();
+    }
+    if ($kind === 'sejour') {
+        // Une seule communication pour toute la demande (un seul virement, même avec plusieurs chiens)
+        $in = implode(',', array_fill(0, count($createdIds), '?'));
+        q('UPDATE stay_requests SET pay_ref = ? WHERE id IN (' . $in . ')', array_merge([structured_ref($createdIds[0])], $createdIds));
     }
     db()->commit();
-    audit($uid, 'request_created', $kind . ' x' . count($rows));
+    audit($managerId ?? $uid, $managerId ? 'request_created_by_manager' : 'request_created', $kind . ' x' . count($rows));
+    if ($managerId !== null) {
+        return []; // la page de la gérante confirme et prévient le client elle-même
+    }
 
     $lines = array_map(static fn($r) => '- ' . $r[0]['name'] . ' : ' . ($kind === 'journee' ? 'journée du ' . date_fr($r[1]) : date_fr($r[1]) . ' → ' . date_fr($r[2])), $rows);
     send_mail((string) config('notify_email'), 'Nouvelle demande de ' . $user['first_name'] . ' ' . $user['last_name'],
         'Nouvelle demande (' . ($kind === 'journee' ? 'journée avec carte' : 'séjour') . ") :\n" . implode("\n", $lines)
         . ($note !== '' ? "\n\nMessage du client : " . $note : '') . "\n\nPour répondre : " . url('/gerante/'));
+
+    // Accusé de réception au client, avec l'acompte à verser pour un séjour
+    $saved = $kind === 'sejour' ? q_all('SELECT * FROM stay_requests WHERE id IN (' . implode(',', array_map('intval', $createdIds)) . ') ORDER BY id') : [];
+    $deposit = $saved ? deposit_text($saved) : '';
+    send_mail((string) $user['email'], 'Nous avons bien reçu votre demande', greet($user)
+        . 'Merci ! Nous avons bien reçu votre demande :' . "\n" . implode("\n", $lines) . "\n\n"
+        . 'La pension vous confirme chaque chien par e-mail.'
+        . ($deposit !== '' ? "\n\n" . $deposit : '')
+        . "\n\nVoir vos réservations : " . url('/espace/reservations.php'));
     return [];
 }
 
@@ -214,7 +239,7 @@ function client_cancel_request(int $userId, int $requestId): bool
  * Une journée confirmée est déduite d'une carte ; refusée ou annulée ensuite, elle est rendue.
  * Retourne null si tout va bien, sinon un message d'erreur.
  */
-function decide_request(int $managerId, int $requestId, string $decision, string $message): ?string
+function decide_request(int $managerId, int $requestId, string $decision, string $message, bool $notify = true): ?string
 {
     if (!in_array($decision, ['confirmed', 'refused', 'cancelled'], true)) {
         return 'Décision inconnue.';
@@ -255,6 +280,9 @@ function decide_request(int $managerId, int $requestId, string $decision, string
         throw $e;
     }
     audit($managerId, 'request_' . $decision, (string) $requestId);
+    if (!$notify) {
+        return null;
+    }
 
     $info = q_one('SELECT u.email, u.first_name, d.name AS dog FROM stay_requests r JOIN users u ON u.id = r.user_id JOIN dogs d ON d.id = r.dog_id WHERE r.id = ?', [$requestId]);
     $what = $r['kind'] === 'journee' ? 'la journée du ' . date_fr($r['start_date']) : 'le séjour du ' . date_fr($r['start_date']) . ' au ' . date_fr($r['end_date']);
@@ -262,8 +290,21 @@ function decide_request(int $managerId, int $requestId, string $decision, string
     send_mail($info['email'], 'Votre demande pour ' . $info['dog'] . ' : ' . mb_strtolower(STATUS_LABELS[$decision]),
         greet($info) . 'Votre demande pour ' . $info['dog'] . ' (' . $what . ') ' . $verb . '.'
         . ($message !== '' ? "\n\nMessage de la pension : " . $message : '')
+        . ($decision === 'confirmed' ? deposit_reminder($requestId) : '')
         . "\n\nVoir vos réservations : " . url('/espace/reservations.php'));
     return null;
+}
+
+/** Rappel de l'acompte dans l'e-mail de confirmation, s'il n'est pas encore reçu. */
+function deposit_reminder(int $requestId): string
+{
+    $r = q_one('SELECT * FROM stay_requests WHERE id = ?', [$requestId]);
+    if (!$r || $r['kind'] !== 'sejour' || $r['deposit_paid_at'] || $r['paid_full_at'] || (float) $r['deposit_amount'] <= 0) {
+        return '';
+    }
+    $group = array_values(array_filter(pay_group($r), static fn($g) => in_array($g['status'], ['pending', 'confirmed'], true)));
+    $text = deposit_text($group ?: [$r]);
+    return $text !== '' ? "\n\n" . $text : '';
 }
 
 function request_label(array $r): string

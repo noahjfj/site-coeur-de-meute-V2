@@ -13,6 +13,7 @@ $f = [
     'q'      => is_string($_GET['q'] ?? null) ? mb_substr(trim($_GET['q']), 0, 100) : '',
     'du'     => valid_date(is_string($_GET['du'] ?? null) ? $_GET['du'] : '') ?? '',
     'au'     => valid_date(is_string($_GET['au'] ?? null) ? $_GET['au'] : '') ?? '',
+    'paiement' => in_array($_GET['paiement'] ?? '', ['attendu', 'acompte', 'paye'], true) ? $_GET['paiement'] : '',
 ];
 $page = max(1, query_int('page'));
 
@@ -40,6 +41,14 @@ if ($f['au'] !== '') {
     $where[] = 'r.start_date <= ?';
     $params[] = $f['au'];
 }
+// Paiement : acompte pas encore reçu / acompte reçu (reste à payer) / tout payé
+if ($f['paiement'] !== '') {
+    $where[] = [
+        'attendu' => "r.kind = 'sejour' AND r.price_total IS NOT NULL AND r.deposit_paid_at IS NULL AND r.paid_full_at IS NULL AND r.status IN ('pending','confirmed')",
+        'acompte' => "r.kind = 'sejour' AND r.deposit_paid_at IS NOT NULL AND r.paid_full_at IS NULL",
+        'paye'    => "r.kind = 'sejour' AND r.paid_full_at IS NOT NULL",
+    ][$f['paiement']];
+}
 $from = 'FROM stay_requests r JOIN dogs d ON d.id = r.dog_id JOIN users u ON u.id = r.user_id WHERE ' . implode(' AND ', $where);
 
 $total = (int) q('SELECT COUNT(*) ' . $from, $params)->fetchColumn();
@@ -59,6 +68,7 @@ function filter_url(array $f, array $change): string
     return '/gerante/historique.php' . ($q ? '?' . http_build_query($q) : '');
 }
 
+$back = filter_url($f, ['page' => $page]);
 page_start('Historique des demandes', 'gerante', 'historique');
 ?>
 <section class="card section">
@@ -74,7 +84,7 @@ page_start('Historique des demandes', 'gerante', 'historique');
     <?php endforeach; ?>
   </nav>
 
-  <details class="filterbox" open data-filterbox<?= ($f['q'] !== '' || $f['type'] !== '' || $f['du'] !== '' || $f['au'] !== '') ? ' data-active' : '' ?>>
+  <details class="filterbox" open data-filterbox<?= ($f['q'] !== '' || $f['type'] !== '' || $f['du'] !== '' || $f['au'] !== '' || $f['paiement'] !== '') ? ' data-active' : '' ?>>
   <summary class="filterbox__toggle">Rechercher et filtrer</summary>
   <form method="get" class="filters">
     <?php if ($f['statut'] !== ''): ?><input type="hidden" name="statut" value="<?= h($f['statut']) ?>"><?php endif; ?>
@@ -84,6 +94,13 @@ page_start('Historique des demandes', 'gerante', 'historique');
         <option value="">Tous</option>
         <option value="sejour"<?= selected($f['type'] === 'sejour') ?>>Séjours</option>
         <option value="journee"<?= selected($f['type'] === 'journee') ?>>Journées</option>
+      </select></label>
+    <label>Paiement
+      <select name="paiement">
+        <option value="">Tous</option>
+        <option value="attendu"<?= selected($f['paiement'] === 'attendu') ?>>Acompte à recevoir</option>
+        <option value="acompte"<?= selected($f['paiement'] === 'acompte') ?>>Acompte reçu, reste à payer</option>
+        <option value="paye"<?= selected($f['paiement'] === 'paye') ?>>Tout payé</option>
       </select></label>
     <label>Du<input type="date" name="du" value="<?= h($f['du']) ?>"></label>
     <label>Au<input type="date" name="au" value="<?= h($f['au']) ?>"></label>
@@ -99,7 +116,7 @@ page_start('Historique des demandes', 'gerante', 'historique');
   <?php else: ?>
   <div class="table-box">
     <table class="table">
-      <thead><tr><th scope="col">Dates</th><th scope="col">Chien</th><th scope="col">Client</th><th scope="col">Type</th><th scope="col">État</th><th scope="col">Messages</th><th scope="col">Demandé le</th></tr></thead>
+      <thead><tr><th scope="col">Dates</th><th scope="col">Chien</th><th scope="col">Client</th><th scope="col">Type</th><th scope="col">État</th><th scope="col">Paiement</th><th scope="col">Messages</th><th scope="col">Demandé le</th></tr></thead>
       <tbody>
       <?php foreach ($rows as $r): ?>
         <tr>
@@ -108,6 +125,7 @@ page_start('Historique des demandes', 'gerante', 'historique');
           <td><a href="/gerante/clients.php?id=<?= (int) $r['uid'] ?>"><?= h($r['first_name'] . ' ' . $r['last_name']) ?></a></td>
           <td><?= $r['kind'] === 'journee' ? 'Journée' : 'Séjour' ?></td>
           <td><?= status_badge($r['status']) ?><?php if ($r['decided_at']): ?><small class="muted block">le <?= h(date_fr(substr($r['decided_at'], 0, 10))) ?></small><?php endif; ?></td>
+          <td><?= payment_toggles($r, $back) ?></td>
           <td class="small"><?php if ($r['note']): ?><span class="block">Client : « <?= h($r['note']) ?> »</span><?php endif; ?><?php if ($r['manager_message']): ?><span class="block muted">Vous : « <?= h($r['manager_message']) ?> »</span><?php endif; ?><?= !$r['note'] && !$r['manager_message'] ? '—' : '' ?></td>
           <td><?= h(date_fr(substr($r['created_at'], 0, 10))) ?></td>
         </tr>

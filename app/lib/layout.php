@@ -2,7 +2,7 @@
 if (!defined('CDM')) { http_response_code(404); exit; }
 
 // Changer ce numéro à chaque mise à jour du style : les navigateurs rechargent alors les fichiers
-const ASSET_VERSION = '20261125b';
+const ASSET_VERSION = '20261125c';
 
 const CLIENT_NAV = [
     'accueil'      => ['/espace/', 'Mon espace'],
@@ -14,6 +14,7 @@ const CLIENT_NAV = [
 
 const GERANTE_NAV = [
     'demandes'   => ['/gerante/', 'Demandes'],
+    'reservation' => ['/gerante/reservation.php', '+ Réservation'],
     'historique' => ['/gerante/historique.php', 'Historique'],
     'clients'  => ['/gerante/clients.php', 'Clients et chiens'],
     'cartes'   => ['/gerante/cartes.php', 'Cartes journée'],
@@ -31,6 +32,7 @@ const NAV_ICONS = [
     ],
     'gerante' => [
         'demandes'   => 'inbox',
+        'reservation' => 'plus',
         'historique' => 'clock',
         'clients'    => 'users',
         'cartes'     => 'card',

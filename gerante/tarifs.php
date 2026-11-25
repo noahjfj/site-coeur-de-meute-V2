@@ -2,7 +2,42 @@
 require __DIR__ . '/../app/bootstrap.php';
 $me = require_gerante();
 $t = load_tarifs();
+$pay = load_payment();
 $errors = [];
+$payErrors = [];
+
+// Réglages de l'acompte et du virement (formulaire séparé)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && post('form', 10) === 'paiement') {
+    $pct = str_replace(',', '.', post('pourcentage', 6));
+    if (!is_numeric($pct) || (float) $pct < 0 || (float) $pct > 100) {
+        $payErrors[] = 'Le pourcentage de l\'acompte doit être entre 0 et 100.';
+    } else {
+        $pay['pourcentage'] = round((float) $pct, 2);
+    }
+    $ibanRaw = post('iban', 60);
+    if ($ibanRaw === '') {
+        $pay['iban'] = '';
+    } elseif ($iban = clean_iban($ibanRaw)) {
+        $pay['iban'] = $iban;
+    } else {
+        $payErrors[] = 'Ce numéro de compte (IBAN) n\'est pas valide. Vérifiez-le, par exemple BE68 5390 0754 7034.';
+    }
+    $pay['titulaire'] = post('titulaire', 120);
+    $bic = strtoupper(preg_replace('/\s+/', '', post('bic', 20)) ?? '');
+    if ($bic !== '' && !preg_match('/^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/', $bic)) {
+        $payErrors[] = 'Le code BIC n\'est pas valide (8 ou 11 caractères, par exemple GEBABEBB).';
+    } else {
+        $pay['bic'] = $bic;
+    }
+    if (!$payErrors) {
+        if (save_payment($pay)) {
+            audit((int) $me['id'], 'payment_settings_updated');
+            flash('success', 'Les réglages de l\'acompte sont enregistrés.');
+            redirect('/gerante/tarifs.php#acompte');
+        }
+        $payErrors[] = 'Impossible d\'enregistrer : le dossier app/storage n\'est pas modifiable sur l\'hébergement.';
+    }
+}
 
 /** Prix saisi : nombre entre 0 et 1000, ou vide (= pas encore fixé) si $nullable. */
 function read_price(string $name, bool $nullable, array &$errors, string $label)
@@ -19,7 +54,7 @@ function read_price(string $name, bool $nullable, array &$errors, string $label)
     return floor($n) == $n ? (int) $n : $n;
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && post('form', 10) !== 'paiement') {
     $seuil = post_int('seuilJours');
     if ($seuil < 1 || $seuil > 60) {
         $errors[] = 'Le nombre de jours pour le tarif réduit doit être entre 1 et 60.';
@@ -81,5 +116,21 @@ page_start('Tarifs', 'gerante', 'tarifs');
     <label>Validité des cartes<span><input type="number" name="validiteMois" value="<?= (int) $t['cartes']['validiteMois'] ?>" min="1" max="36"> mois</span></label>
   </div>
   <button type="submit" class="btn">Enregistrer les tarifs</button>
+</form>
+
+<form method="post" class="card section form form--wide" id="acompte">
+  <h2>Acompte et virement</h2>
+  <p class="muted">Quand un client demande un séjour, il voit à l'écran et reçoit par e-mail le montant de l'acompte à verser, ce numéro de compte et une communication à recopier. Vous cochez ensuite « Acompte payé » ou « Tout est payé » sur la demande.</p>
+  <?php errors_box($payErrors); ?>
+  <?= csrf_field() ?>
+  <input type="hidden" name="form" value="paiement">
+  <div class="grid2">
+    <label>Acompte demandé<span class="money"><input type="text" inputmode="decimal" name="pourcentage" value="<?= h(rtrim(rtrim(number_format((float) $pay['pourcentage'], 2, '.', ''), '0'), '.')) ?>" maxlength="6"> % du prix du séjour</span></label>
+    <label>Numéro de compte (IBAN)<input type="text" name="iban" value="<?= h($pay['iban'] !== '' ? format_iban($pay['iban']) : '') ?>" placeholder="BE.. .... .... ...." autocomplete="off" maxlength="60"></label>
+    <label>Au nom de<input type="text" name="titulaire" value="<?= h($pay['titulaire']) ?>" maxlength="120"></label>
+    <label>BIC <span class="hint">(facultatif)</span><input type="text" name="bic" value="<?= h($pay['bic']) ?>" maxlength="20"></label>
+  </div>
+  <?php if ($pay['iban'] === ''): ?><p class="flash flash--info">Aucun numéro de compte pour l'instant : l'e-mail dira au client que la pension le lui communiquera.</p><?php endif; ?>
+  <button type="submit" class="btn">Enregistrer l'acompte</button>
 </form>
 <?php page_end(['/js/espace.js']);

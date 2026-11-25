@@ -27,6 +27,7 @@ page_start('Demandes', 'gerante', 'demandes');
 <section class="card section">
   <div class="section__head">
     <h1>Demandes à traiter</h1>
+    <a class="btn btn--small" href="/gerante/reservation.php">+ Nouvelle réservation</a>
     <span class="muted"><?= $pending ? count($pending) . ' en attente' : 'Tout est traité' ?></span>
   </div>
   <?php if (!$pending): ?><p class="muted">Aucune nouvelle demande.</p><?php endif; ?>
@@ -35,7 +36,9 @@ page_start('Demandes', 'gerante', 'demandes');
     <div class="req">
       <div class="req__who"><strong><?= h($r['dog']) ?> · <?= h(size_label($r['size'])) ?></strong><a href="/gerante/clients.php?id=<?= (int) $r['uid'] ?>"><?= h($r['first_name'] . ' ' . $r['last_name']) ?></a></div>
       <div class="req__when"><strong><?= h(request_label($r)) ?></strong><span class="muted"><?= h(request_detail($r)) ?></span>
-        <?php if ($r['note']): ?><span class="req__note">« <?= h($r['note']) ?> »</span><?php endif; ?></div>
+        <?php if ($r['note']): ?><span class="req__note">« <?= h($r['note']) ?> »</span><?php endif; ?>
+        <?php if ($r['created_by']): ?><span class="muted small">Créée par vous</span><?php endif; ?></div>
+      <?php if ($r['kind'] === 'sejour'): ?><div class="req__pay"><?= payment_toggles($r, '/gerante/') ?></div><?php endif; ?>
       <form method="post" class="req__actions">
         <?= csrf_field() ?>
         <input type="hidden" name="id" value="<?= (int) $r['id'] ?>">
@@ -55,7 +58,7 @@ page_start('Demandes', 'gerante', 'demandes');
   <?php if (!$upcoming): ?><p class="muted">Aucun séjour confirmé à venir.</p><?php else: ?>
   <div class="table-box">
     <table class="table">
-      <thead><tr><th scope="col">Dates</th><th scope="col">Chien</th><th scope="col">Client</th><th scope="col">Type</th><th scope="col"><span class="sr-only">Action</span></th></tr></thead>
+      <thead><tr><th scope="col">Dates</th><th scope="col">Chien</th><th scope="col">Client</th><th scope="col">Type</th><th scope="col">Paiement</th><th scope="col"><span class="sr-only">Action</span></th></tr></thead>
       <tbody>
       <?php foreach ($upcoming as $r): ?>
         <tr>
@@ -63,6 +66,7 @@ page_start('Demandes', 'gerante', 'demandes');
           <td><strong><?= h($r['dog']) ?></strong> <span class="muted">(<?= h(size_label($r['size'])) ?>)</span></td>
           <td><a href="/gerante/clients.php?id=<?= (int) $r['uid'] ?>"><?= h($r['first_name'] . ' ' . $r['last_name']) ?></a></td>
           <td><?= $r['kind'] === 'journee' ? 'Journée' : 'Séjour' ?></td>
+          <td><?= payment_toggles($r, '/gerante/') ?></td>
           <td>
             <form method="post" data-confirm="Annuler ce séjour confirmé ? Le client sera prévenu par e-mail.">
               <?= csrf_field() ?>

@@ -68,12 +68,12 @@ if ($id) {
     </section>
 
     <section class="section">
-      <h2>Demandes</h2>
+      <div class="section__head"><h2>Réservations</h2><a class="btn btn--small" href="/gerante/reservation.php?client=<?= (int) $id ?>">+ Nouvelle réservation</a></div>
       <?php if (!$requests): ?><p class="muted">Aucune demande.</p><?php else: ?>
       <div class="table-box"><table class="table">
-        <thead><tr><th scope="col">Dates</th><th scope="col">Chien</th><th scope="col">Type</th><th scope="col">État</th></tr></thead>
+        <thead><tr><th scope="col">Dates</th><th scope="col">Chien</th><th scope="col">Type</th><th scope="col">État</th><th scope="col">Paiement</th></tr></thead>
         <tbody><?php foreach ($requests as $r): ?>
-          <tr><td><?= h(request_label($r)) ?></td><td><?= h($r['dog']) ?></td><td><?= $r['kind'] === 'journee' ? 'Journée' : 'Séjour' ?></td><td><?= status_badge($r['status']) ?></td></tr>
+          <tr><td><?= h(request_label($r)) ?></td><td><?= h($r['dog']) ?></td><td><?= $r['kind'] === 'journee' ? 'Journée' : 'Séjour' ?></td><td><?= status_badge($r['status']) ?></td><td><?= payment_toggles($r, '/gerante/clients.php?id=' . (int) $id) ?></td></tr>
         <?php endforeach; ?></tbody>
       </table></div>
       <?php endif; ?>

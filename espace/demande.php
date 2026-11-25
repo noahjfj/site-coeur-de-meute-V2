@@ -45,7 +45,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     $errors = create_requests($user, $kind, $items, $note);
     if (!$errors) {
-        flash('success', count($items) > 1 ? 'Vos demandes sont envoyées. La pension vous répond par e-mail.' : 'Votre demande est envoyée. La pension vous répond par e-mail.');
+        flash('success', (count($items) > 1 ? 'Vos demandes sont envoyées.' : 'Votre demande est envoyée.')
+            . ($kind === 'sejour' ? ' Pour bloquer vos dates, versez l\'acompte indiqué ci-dessous (vous le recevez aussi par e-mail).' : ' La pension vous répond par e-mail.'));
         redirect('/espace/reservations.php');
     }
 }
@@ -74,7 +75,7 @@ page_start('Demander un séjour', 'client', 'demande');
   </div>
 <?php else: ?>
 <?php errors_box($errors); ?>
-<form method="post" class="request" id="request-form" data-seuil="<?= (int) $tarifs['seuilJours'] ?>" data-prices="<?= h(json_encode($priceData)) ?>" data-cards="<?= h(json_encode((object) $cardDays)) ?>">
+<form method="post" class="request" id="request-form" data-seuil="<?= (int) $tarifs['seuilJours'] ?>" data-prices="<?= h(json_encode($priceData)) ?>" data-cards="<?= h(json_encode((object) $cardDays)) ?>" data-acompte="<?= h((string) load_payment()['pourcentage']) ?>">
   <?= csrf_field() ?>
   <div class="request__main">
     <fieldset class="choices">

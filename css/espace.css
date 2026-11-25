@@ -466,6 +466,37 @@ body.area-public { background: radial-gradient(circle at 8% 0%, #f1dfd3 0, rgba(
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
 
+/* ---------- Acompte et paiements ---------- */
+[hidden] { display: none !important; }
+.pay { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0; }
+.pay__btn {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 4px 12px 4px 8px; border-radius: 999px;
+  border: 1px dashed #c9bfb2; background: var(--white); color: var(--ink-soft); font: inherit; font-size: .8rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+}
+.pay__btn small { font-weight: 400; opacity: .8; }
+.pay__btn:hover { border-color: var(--ok); color: var(--ink); }
+.pay__box { width: 18px; height: 18px; border-radius: 6px; border: 1.5px solid #b9b1a6; background: var(--white); flex: none; }
+.pay__btn.is-on { border: 1px solid transparent; background: var(--ok-bg); color: var(--ok); }
+.pay__btn.is-on .pay__box { border-color: var(--ok); background: var(--ok) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E") center / 13px no-repeat; }
+.pay__ref { font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; font-size: .72rem; color: var(--ink-soft); }
+.req__pay { flex: 1 1 100%; padding-top: 10px; border-top: 1px dashed var(--line); }
+.paystate { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: .8rem; font-weight: 600; white-space: nowrap; }
+.paystate--due { background: var(--wait-bg); color: var(--wait); }
+.paystate--deposit { background: #e9eef3; color: var(--ink); }
+.paystate--full { background: var(--ok-bg); color: var(--ok); }
+.paystate--none { color: var(--ink-soft); font-weight: 400; padding: 0; }
+.paybox { margin: 18px 0 24px; border: 2px solid #ecd2c3; background: linear-gradient(160deg, #fdf6f1, #fff 60%); }
+.paybox__head { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
+.paybox__head h2 { margin: 0; font-size: 1.35rem; }
+.paybox__head p { margin: 0; }
+.paybox__icon .ico { width: 48px; height: 48px; padding: 11px; border-radius: 14px; background: var(--rust); color: #fff; }
+.paybox__facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin: 0 0 12px; }
+.paybox__facts div { background: var(--white); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; }
+.paybox__facts dt { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); font-weight: 600; }
+.paybox__facts dd { margin: 0; font-weight: 700; overflow-wrap: anywhere; }
+.paybox__ref { font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; color: var(--rust-dark); }
+.summary__deposit { display: flex; justify-content: space-between; gap: 12px; padding: 10px 12px; border-radius: 12px; background: #fbefe8; color: var(--rust-dark); font-size: .9rem; }
+
 /* ---------- Icônes, raccourcis, menu du bas ---------- */
 .ico { width: 22px; height: 22px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .quick { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 18px 0 6px; }
@@ -606,7 +637,12 @@ body.area-public { background: radial-gradient(circle at 8% 0%, #f1dfd3 0, rgba(
   .filterbox__toggle::-webkit-details-marker { display: none; }
   .filterbox__toggle::after { content: "+"; font-size: 1.3rem; line-height: 1; color: var(--rust); }
   .filterbox[open] .filterbox__toggle::after { content: "−"; }
-  .filterbox .filters { margin: 0; padding: 0 16px 16px; background: none; grid-template-columns: 1fr 1fr; }
+  .filterbox .filters { margin: 0; padding: 0 16px 16px; background: none; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .filters input, .filters select { min-width: 0; }
+  .filters__actions { flex-wrap: wrap; }
+  .segmented { display: flex; width: 100%; border-radius: 18px; }
+  .segmented label { flex: 1 1 0; text-align: center; }
+  .segmented span { padding: 10px 8px; border-radius: 14px; }
   .filters__q, .filters__actions { grid-column: 1 / -1; }
   .filters__actions .btn { flex: 1; }
   .pager { flex-wrap: wrap; gap: 10px; }
@@ -639,4 +675,6 @@ body.area-public { background: radial-gradient(circle at 8% 0%, #f1dfd3 0, rgba(
   .table--stack .money { justify-content: flex-end; }
   .table--stack .money input { width: 110px; }
   .table--stack .block { display: block; }
+  .table--stack .pay { justify-content: flex-end; }
+  .pay__btn { min-height: 40px; }
 }

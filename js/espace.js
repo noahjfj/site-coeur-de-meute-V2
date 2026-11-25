@@ -38,6 +38,19 @@
     if (window.matchMedia('(max-width: 760px)').matches && !box.hasAttribute('data-active')) box.open = false;
   });
 
+  // Nouvelle réservation (gérante) : la date de départ et le paiement ne servent que pour un séjour
+  document.querySelectorAll('[data-booking]').forEach(function (f) {
+    var sync = function () {
+      var journee = (f.querySelector('input[name=kind]:checked') || {}).value === 'journee';
+      f.querySelectorAll('[data-only-sejour]').forEach(function (el) { el.hidden = journee; });
+      f.querySelectorAll('[data-only-journee]').forEach(function (el) { el.hidden = !journee; });
+      var lab = f.querySelector('[data-label-from]');
+      if (lab) lab.textContent = journee ? 'Jour' : 'Arrivée';
+    };
+    f.addEventListener('change', sync);
+    sync();
+  });
+
   // Choix d'un client dans une longue liste : filtre en direct par nom du client ou du chien
   document.querySelectorAll('[data-picker]').forEach(function (picker) {
     var search = picker.querySelector('[data-picker-search]');
@@ -151,6 +164,15 @@
       t.appendChild(text('span', '', journee ? 'Déduit de ma carte' : 'Estimation'));
       t.appendChild(text('span', '', journee ? dogs.length + ' journée' + (dogs.length > 1 ? 's' : '') : total + ' €'));
       summary.appendChild(t);
+      var pct = Number(form.getAttribute('data-acompte')) || 0;
+      if (!journee && pct > 0 && total > 0) {
+        var a = document.createElement('div');
+        a.className = 'summary__deposit';
+        var dep = Math.round(total * pct) / 100;
+        a.appendChild(text('span', '', 'Acompte à verser (' + pct + ' %)'));
+        a.appendChild(text('strong', '', dep.toFixed(2).replace('.', ',').replace(',00', '') + ' €'));
+        summary.appendChild(a);
+      }
     }
   }
 
