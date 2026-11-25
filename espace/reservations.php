@@ -1,0 +1,107 @@
+<?php
+require __DIR__ . '/../app/bootstrap.php';
+$user = require_client();
+$uid = (int) $user['id'];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && post('action') === 'cancel') {
+    if (client_cancel_request($uid, post_int('id'))) {
+        flash('success', 'Votre demande est annulée.');
+    } else {
+        flash('error', 'Cette demande ne peut plus être annulée en ligne. Contactez la pension.');
+    }
+    redirect('/espace/reservations.php');
+}
+
+$requests = q_all('SELECT r.*, d.name AS dog FROM stay_requests r JOIN dogs d ON d.id = r.dog_id WHERE r.user_id = ? ORDER BY r.start_date DESC, r.id DESC LIMIT 200', [$uid]);
+// Acomptes à verser : seulement pour les séjours confirmés par la pension, un bloc par demande
+$due = [];
+foreach ($requests as $r) {
+    if ($r['kind'] === 'sejour' && $r['pay_ref'] && $r['status'] === 'confirmed'
+        && !$r['deposit_paid_at'] && !$r['paid_full_at'] && (float) $r['deposit_amount'] > 0 && $r['end_date'] >= today()) {
+        $due[$r['pay_ref']][] = $r;
+    }
+}
+$pay = load_payment();
+$contracts = q_all('SELECT c.id, c.title, c.created_at, c.ext, c.request_id, r.kind, r.start_date, r.end_date, d.name AS dog FROM contracts c LEFT JOIN stay_requests r ON r.id = c.request_id LEFT JOIN dogs d ON d.id = r.dog_id WHERE c.user_id = ? ORDER BY c.created_at DESC', [$uid]);
+$contractsByRequest = [];
+foreach ($contracts as $c) {
+    if ($c['request_id']) {
+        $contractsByRequest[(int) $c['request_id']][] = $c;
+    }
+}
+
+page_start('Mes réservations', 'client', 'reservations');
+?>
+<p class="eyebrow">Suivi</p>
+<h1>Mes réservations</h1>
+<?php foreach ($due as $ref => $group):
+    $deposit = array_sum(array_column($group, 'deposit_amount'));
+    $total = array_sum(array_column($group, 'price_total')); ?>
+<section class="card paybox">
+  <div class="paybox__head">
+    <span class="paybox__icon" aria-hidden="true"><?= icon('euro') ?></span>
+    <div>
+      <h2>Acompte à verser : <?= h(euros($deposit)) ?></h2>
+      <p class="muted"><?= h(implode(' et ', array_unique(array_column($group, 'dog')))) ?> · <?= h(request_label($group[0])) ?> · prix estimé <?= h(euros($total)) ?></p>
+    </div>
+  </div>
+  <p>Pour bloquer vos dates, faites un virement de <strong><?= h(euros($deposit)) ?></strong> (<?= h(rtrim(rtrim(number_format((float) $pay['pourcentage'], 2, ',', ''), '0'), ',')) ?> % du séjour) :</p>
+  <dl class="paybox__facts">
+    <div><dt>Compte</dt><dd><?= $pay['iban'] !== '' ? h(format_iban($pay['iban'])) : 'communiqué par la pension' ?></dd></div>
+    <?php if ($pay['iban'] !== '' && $pay['titulaire'] !== ''): ?><div><dt>Au nom de</dt><dd><?= h($pay['titulaire']) ?></dd></div><?php endif; ?>
+    <?php if ($pay['bic'] !== ''): ?><div><dt>BIC</dt><dd><?= h($pay['bic']) ?></dd></div><?php endif; ?>
+  </dl>
+  <p class="muted small">Indiquez votre nom et celui de votre chien dans le virement. Le solde est à régler à la pension. Ces informations vous ont aussi été envoyées par e-mail.</p>
+</section>
+<?php endforeach; ?>
+<?php if (!$requests): ?>
+  <div class="card empty"><p>Aucune demande pour l'instant.</p><a class="btn" href="/espace/demande.php">Demander un séjour</a></div>
+<?php else: ?>
+<div class="table-box">
+  <table class="table">
+    <thead><tr><th scope="col">Chien</th><th scope="col">Type</th><th scope="col">Dates</th><th scope="col">État</th><th scope="col">Paiement</th><th scope="col">Message de la pension</th><th scope="col">Contrat</th><th scope="col"><span class="sr-only">Action</span></th></tr></thead>
+    <tbody>
+    <?php foreach ($requests as $r): ?>
+      <tr>
+        <td><strong><?= h($r['dog']) ?></strong></td>
+        <td><?= $r['kind'] === 'journee' ? 'Journée (carte)' : 'Séjour' ?></td>
+        <td><?= h(request_label($r)) ?></td>
+        <td><?= status_badge($r['status']) ?></td>
+        <td><?php [$pc, $pt] = payment_state($r); ?><?= in_array($r['status'], ['refused', 'cancelled'], true) && $pc === 'due' ? '—' : '<span class="paystate paystate--' . h($pc) . '">' . h($pt) . '</span>' ?></td>
+        <td class="muted"><?= h($r['manager_message'] ?? '') ?: '—' ?></td>
+        <td><?php foreach ($contractsByRequest[(int) $r['id']] ?? [] as $c): ?><a class="block" href="/espace/contrat.php?id=<?= (int) $c['id'] ?>"><?= h($c['title']) ?></a><?php endforeach; ?></td>
+        <td>
+          <?php if ($r['status'] === 'pending'): ?>
+          <form method="post" data-confirm="Annuler cette demande ?">
+            <?= csrf_field() ?>
+            <input type="hidden" name="action" value="cancel">
+            <input type="hidden" name="id" value="<?= (int) $r['id'] ?>">
+            <button type="submit" class="linklike">Annuler</button>
+          </form>
+          <?php endif; ?>
+        </td>
+      </tr>
+    <?php endforeach; ?>
+    </tbody>
+  </table>
+</div>
+<?php endif; ?>
+
+<section class="section" id="contrats">
+  <h2>Mes contrats</h2>
+  <?php if (!$contracts): ?>
+    <p class="muted">Aucun contrat pour l'instant. La pension les dépose ici après chaque séjour ou achat de carte.</p>
+  <?php else: ?>
+  <div class="docs">
+    <?php foreach ($contracts as $c): ?>
+    <div class="card doc">
+      <span class="doc__icon" aria-hidden="true"><?= icon(($c['ext'] ?? 'pdf') === 'jpg' ? 'camera' : 'doc') ?></span>
+      <div class="doc__text"><strong><?= h($c['title']) ?></strong><span><?= $c['request_id'] && $c['start_date'] ? h(($c['kind'] === 'journee' ? 'Journée du ' . date_fr($c['start_date']) : 'Séjour ' . request_label($c)) . ' · ' . $c['dog']) . ' · ' : '' ?>ajouté le <?= h(date_fr(substr($c['created_at'], 0, 10))) ?> · <?= ($c['ext'] ?? 'pdf') === 'jpg' ? 'photo' : 'PDF' ?></span></div>
+      <a href="/espace/contrat.php?id=<?= (int) $c['id'] ?>"><?= ($c['ext'] ?? 'pdf') === 'jpg' ? 'Voir' : 'Télécharger' ?></a>
+    </div>
+    <?php endforeach; ?>
+  </div>
+  <p class="muted small">Les contrats sont déposés par la pension. Vous seul pouvez les ouvrir.</p>
+  <?php endif; ?>
+</section>
+<?php page_end(['/js/espace.js']);

@@ -1,0 +1,40 @@
+# Coeur de Meute — réglages de sécurité pour l'hébergement Apache / LiteSpeed (Hostinger, OVH, Combell…)
+
+# Pas de liste des fichiers d'un dossier
+Options -Indexes
+
+# Toujours en HTTPS (connexion chiffrée)
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # Code interne, fichiers cachés et sauvegardes : jamais servis
+  RewriteRule ^app(/|$) - [F,L]
+  RewriteRule (^|/)\. - [F,L]
+  RewriteRule \.(sql|log|bak|tmp|md|example\.php)$ - [F,L,NC]
+  RewriteRule ^data/tarifs\.json\.tmp - [F,L]
+</IfModule>
+
+<FilesMatch "^(README\.md|\.gitignore|\.htaccess)$">
+  Require all denied
+</FilesMatch>
+
+<IfModule mod_headers.c>
+  # Pages HTML : toujours vérifier s'il y a une version plus récente
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "same-origin"
+  Header always set X-Frame-Options "SAMEORIGIN"
+</IfModule>
+
+# Taille maximale des contrats envoyés (10 Mo)
+<IfModule mod_php.c>
+  php_value upload_max_filesize 10M
+  php_value post_max_size 12M
+  php_flag display_errors off
+  php_flag expose_php off
+</IfModule>
