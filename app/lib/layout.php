@@ -99,7 +99,7 @@ function page_start(string $title, string $area = 'public', string $active = '')
         </div>
         <nav class="drawer__nav" aria-label="Menu">
           <?php foreach ($nav as $key => [$href, $label]): ?>
-          <a class="drawer__link" href="<?= h($href) ?>"<?= $key === $active ? ' aria-current="page"' : '' ?>><?= icon(NAV_ICONS[$area][$key] ?? 'arrow') ?><span><?= h($label) ?></span><?php if ($key === 'demandes' && $pendingCount > 0): ?><span class="drawer__count"><?= $pendingCount ?><span class="sr-only"> en attente</span></span><?php endif; ?></a>
+          <a class="drawer__link" href="<?= h($href) ?>"<?= $key === $active ? ' aria-current="page"' : '' ?>><?= icon(NAV_ICONS[$area][$key] ?? 'arrow') ?><span><?= h($key === 'reservation' ? 'Nouvelle réservation' : $label) ?></span><?php if ($key === 'demandes' && $pendingCount > 0): ?><span class="drawer__count"><?= $pendingCount ?><span class="sr-only"> en attente</span></span><?php endif; ?></a>
           <?php endforeach; ?>
         </nav>
         <div class="drawer__foot">
