@@ -408,6 +408,7 @@ function delete_user_account(int $userId): void
     foreach (q_all('SELECT photo FROM dogs WHERE user_id = ? AND photo IS NOT NULL', [$userId]) as $d) {
         @unlink(dog_photo_path($d['photo']));
     }
+    archive_for_accounting($userId);
     q('DELETE FROM users WHERE id = ? AND role = ?', [$userId, 'client']);
     audit(null, 'account_deleted', 'user ' . $userId);
 }

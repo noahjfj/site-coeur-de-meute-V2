@@ -24,6 +24,9 @@ function request_detail(array $r): string
 
 page_start('Demandes', 'gerante', 'demandes');
 ?>
+<?php if ($missingLegal = legal_missing()): ?>
+<p class="flash flash--info">Infos légales à compléter pour le site : <?= h(implode(', ', $missingLegal)) ?>. <a href="/gerante/entreprise.php">Compléter maintenant</a></p>
+<?php endif; ?>
 <section class="card section">
   <div class="section__head">
     <h1>Demandes à traiter</h1>

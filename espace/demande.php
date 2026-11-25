@@ -43,7 +43,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $items[] = [$dogId, $sameFrom, $sameTo];
         }
     }
-    $errors = create_requests($user, $kind, $items, $note);
+    $termsErr = accept_terms($uid);
+    $errors = $termsErr ? [$termsErr] : create_requests($user, $kind, $items, $note);
     if (!$errors) {
         flash('success', (count($items) > 1 ? 'Vos demandes sont envoyées.' : 'Votre demande est envoyée.')
             . ($kind === 'sejour' ? ' La pension vous répond par e-mail. Une fois le séjour confirmé, l\'acompte à verser s\'affichera ici.' : ' La pension vous répond par e-mail.'));
@@ -122,6 +123,7 @@ page_start('Demander un séjour', 'client', 'demande');
   <aside class="card summary">
     <h2>Récapitulatif</h2>
     <div id="summary-lines" class="summary__lines" aria-live="polite"><p class="muted">Choisissez vos chiens et vos dates.</p></div>
+    <?= terms_checkbox() ?>
     <button type="submit" class="btn">Envoyer la demande</button>
     <p class="muted small">La pension confirme chaque chien séparément. Vous recevez un e-mail à chaque réponse. Les prix sont indicatifs.</p>
   </aside>

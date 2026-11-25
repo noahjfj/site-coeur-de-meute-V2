@@ -47,6 +47,7 @@ if ($id) {
     <p class="eyebrow"><a href="/gerante/clients.php">Clients</a></p>
     <h1><?= h($client['first_name'] . ' ' . $client['last_name']) ?></h1>
     <p class="muted"><?= h($client['email']) ?><?= $client['phone'] ? ' · ' . h($client['phone']) : '' ?><?= $client['address'] ? ' · ' . h($client['address']) : '' ?><?= $client['email_verified_at'] ? '' : ' · e-mail non confirmé' ?></p>
+    <p class="small"><?= (int) ($client['photo_consent'] ?? 0) === 1 ? '<span class="badge badge--confirmed">Photos : accord pour publier</span>' : '<span class="badge badge--refused">Photos : pas d\'accord pour publier</span>' ?><?= !empty($client['terms_accepted_at']) ? ' <span class="muted">· conditions générales acceptées le ' . h(date('d/m/Y', strtotime($client['terms_accepted_at']))) . '</span>' : '' ?></p>
 
     <section class="section">
       <h2>Chiens</h2>

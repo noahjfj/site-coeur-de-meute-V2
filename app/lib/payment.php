@@ -151,7 +151,24 @@ function payment_state(array $r): array
 
 /* ---------- Mise à jour automatique de la base (pas besoin de phpMyAdmin) ---------- */
 
-const SCHEMA_VERSION = 3;
+const SCHEMA_VERSION = 4;
+
+// Pièces gardées pour la comptabilité après la suppression d'un compte (voir legal.php)
+const ACCOUNTING_TABLE_SQL = "CREATE TABLE IF NOT EXISTS accounting_archive (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  client VARCHAR(170) NOT NULL,
+  address VARCHAR(255) NOT NULL DEFAULT '',
+  kind VARCHAR(12) NOT NULL,
+  label VARCHAR(120) NOT NULL DEFAULT '',
+  start_date DATE NULL,
+  end_date DATE NULL,
+  amount DECIMAL(8,2) NULL,
+  deposit DECIMAL(8,2) NULL,
+  deposit_paid_at DATETIME NULL,
+  paid_at DATETIME NULL,
+  archived_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_archive_date (archived_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
 
 function ensure_schema(): void
 {
@@ -175,12 +192,18 @@ function ensure_schema(): void
         'dogs' => [
             'photo' => 'CHAR(64) NULL',
         ],
+        'users' => [
+            'terms_accepted_at' => 'DATETIME NULL',
+            'terms_version'     => 'VARCHAR(20) NULL',
+            'photo_consent'     => 'TINYINT(1) NOT NULL DEFAULT 0',
+        ],
         'cards' => [
             'status'       => "VARCHAR(12) NOT NULL DEFAULT 'active'",
             'paid_at'      => 'DATETIME NULL',
             'requested_at' => 'DATETIME NULL',
         ],
     ];
+    db()->exec(ACCOUNTING_TABLE_SQL);
     $newCardCols = false;
     foreach ($add as $table => $cols) {
         $have = array_column(q_all('SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?', [$table]), 'COLUMN_NAME');

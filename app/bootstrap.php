@@ -41,6 +41,7 @@ require APP_DIR . '/lib/mail.php';
 require APP_DIR . '/lib/tarifs.php';
 require APP_DIR . '/lib/payment.php';
 require APP_DIR . '/lib/images.php';
+require APP_DIR . '/lib/legal.php';
 require APP_DIR . '/lib/planning.php';
 require APP_DIR . '/lib/domain.php';
 require APP_DIR . '/lib/layout.php';

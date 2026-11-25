@@ -2428,3 +2428,46 @@ p { margin: 0 0 1em; }
 @keyframes xmas-twinkle { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .55; transform: scale(.75); } }
 @media (prefers-reduced-motion: reduce) { .xmas__snow, .xmas__date, .xmas__star { animation: none; } }
 .event-detail__date { font-size: 1.1rem; color: var(--rust-dark); }
+
+/* ---------- MENTIONS LÉGALES ET COOKIES ---------- */
+.footer__bottom .footer__legal { margin-top: 8px; }
+.footer__legal a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+.cookies {
+  position: fixed;
+  left: 16px; right: 16px; bottom: 16px;
+  z-index: 1000;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 18px 20px;
+  background: var(--white);
+  color: var(--ink);
+  border-radius: var(--radius);
+  box-shadow: 0 18px 50px -16px rgba(47, 58, 74, .55);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 18px;
+  align-items: center;
+  font-size: .92rem;
+  line-height: 1.5;
+}
+.cookies[hidden] { display: none; }
+.cookies__text { margin: 0; flex: 1 1 320px; }
+.cookies__text strong { display: block; font-family: var(--serif); margin-bottom: 2px; }
+.cookies__text a { color: var(--rust-dark); }
+.cookies__actions { display: flex; gap: 10px; flex: 0 0 auto; margin-left: auto; }
+.cookies__btn {
+  font: inherit; font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: 2px solid var(--rust);
+  background: var(--rust);
+  color: var(--white);
+  cursor: pointer;
+}
+.cookies__btn--ghost { background: transparent; color: var(--rust-dark); }
+.cookies__btn:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+@media (max-width: 480px) {
+  .cookies__actions { width: 100%; }
+  .cookies__btn { flex: 1; }
+}

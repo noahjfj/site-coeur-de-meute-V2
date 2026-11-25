@@ -12,7 +12,7 @@ function is_https(): bool
 function send_security_headers(): void
 {
     // Le navigateur n'exécute que les scripts et styles du site lui-même.
-    header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; form-action 'self'; frame-ancestors 'none'; base-uri 'self'; object-src 'none'");
+    header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data: blob:; form-action 'self'; frame-ancestors 'none'; base-uri 'self'; object-src 'none'");
     header('X-Frame-Options: DENY');
     header('X-Content-Type-Options: nosniff');
     header('Referrer-Policy: same-origin');

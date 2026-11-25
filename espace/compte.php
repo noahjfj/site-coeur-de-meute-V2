@@ -33,6 +33,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             flash('success', 'Votre mot de passe est changé.');
             redirect('/espace/compte.php');
         }
+    } elseif ($action === 'photos') {
+        $consent = post('photo_consent', 3) === '1' ? 1 : 0;
+        q('UPDATE users SET photo_consent = ? WHERE id = ?', [$consent, $uid]);
+        audit($uid, $consent ? 'photo_consent_given' : 'photo_consent_withdrawn');
+        flash('success', $consent ? 'Merci ! La pension pourra partager des photos de vos chiens.' : 'C\'est noté : aucune photo de vos chiens ne sera publiée.');
+        redirect('/espace/compte.php#photos');
     } elseif ($action === 'delete') {
         if (!password_verify((string) ($_POST['confirm_password'] ?? ''), $full['password_hash'])) {
             $errors[] = 'Mot de passe incorrect : le compte n\'a pas été supprimé.';
@@ -40,12 +46,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             delete_user_account($uid);
             end_session();
             session_start();
-            flash('info', 'Votre compte et toutes vos données ont été supprimés.');
+            flash('info', 'Votre compte a été supprimé.');
             redirect('/espace/connexion.php');
         }
     }
 }
 
+$photoConsent = (int) (q_one('SELECT photo_consent FROM users WHERE id = ?', [$uid])['photo_consent'] ?? 0);
 page_start('Mon compte', 'client', 'compte');
 ?>
 <p class="eyebrow">Mon compte</p>
@@ -76,10 +83,18 @@ page_start('Mon compte', 'client', 'compte');
   </form>
 </div>
 
+<form method="post" class="card form section" id="photos">
+  <h2>Photos de mes chiens</h2>
+  <?= csrf_field() ?>
+  <input type="hidden" name="action" value="photos">
+  <label class="check"><input type="checkbox" name="photo_consent" value="1"<?= checked($photoConsent === 1) ?>><span>J'accepte que la pension publie des photos de mes chiens prises pendant leur séjour, sur son site et ses réseaux sociaux. Je peux changer d'avis à tout moment.</span></label>
+  <button class="btn btn--small" type="submit">Enregistrer mon choix</button>
+</form>
+
 <section class="section">
   <h2>Mes données</h2>
-  <p>Vous pouvez supprimer votre compte à tout moment : vos coordonnées, les fiches de vos chiens, vos demandes et vos contrats seront effacés définitivement. <a href="/espace/confidentialite.php">En savoir plus sur vos données</a>.</p>
-  <form method="post" class="danger-zone form" data-confirm="Supprimer définitivement votre compte et toutes vos données ?">
+  <p>Vous pouvez supprimer votre compte à tout moment : vos coordonnées, les fiches et photos de vos chiens, vos demandes et vos contrats seront effacés définitivement. Seul ce que la loi comptable oblige à garder (nom, adresse, dates et montants payés) est conservé <?= ACCOUNTING_YEARS ?> ans. <a href="/espace/confidentialite.php">En savoir plus sur vos données</a>.</p>
+  <form method="post" class="danger-zone form" data-confirm="Supprimer définitivement votre compte et vos données ?">
     <?= csrf_field() ?>
     <input type="hidden" name="action" value="delete">
     <label>Confirmez avec votre mot de passe<input type="password" name="confirm_password" required autocomplete="current-password"></label>

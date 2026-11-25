@@ -777,3 +777,9 @@ body.area-public { background: radial-gradient(circle at 8% 0%, #f1dfd3 0, rgba(
   .table--stack .pay { justify-content: flex-end; }
   .pay__btn { min-height: 40px; }
 }
+
+/* Conditions générales et pages légales */
+.check.terms { display: flex; margin: 14px 0; font-size: .9rem; }
+.check.terms a { color: var(--rust-dark); }
+.legal-id { line-height: 1.75; }
+.prose .table-box { margin: 12px 0 18px; }

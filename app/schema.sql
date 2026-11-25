@@ -13,6 +13,9 @@ CREATE TABLE IF NOT EXISTS users (
   address VARCHAR(255) NOT NULL DEFAULT '',
   role ENUM('client','gerante') NOT NULL DEFAULT 'client',
   email_verified_at DATETIME NULL,
+  terms_accepted_at DATETIME NULL,
+  terms_version VARCHAR(20) NULL,
+  photo_consent TINYINT(1) NOT NULL DEFAULT 0,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY uniq_email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -123,4 +126,21 @@ CREATE TABLE IF NOT EXISTS audit_log (
   ip VARCHAR(45) NOT NULL DEFAULT '',
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   KEY idx_audit_date (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Pièces gardées pour la comptabilité après la suppression d'un compte (effacées après 10 ans)
+CREATE TABLE IF NOT EXISTS accounting_archive (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  client VARCHAR(170) NOT NULL,
+  address VARCHAR(255) NOT NULL DEFAULT '',
+  kind VARCHAR(12) NOT NULL,
+  label VARCHAR(120) NOT NULL DEFAULT '',
+  start_date DATE NULL,
+  end_date DATE NULL,
+  amount DECIMAL(8,2) NULL,
+  deposit DECIMAL(8,2) NULL,
+  deposit_paid_at DATETIME NULL,
+  paid_at DATETIME NULL,
+  archived_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_archive_date (archived_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

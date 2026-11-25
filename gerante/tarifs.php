@@ -90,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && post('form', 10) !== 'paiement') {
 page_start('Tarifs', 'gerante', 'tarifs');
 ?>
 <form method="post" class="card section form form--wide">
-  <h1>Tarifs</h1>
+  <div class="section__head"><h1>Tarifs</h1><a class="btn btn--ghost btn--small" href="/gerante/entreprise.php">Infos légales et conditions</a></div>
   <p class="muted">Modifiez un prix et enregistrez : le site et le simulateur se mettent à jour. Les cartes déjà vendues gardent leur prix d'achat. Un champ vide = prix pas encore fixé.</p>
   <?php errors_box($errors); ?>
   <?= csrf_field() ?>

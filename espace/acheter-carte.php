@@ -15,7 +15,10 @@ $choice = post('carte', 20);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     [$size, $type] = array_pad(explode(':', $choice, 2), 2, '');
-    [$err, $cardId] = request_card($user, $size, (int) $type);
+    $err = accept_terms($uid);
+    if (!$err) {
+        [$err, $cardId] = request_card($user, $size, (int) $type);
+    }
     if ($err) {
         $errors[] = $err;
     } else {
@@ -61,6 +64,7 @@ page_start('Acheter une carte journée', 'client', 'carte');
       <li><strong>La pension l'active</strong> : vous recevez un e-mail et vous pouvez réserver vos journées.</li>
     </ol>
   </div>
+  <?= terms_checkbox() ?>
   <button type="submit" class="btn">Demander cette carte</button>
 </form>
 <?php page_end(['/js/espace.js']);

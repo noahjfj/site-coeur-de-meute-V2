@@ -25,4 +25,5 @@ foreach ($cards as $c) {
 q('DELETE FROM throttle WHERE created_at < (NOW() - INTERVAL 1 DAY)');
 q('DELETE FROM tokens WHERE expires_at < (NOW() - INTERVAL 7 DAY)');
 q('DELETE FROM audit_log WHERE created_at < (NOW() - INTERVAL 1 YEAR)');
+q('DELETE FROM accounting_archive WHERE archived_at < (NOW() - INTERVAL ' . ACCOUNTING_YEARS . ' YEAR)');
 echo count($cards) . " rappel(s) envoyé(s)\n";
