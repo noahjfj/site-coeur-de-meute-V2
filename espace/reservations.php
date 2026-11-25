@@ -44,9 +44,8 @@ page_start('Mes réservations', 'client', 'reservations');
     <div><dt>Compte</dt><dd><?= $pay['iban'] !== '' ? h(format_iban($pay['iban'])) : 'communiqué par la pension' ?></dd></div>
     <?php if ($pay['iban'] !== '' && $pay['titulaire'] !== ''): ?><div><dt>Au nom de</dt><dd><?= h($pay['titulaire']) ?></dd></div><?php endif; ?>
     <?php if ($pay['bic'] !== ''): ?><div><dt>BIC</dt><dd><?= h($pay['bic']) ?></dd></div><?php endif; ?>
-    <div><dt>Communication</dt><dd class="paybox__ref"><?= h($ref) ?></dd></div>
   </dl>
-  <p class="muted small">Recopiez bien la communication : elle permet à la pension de retrouver votre virement. Le solde est à régler à la pension. Ces informations vous ont aussi été envoyées par e-mail.</p>
+  <p class="muted small">Indiquez votre nom et celui de votre chien dans le virement. Le solde est à régler à la pension. Ces informations vous ont aussi été envoyées par e-mail.</p>
 </section>
 <?php endforeach; ?>
 <?php if (!$requests): ?>

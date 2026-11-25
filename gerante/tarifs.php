@@ -120,7 +120,7 @@ page_start('Tarifs', 'gerante', 'tarifs');
 
 <form method="post" class="card section form form--wide" id="acompte">
   <h2>Acompte et virement</h2>
-  <p class="muted">Quand un client demande un séjour, il voit à l'écran et reçoit par e-mail le montant de l'acompte à verser, ce numéro de compte et une communication à recopier. Vous cochez ensuite « Acompte payé » ou « Tout est payé » sur la demande.</p>
+  <p class="muted">Quand un client demande un séjour, il voit à l'écran et reçoit par e-mail le montant de l'acompte à verser et ce numéro de compte. Vous cochez ensuite « Acompte payé » ou « Tout est payé » sur la demande.</p>
   <?php errors_box($payErrors); ?>
   <?= csrf_field() ?>
   <input type="hidden" name="form" value="paiement">

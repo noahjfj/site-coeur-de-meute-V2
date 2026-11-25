@@ -5,7 +5,7 @@ if (!defined('CDM')) { http_response_code(404); exit; }
  * Acompte et paiements des séjours.
  * - Les réglages du virement (pourcentage, numéro de compte…) sont dans app/storage/paiement.json,
  *   modifiables par la gérante dans la page Tarifs. Ils ne sont JAMAIS envoyés au simulateur public.
- * - Chaque séjour garde son prix estimé, son acompte, une communication structurée belge
+ * - Chaque séjour garde son prix estimé, son acompte, un repère de groupe interne (pay_ref, pas montré au client)
  *   (+++123/4567/89012+++) commune à toute la demande, et les dates de paiement.
  */
 
@@ -97,8 +97,7 @@ function deposit_text(array $rows): string
     } else {
         $text .= "Le numéro de compte vous sera communiqué par la pension.\n";
     }
-    $text .= 'Communication : ' . $rows[0]['pay_ref'] . "\n\n"
-        . 'Prix estimé du séjour : ' . euros($total) . '. Le solde (' . euros($total - $deposit) . ') est à régler à la pension.';
+    $text .= 'Merci d\'indiquer votre nom et celui de votre chien dans le virement.' . "\n\n" . 'Prix estimé du séjour : ' . euros($total) . '. Le solde (' . euros($total - $deposit) . ') est à régler à la pension.';
     return $text;
 }
 
@@ -196,7 +195,6 @@ function payment_toggles(array $r, string $back): string
         . '<input type="hidden" name="id" value="' . (int) $r['id'] . '"><input type="hidden" name="back" value="' . h($back) . '">'
         . $btn('deposit', (bool) $r['deposit_paid_at'], 'Acompte payé', euros($r['deposit_amount']))
         . $btn('full', (bool) $r['paid_full_at'], 'Tout payé', euros($r['price_total']))
-        . ($r['pay_ref'] ? '<span class="pay__ref">' . h($r['pay_ref']) . '</span>' : '')
         . '</form>';
 }
 
